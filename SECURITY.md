@@ -13,7 +13,7 @@ We currently support *Quillon v1.0.0*. Future updates will introduce new feature
 
 ## 🚨 Reporting a Vulnerability
 
-If you discover a security vulnerability, *report it immediately* to help keep ANotes secure.  
+If you discover a security vulnerability, *report it immediately* to help keep Quillon secure.  
 
 🔹 *Include the following details in your report*:  
 - A *detailed description* of the issue  
