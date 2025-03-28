@@ -21,7 +21,7 @@ If you discover a security vulnerability, *report it immediately* to help keep Q
 - The *potential impact* on users  
 
 📩 *How to report?*  
-Submit your findings via a [GitHub Security Advisory](https://github.com/alexjoshva/ANotes/security/advisories) or email us at *alexchandarjoshva@gmail.com* (if applicable).  
+Submit your findings via a [GitHub Security Advisory](https://github.com/alexjoshva/Quillon/security/advisories) or email us at *alexchandarjoshva@gmail.com* (if applicable).  
 
 🔔 *What happens next?*  
 - We’ll *acknowledge* your report and begin assessment.  
@@ -31,6 +31,3 @@ Submit your findings via a [GitHub Security Advisory](https://github.com/alexjos
 > *Transparency:* All major security fixes will be announced with version releases.  
 
 Stay secure & happy coding! 🚀
-
-
-give me this in professional and unique structured format it should match the release give me in code format in canvas.
