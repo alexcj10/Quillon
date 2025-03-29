@@ -155,7 +155,8 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                     </button>
                     {showFormatOptions && (
                       <div 
-                        className="absolute right-0 bottom-full mb-1 w-32 bg-white dark:bg-gray-700 rounded-lg shadow-lg overflow-hidden z-50"
+                        className="absolute right-0 bottom-full mb-1 w-32 bg-white dark:bg-gray-700 rounded-lg shadow-lg overflow-hidden z-[60]"
+                        style={{ minWidth: '8rem' }}
                       >
                         <button
                           onClick={() => handleDownload('txt')}

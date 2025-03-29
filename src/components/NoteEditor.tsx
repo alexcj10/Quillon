@@ -143,7 +143,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     onChange={(e) => setIsPinned(e.target.checked)}
                     className="form-checkbox"
                   />
-                  Pin
+                  <span className="text-sm">Pin</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -152,7 +152,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     onChange={(e) => setIsFavorite(e.target.checked)}
                     className="form-checkbox"
                   />
-                  Favorite
+                  <span className="text-sm">Favorite</span>
                 </label>
                 <button
                   type="button"

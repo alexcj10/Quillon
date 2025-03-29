@@ -118,6 +118,7 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
                         className={`absolute right-0 mt-2 w-28 sm:w-32 rounded-lg shadow-lg overflow-hidden z-50 ${
                           note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-700'
                         }`}
+                        style={{ top: '100%' }}
                       >
                         <button
                           onClick={() => handleDownload('txt')}
