@@ -1,3 +1,20 @@
+export interface SharedUser {
+  email: string;
+  permission: 'view' | 'edit';
+  sharedAt: string;
+}
+
+export interface NoteActivity {
+  user: string;
+  action: string;
+  timestamp: string;
+}
+
+export interface ShareProtection {
+  password?: string;
+  expiresAt?: string;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -12,6 +29,12 @@ export interface Note {
   createdAt: string;
   updatedAt: string;
   viewCount?: number;
+  sharedWith?: SharedUser[];
+  activityHistory?: NoteActivity[];
+  lastCollaborator?: string;
+  isShared?: boolean;
+  shareProtection?: ShareProtection;
+  shareUrl?: string;
 }
 
 export interface NoteContextType {
@@ -41,4 +64,11 @@ export interface NoteContextType {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
   incrementViewCount: (id: string) => void;
+  shareNote: (noteId: string, email: string, permission: 'view' | 'edit') => void;
+  updateSharedNote: (noteId: string, updates: Partial<Note>) => void;
+  removeSharedUser: (noteId: string, email: string) => void;
+  getSharedUsers: (noteId: string) => SharedUser[];
+  getNoteActivity: (noteId: string) => NoteActivity[];
+  generateShareUrl: (id: string, protection?: ShareProtection) => string;
+  removeShareUrl: (id: string) => void;
 }

@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { Note } from '../types';
-import { Pin, Star, Trash2, Edit, Copy, Check, Lock, RotateCcw, XCircle, Eye, Download, ChevronDown } from 'lucide-react';
+import { Pin, Star, Trash2, Edit, Copy, Check, Lock, RotateCcw, XCircle, Eye, Download, ChevronDown, Share2 } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { NoteViewer } from './NoteViewer';
 import { downloadNote } from '../utils/downloadUtils';
 import { useOutsideClick } from '../hooks/useOutsideClick';
+import { ShareDialog } from './ShareDialog';
 
 interface NoteCardProps {
   note: Note;
@@ -16,6 +17,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
   const [copied, setCopied] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
   const [showFormatOptions, setShowFormatOptions] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   
   const formattedDate = new Date(note.updatedAt).toLocaleDateString('en-US', {
     month: 'short',
@@ -129,6 +131,13 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
               {!showTrash && isContentVisible && (
                 <>
                   <button
+                    onClick={() => setShowShareDialog(true)}
+                    className="p-1 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400"
+                    title="Share note"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </button>
+                  <button
                     onClick={handleCopy}
                     className="p-1 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400"
                     title={copied ? 'Content copied!' : 'Copy note content'}
@@ -215,6 +224,13 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
         <NoteViewer
           note={note}
           onClose={() => setIsViewing(false)}
+        />
+      )}
+
+      {showShareDialog && (
+        <ShareDialog
+          note={note}
+          onClose={() => setShowShareDialog(false)}
         />
       )}
     </>

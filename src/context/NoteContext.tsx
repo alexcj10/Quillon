@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Note, NoteContextType } from '../types';
+import { Note, NoteContextType, SharedUser, NoteActivity, ShareProtection } from '../types';
 
 const NoteContext = createContext<NoteContextType | undefined>(undefined);
 
@@ -154,6 +154,134 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     ));
   };
 
+  const shareNote = (noteId: string, email: string, permission: 'view' | 'edit') => {
+    setNotes(prev => prev.map(note => {
+      if (note.id === noteId) {
+        const newSharedUser: SharedUser = {
+          email,
+          permission,
+          sharedAt: new Date().toISOString(),
+        };
+        
+        const newActivity: NoteActivity = {
+          user: 'You',
+          action: `shared with ${email} (${permission} access)`,
+          timestamp: new Date().toISOString(),
+        };
+
+        return {
+          ...note,
+          isShared: true,
+          sharedWith: [...(note.sharedWith || []), newSharedUser],
+          activityHistory: [...(note.activityHistory || []), newActivity],
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      return note;
+    }));
+  };
+
+  const updateSharedNote = (noteId: string, updates: Partial<Note>) => {
+    setNotes(prev => prev.map(note => {
+      if (note.id === noteId) {
+        const newActivity: NoteActivity = {
+          user: updates.lastCollaborator || 'Unknown',
+          action: 'updated the note',
+          timestamp: new Date().toISOString(),
+        };
+
+        return {
+          ...note,
+          ...updates,
+          activityHistory: [...(note.activityHistory || []), newActivity],
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      return note;
+    }));
+  };
+
+  const removeSharedUser = (noteId: string, email: string) => {
+    setNotes(prev => prev.map(note => {
+      if (note.id === noteId) {
+        const newSharedWith = (note.sharedWith || []).filter(user => user.email !== email);
+        
+        const newActivity: NoteActivity = {
+          user: 'You',
+          action: `removed ${email}'s access`,
+          timestamp: new Date().toISOString(),
+        };
+
+        return {
+          ...note,
+          sharedWith: newSharedWith,
+          isShared: newSharedWith.length > 0,
+          activityHistory: [...(note.activityHistory || []), newActivity],
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      return note;
+    }));
+  };
+
+  const getSharedUsers = (noteId: string): SharedUser[] => {
+    const note = notes.find(n => n.id === noteId);
+    return note?.sharedWith || [];
+  };
+
+  const getNoteActivity = (noteId: string): NoteActivity[] => {
+    const note = notes.find(n => n.id === noteId);
+    return note?.activityHistory || [];
+  };
+
+  const generateShareUrl = (id: string, protection?: ShareProtection): string => {
+    const note = notes.find(n => n.id === id);
+    if (!note) return '';
+
+    // Generate a unique share token
+    const shareToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    
+    // Create the share URL
+    const baseUrl = window.location.origin;
+    const shareUrl = `${baseUrl}/shared/${shareToken}`;
+
+    // Update the note with share protection and URL
+    updateNote(id, {
+      shareUrl,
+      shareProtection: protection,
+    });
+
+    return shareUrl;
+  };
+
+  const removeShareUrl = (id: string) => {
+    updateNote(id, {
+      shareUrl: undefined,
+      shareProtection: undefined,
+    });
+  };
+
+  const checkShareProtection = (id: string, password?: string): boolean => {
+    const note = notes.find(n => n.id === id);
+    if (!note || !note.shareProtection) return true;
+
+    // Check expiry
+    if (note.shareProtection.expiresAt) {
+      const expiryDate = new Date(note.shareProtection.expiresAt);
+      if (expiryDate < new Date()) {
+        removeShareUrl(id);
+        return false;
+      }
+    }
+
+    // Check password
+    if (note.shareProtection.password && password !== note.shareProtection.password) {
+      return false;
+    }
+
+    return true;
+  };
+
   return (
     <NoteContext.Provider value={{
       notes,
@@ -182,6 +310,14 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       isDarkMode,
       toggleDarkMode,
       incrementViewCount,
+      generateShareUrl,
+      removeShareUrl,
+      checkShareProtection,
+      shareNote,
+      updateSharedNote,
+      removeSharedUser,
+      getSharedUsers,
+      getNoteActivity,
     }}>
       {children}
     </NoteContext.Provider>

@@ -5,7 +5,7 @@ import { NOTE_COLORS } from '../constants/colors';
 
 interface NoteEditorProps {
   note?: Note;
-  onSave: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSave: (note: Partial<Note>) => void;
   onClose: () => void;
 }
 
@@ -14,7 +14,7 @@ const MAX_TAG_LENGTH = 50; // Maximum characters allowed for a tag
 export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [title, setTitle] = useState(note?.title || '');
   const [content, setContent] = useState(note?.content || '');
-  const [tags, setTags] = useState(note?.tags || []);
+  const [tags, setTags] = useState<string[]>(note?.tags || []);
   const [tagInput, setTagInput] = useState('');
   const [tagError, setTagError] = useState('');
   const [color, setColor] = useState(note?.color || '');
