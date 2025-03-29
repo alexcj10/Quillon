@@ -10,11 +10,9 @@ interface NoteEditorProps {
 }
 
 const MAX_TAG_LENGTH = 50; // Maximum characters allowed for a tag
-const MAX_TITLE_LENGTH = 300; // Maximum characters allowed for title
 
 export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [title, setTitle] = useState(note?.title || '');
-  const [titleError, setTitleError] = useState('');
   const [content, setContent] = useState(note?.content || '');
   const [tags, setTags] = useState<string[]>(note?.tags || []);
   const [tagInput, setTagInput] = useState('');
@@ -26,22 +24,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   const selectedColorClass = color ? NOTE_COLORS.find(c => c.id === color)?.previewClass : '';
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value.length <= MAX_TITLE_LENGTH) {
-      setTitle(value);
-      setTitleError('');
-    } else {
-      setTitleError(`Title cannot be longer than ${MAX_TITLE_LENGTH} characters`);
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.length > MAX_TITLE_LENGTH) {
-      setTitleError(`Title cannot be longer than ${MAX_TITLE_LENGTH} characters`);
-      return;
-    }
     onSave({
       title,
       content,
@@ -110,27 +94,14 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <input
-                type="text"
-                value={title}
-                onChange={handleTitleChange}
-                placeholder="Note title"
-                className={`w-full p-3 border rounded-lg bg-white/90 dark:bg-gray-700/90 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 ${
-                  titleError ? 'border-red-500 dark:border-red-500' : ''
-                }`}
-                required
-              />
-              {titleError && (
-                <div className="flex items-center gap-1 mt-1 text-red-500 text-sm">
-                  <AlertCircle className="h-4 w-4" />
-                  <span>{titleError}</span>
-                </div>
-              )}
-              <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 text-right">
-                {title.length}/{MAX_TITLE_LENGTH}
-              </div>
-            </div>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Note title"
+              className="w-full p-3 border rounded-lg bg-white/90 dark:bg-gray-700/90 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200"
+              required
+            />
 
             <textarea
               value={content}
