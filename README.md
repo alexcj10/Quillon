@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📝 Quillon – Simple. Fast. Smart.
+# 📝 quillon – Simple. Fast. Smart.
 
 ![screenshot](https://github.com/user-attachments/assets/06bf93ce-813f-49ff-8ee5-ebe120c0daac)
 
