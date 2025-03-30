@@ -2,7 +2,7 @@
 FROM node:20-alpine as builder
 
 # Add label to connect to repository
-LABEL org.opencontainers.image.source https://github.com/alexjoshva/Quillon
+LABEL org.opencontainers.image.source https://github.com/alexjoshva/quillon
 
 WORKDIR /app
 
