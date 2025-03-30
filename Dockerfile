@@ -1,9 +1,6 @@
 # Build stage
 FROM node:20-alpine as builder
 
-# Add label to connect to repository
-LABEL org.opencontainers.image.source=https://github.com/alexjoshva/quillon
-
 WORKDIR /app
 
 # Copy package files
@@ -23,9 +20,6 @@ FROM nginx:alpine
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy nginx configuration if you have any custom config
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
