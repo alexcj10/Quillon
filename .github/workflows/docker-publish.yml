@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: alexjoshva/Quillon
+  IMAGE_NAME: alexjoshva/quillon
 
 jobs:
   build-and-push:
