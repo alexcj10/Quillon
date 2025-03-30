@@ -50,7 +50,7 @@ cd Quillon
 ```
 📌 **If you downloaded from the releases section**, navigate using:  
 ```bash
-cd Quillon-Q1  
+cd Quillon-vQ1  
 # (Change version number for newer releases)
 ```
 
