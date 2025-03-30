@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/quillon
+  IMAGE_NAME: alexjoshva/quillon
 
 jobs:
   build-and-push:
@@ -38,5 +38,5 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           labels: |
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.source=https://github.com/alexjoshva/quillon
             org.opencontainers.image.version=latest 
