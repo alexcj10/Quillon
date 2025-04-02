@@ -1,6 +1,7 @@
 import React from 'react';
-import { Search, Star, Lock } from 'lucide-react';
+import { Search, Star, Lock, Folder } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
+import { isFileTag, getFileTagDisplayName } from '../types';
 
 export function NoteFilters() {
   const { 
@@ -56,13 +57,18 @@ export function NoteFilters() {
                     : [...selectedTags, tag]
                 );
               }}
-              className={`px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation ${
+              className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation ${
                 selectedTags.includes(tag)
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                  ? isFileTag(tag)
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-blue-500 text-white'
+                  : isFileTag(tag)
+                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-800/50'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
               }`}
             >
-              {tag}
+              {isFileTag(tag) && <Folder className="h-4 w-4" />}
+              {isFileTag(tag) ? getFileTagDisplayName(tag) : tag}
             </button>
           ))}
         </div>

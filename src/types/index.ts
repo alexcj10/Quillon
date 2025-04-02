@@ -37,6 +37,16 @@ export interface Note {
   shareUrl?: string;
 }
 
+// Helper function to identify file tags
+export const isFileTag = (tag: string): boolean => {
+  return tag.startsWith('file') && tag.length > 4;
+};
+
+// Helper function to get the display name for a file tag
+export const getFileTagDisplayName = (tag: string): string => {
+  return tag.startsWith('file') ? tag.slice(4) : tag;
+};
+
 export interface NoteContextType {
   notes: Note[];
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => void;

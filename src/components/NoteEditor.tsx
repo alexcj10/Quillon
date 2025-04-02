@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Note } from '../types';
 import { X, Lock, Unlock, AlertCircle } from 'lucide-react';
 import { NOTE_COLORS } from '../constants/colors';
+import { isFileTag } from '../types';
 
 interface NoteEditorProps {
   note?: Note;
@@ -10,6 +11,7 @@ interface NoteEditorProps {
 }
 
 const MAX_TAG_LENGTH = 50; // Maximum characters allowed for a tag
+const FILE_TAG_REGEX = /^file[a-zA-Z0-9]+$/;
 
 export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [title, setTitle] = useState(note?.title || '');
@@ -37,6 +39,18 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     });
   };
 
+  const validateFileTag = (tag: string): string | null => {
+    if (tag.startsWith('file')) {
+      if (tag.length <= 4) {
+        return 'File tags must have a name after "file"';
+      }
+      if (!FILE_TAG_REGEX.test(tag)) {
+        return 'File tags can only contain letters and numbers';
+      }
+    }
+    return null;
+  };
+
   const handleTagKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && tagInput.trim()) {
       e.preventDefault();
@@ -44,6 +58,12 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
       
       if (newTag.length > MAX_TAG_LENGTH) {
         setTagError(`Tags cannot be longer than ${MAX_TAG_LENGTH} characters`);
+        return;
+      }
+
+      const fileTagError = validateFileTag(newTag);
+      if (fileTagError) {
+        setTagError(fileTagError);
         return;
       }
 
@@ -67,7 +87,12 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     if (value.length > MAX_TAG_LENGTH) {
       setTagError(`Tags cannot be longer than ${MAX_TAG_LENGTH} characters`);
     } else {
-      setTagError('');
+      const fileTagError = validateFileTag(value);
+      if (fileTagError) {
+        setTagError(fileTagError);
+      } else {
+        setTagError('');
+      }
     }
   };
 

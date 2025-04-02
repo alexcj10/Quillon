@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Note } from '../types';
-import { Pin, Star, Trash2, Edit, Copy, Check, Lock, RotateCcw, XCircle, Eye, Download, ChevronDown, Share2 } from 'lucide-react';
+import { Note, isFileTag, getFileTagDisplayName } from '../types';
+import { Pin, Star, Trash2, Edit, Copy, Check, Lock, RotateCcw, XCircle, Eye, Download, ChevronDown, Share2, Folder } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { NoteViewer } from './NoteViewer';
 import { downloadNote } from '../utils/downloadUtils';
@@ -105,9 +105,14 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                 {note.tags.slice(0, 3).map(tag => (
                   <span 
                     key={tag}
-                    className="inline-block px-2 py-0.5 text-xs rounded-full bg-gray-200/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200"
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full ${
+                      isFileTag(tag)
+                        ? 'bg-blue-100/50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200'
+                        : 'bg-gray-200/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200'
+                    }`}
                   >
-                    {tag.length > 15 ? `${tag.substring(0, 15)}...` : tag}
+                    {isFileTag(tag) && <Folder className="h-3 w-3" />}
+                    {isFileTag(tag) ? getFileTagDisplayName(tag) : tag.length > 15 ? `${tag.substring(0, 15)}...` : tag}
                   </span>
                 ))}
                 {note.tags.length > 3 && (
