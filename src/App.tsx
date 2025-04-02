@@ -5,7 +5,8 @@ import { NoteCard } from './components/NoteCard';
 import { NoteEditor } from './components/NoteEditor';
 import { NoteFilters } from './components/NoteFilters';
 import { PrivateSpaceDialog } from './components/PrivateSpaceDialog';
-import { Plus, Moon, Sun, Lock, Trash2 } from 'lucide-react';
+import { Plus, Moon, Sun, Lock, Trash2, Folder } from 'lucide-react';
+import { isFileTag } from './types';
 
 function NoteList() {
   const { 
@@ -50,6 +51,18 @@ function NoteList() {
       if (showTrash !== !!note.isDeleted) return false;
       if (note.isPrivate !== showPrivateNotes) return false;
       if (showStarredOnly && !note.isFavorite) return false;
+
+      const hasFileTag = note.tags.some(tag => isFileTag(tag));
+      const selectedFileTag = selectedTags.find(tag => isFileTag(tag));
+      
+      // If note has a file tag, only show it when its file tag is selected
+      if (hasFileTag) {
+        if (!selectedFileTag) return false;
+        return note.tags.includes(selectedFileTag);
+      }
+      
+      // If a file tag is selected, don't show regular notes
+      if (selectedFileTag) return false;
       
       const matchesSearch = 
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

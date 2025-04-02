@@ -1,24 +1,92 @@
-Quillon Exclusive License
-Copyright (c) 2025 Alex
+# Exclusive File Organization System: Virtual File Folders 🗂️
 
-Allowed:
-- You may use this software only for personal, non-commercial purposes.
-- You are allowed to fork, modify, and use this software for personal use without limitations.
-- You are welcome to contribute improvements to help build a strong community.
+## Overview
+Introducing a powerful new way to organize your notes using an exclusive virtual file folder system. Notes within file folders are only visible when accessing their specific folder, creating a clean and organized workspace.
 
-NOT Allowed (STRICTLY PROHIBITED):
-- No Commercial Use: You cannot use this software for business, freelancing, or any form of monetization.
-- No Redistribution: You cannot share, distribute, or make copies of this software.
-- No Selling: You cannot sell, rent, license, or sublicense this software to anyone.
-- No Public Hosting: You cannot host this software on any public platform (GitHub, websites, marketplaces, etc.).
+## Key Features
 
-DMCA Enforcement:
-Any violation of this license will result in a DMCA takedown request and legal action under copyright law.
+### 📁 Exclusive File Folders
+- Notes tagged with file tags are only visible within their respective folders
+- Main view shows only non-file-tagged notes
+- Clear separation between regular notes and file-organized notes
 
-Community & Contribution:
-- This software is designed to boost productivity and is freely available on quillon.netlify.app.
-- Users can modify and use it for personal purposes only.
-- We welcome contributions to make this project even better!
+### 🎯 Folder Navigation
+- Click on a file tag to enter its exclusive folder view
+- Clear visual indicator showing current folder location
+- Easy exit from folder view with a single click
+- Search specifically within the current folder
 
-For commercial licensing, contact: alexchandarjoshva@gmail.com
+### 📝 Note Organization
+- Tag notes with `file` prefix to move them into a virtual folder
+  - Example: `fileWork`, `filePersonal`, `fileProjects`
+- Notes can belong to only one file folder at a time
+- Maintain regular tags alongside file organization
 
+### 🎨 Visual Enhancements
+- Distinctive folder view header showing current location
+- File tags styled with folder icons for easy identification
+- Smooth transitions between main view and folder views
+- Theme-aware styling in both light and dark modes
+
+### 🔍 Smart Filtering
+- Search within specific folders
+- Combine regular tags with folder views
+- Clear separation between file tags and regular tags
+- Intuitive navigation between folders
+
+## Usage
+
+### Creating File Folders
+1. Open the note editor
+2. Add a tag starting with `file` (e.g., `fileWork`)
+3. The note will now be exclusively visible in that folder
+
+### Accessing File Folders
+1. Click on any file tag in the filter bar
+2. View only notes within that specific folder
+3. Use the search and filter features within the folder
+4. Click the X button or file tag again to exit
+
+### Managing Notes
+- Notes with file tags are hidden from the main view
+- Each note can only be visible in one folder
+- Regular tags still work within folders
+- Star and pin features work across all views
+
+## Benefits
+- Clean main workspace without folder clutter
+- Strict organization with exclusive folder views
+- Intuitive folder navigation
+- Maintains simplicity while adding powerful organization
+
+## Technical Details
+
+### File Tag System
+- Prefix-based detection (`file` prefix)
+- Automatic folder creation with first use
+- Validation ensures proper folder naming
+- Efficient note filtering and organization
+
+### User Interface
+- Clear folder location indicators
+- Contextual search placeholders
+- Smooth transitions between views
+- Responsive design for all screen sizes
+
+### Data Management
+- No migration required for existing notes
+- Seamless integration with existing features
+- Efficient note filtering and display
+- Maintains all note properties within folders
+
+## Best Practices
+1. Use descriptive folder names (e.g., `fileProjects`, `filePersonal`)
+2. Organize related notes in the same folder
+3. Use regular tags for cross-folder categorization
+4. Keep folder structure simple and intuitive
+
+## Compatibility
+- Works with existing notes and tags
+- No data migration required
+- Preserves all existing functionality
+- Compatible with all Quillon features
