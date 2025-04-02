@@ -17,6 +17,7 @@ export function NoteFilters() {
   
   const visibleNotes = notes.filter(note => note.isPrivate === showPrivateNotes);
   const allTags = Array.from(new Set(visibleNotes.flatMap(note => note.tags)));
+  const selectedFileTag = selectedTags.find(tag => isFileTag(tag));
 
   return (
     <div className="mb-6 space-y-4 w-full max-w-3xl mx-auto px-4 sm:px-6">      
@@ -27,7 +28,9 @@ export function NoteFilters() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search notes..."
+            placeholder={selectedFileTag 
+              ? `Search in ${getFileTagDisplayName(selectedFileTag)}...` 
+              : 'Search notes...'}
             className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base"
           />
         </div>

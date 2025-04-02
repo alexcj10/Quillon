@@ -55,19 +55,20 @@ function NoteList() {
       const hasFileTag = note.tags.some(tag => isFileTag(tag));
       const selectedFileTag = selectedTags.find(tag => isFileTag(tag));
       
-      // If note has a file tag, only show it when its file tag is selected
-      if (hasFileTag) {
-        if (!selectedFileTag) return false;
-        return note.tags.includes(selectedFileTag);
-      }
-      
-      // If a file tag is selected, don't show regular notes
-      if (selectedFileTag) return false;
-      
+      // Search functionality - applies to both main view and file folders
       const matchesSearch = 
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
         note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      // If note has a file tag, only show it when its file tag is selected
+      if (hasFileTag) {
+        if (!selectedFileTag) return false;
+        return note.tags.includes(selectedFileTag) && matchesSearch;
+      }
+      
+      // If a file tag is selected, don't show regular notes
+      if (selectedFileTag) return false;
       
       const matchesTags = 
         selectedTags.length === 0 ||
