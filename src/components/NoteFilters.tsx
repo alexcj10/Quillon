@@ -17,7 +17,13 @@ export function NoteFilters() {
   
   const visibleNotes = notes.filter(note => note.isPrivate === showPrivateNotes);
   const allTags = Array.from(new Set(visibleNotes.flatMap(note => note.tags)));
-  const selectedFileTag = selectedTags.find(tag => isFileTag(tag));
+  
+  // Get all tags that appear in notes that have file tags
+  const tagsInFileFolders = new Set(
+    visibleNotes
+      .filter(note => note.tags.some(tag => isFileTag(tag)))
+      .flatMap(note => note.tags.filter(tag => !isFileTag(tag)))
+  );
 
   return (
     <div className="mb-6 space-y-4 w-full max-w-3xl mx-auto px-4 sm:px-6">      
@@ -28,9 +34,7 @@ export function NoteFilters() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={selectedFileTag 
-              ? `Search in ${getFileTagDisplayName(selectedFileTag)}...` 
-              : 'Search notes...'}
+            placeholder="Search notes..."
             className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base"
           />
         </div>
@@ -49,30 +53,40 @@ export function NoteFilters() {
       </div>
       
       <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-        {allTags.map(tag => (
-          <button
-            key={tag}
-            onClick={() => {
-              setSelectedTags(
-                selectedTags.includes(tag)
-                  ? selectedTags.filter(t => t !== tag)
-                  : [...selectedTags, tag]
-              );
-            }}
-            className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation ${
-              selectedTags.includes(tag)
-                ? isFileTag(tag)
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-blue-500 text-white'
-                : isFileTag(tag)
-                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-800/50'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            {isFileTag(tag) && <Folder className="h-4 w-4" />}
-            {isFileTag(tag) ? getFileTagDisplayName(tag) : tag}
-          </button>
-        ))}
+        {allTags.map(tag => {
+          const isFile = isFileTag(tag);
+          const isSelected = selectedTags.includes(tag);
+          const isInsideFolderTag = !isFile && tagsInFileFolders.has(tag);
+          
+          return (
+            <button
+              key={tag}
+              onClick={() => {
+                setSelectedTags(
+                  selectedTags.includes(tag)
+                    ? selectedTags.filter(t => t !== tag)
+                    : [...selectedTags, tag]
+                );
+              }}
+              className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation ${
+                isSelected
+                  ? isFile
+                    ? 'bg-blue-500 text-white'
+                    : isInsideFolderTag
+                      ? 'bg-green-500 text-white'
+                      : 'bg-blue-500 text-white'
+                  : isFile
+                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-800/50'
+                    : isInsideFolderTag
+                      ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-800/50'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              {isFile && <Folder className="h-4 w-4" />}
+              {isFile ? getFileTagDisplayName(tag) : tag}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

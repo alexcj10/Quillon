@@ -54,6 +54,7 @@ function NoteList() {
 
       const hasFileTag = note.tags.some(tag => isFileTag(tag));
       const selectedFileTag = selectedTags.find(tag => isFileTag(tag));
+      const normalTags = selectedTags.filter(tag => !isFileTag(tag));
       
       // Search functionality - applies to both main view and file folders
       const matchesSearch = 
@@ -61,20 +62,22 @@ function NoteList() {
         note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
         note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
 
+      // Check if note matches selected normal tags
+      const matchesNormalTags = 
+        normalTags.length === 0 ||
+        normalTags.every(tag => note.tags.includes(tag));
+
       // If note has a file tag, only show it when its file tag is selected
       if (hasFileTag) {
         if (!selectedFileTag) return false;
-        return note.tags.includes(selectedFileTag) && matchesSearch;
+        return note.tags.includes(selectedFileTag) && matchesSearch && matchesNormalTags;
       }
       
       // If a file tag is selected, don't show regular notes
       if (selectedFileTag) return false;
       
-      const matchesTags = 
-        selectedTags.length === 0 ||
-        selectedTags.every(tag => note.tags.includes(tag));
-      
-      return matchesSearch && matchesTags;
+      // For main view, check normal tags
+      return matchesSearch && matchesNormalTags;
     })
     .sort((a, b) => {
       // First sort by pinned status
