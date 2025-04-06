@@ -39,12 +39,12 @@ export interface Note {
 
 // Helper function to identify file tags
 export const isFileTag = (tag: string): boolean => {
-  return tag.startsWith('file') && tag.length > 4;
+  return tag.startsWith('file') && tag.length > 4 && /^file[a-zA-Z0-9\-_]+$/.test(tag);
 };
 
 // Helper function to get the display name for a file tag
 export const getFileTagDisplayName = (tag: string): string => {
-  return tag.startsWith('file') ? tag.slice(4) : tag;
+  return isFileTag(tag) ? tag.slice(4) : tag;
 };
 
 export interface NoteContextType {

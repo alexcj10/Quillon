@@ -11,7 +11,7 @@ interface NoteEditorProps {
 }
 
 const MAX_TAG_LENGTH = 50; // Maximum characters allowed for a tag
-const FILE_TAG_REGEX = /^file[a-zA-Z0-9]+$/;
+const FILE_TAG_REGEX = /^file[a-zA-Z0-9\-_]+$/;
 
 export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [title, setTitle] = useState(note?.title || '');
@@ -45,7 +45,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
         return 'File tags must have a name after "file"';
       }
       if (!FILE_TAG_REGEX.test(tag)) {
-        return 'File tags can only contain letters and numbers';
+        return 'File tags can only contain letters, numbers, hyphens, and underscores';
       }
     }
     return null;

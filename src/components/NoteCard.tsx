@@ -110,32 +110,40 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
           {note.tags.length > 0 && (
             <div className="mb-2">
               <div className="flex flex-wrap gap-1">
-                {note.tags.slice(0, 3).map(tag => {
+                {note.tags.sort((a, b) => {
+                  const aIsFile = isFileTag(a);
+                  const bIsFile = isFileTag(b);
+                  if (aIsFile && !bIsFile) return -1;
+                  if (!aIsFile && bIsFile) return 1;
+                  return a.localeCompare(b);
+                }).slice(0, 3).map(tag => {
                   const isFile = isFileTag(tag);
                   const noteHasFileTag = note.tags.some(t => isFileTag(t));
                   const isInsideFolderTag = !isFile && noteHasFileTag;
                   
+                  const baseClasses = "inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full";
+                  const fileClasses = "bg-blue-100/50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200";
+                  const folderTagClasses = "bg-green-100/50 dark:bg-green-900/50 text-green-700 dark:text-green-200";
+                  const normalClasses = "bg-gray-200/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200";
+                  
+                  const classes = `${baseClasses} ${
+                    isFile
+                      ? fileClasses
+                      : isInsideFolderTag
+                        ? folderTagClasses
+                        : normalClasses
+                  }`;
+
                   return (
                     <span 
                       key={tag}
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full ${
-                        isFile
-                          ? 'bg-blue-100/50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200'
-                          : isInsideFolderTag
-                            ? 'bg-green-100/50 dark:bg-green-900/50 text-green-700 dark:text-green-200'
-                            : 'bg-gray-200/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200'
-                      }`}
+                      className={classes}
                     >
                       {isFile && <Folder className="h-3 w-3" />}
                       {isFile ? getFileTagDisplayName(tag) : tag.length > 15 ? `${tag.substring(0, 15)}...` : tag}
                     </span>
                   );
                 })}
-                {note.tags.length > 3 && (
-                  <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-gray-200/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200">
-                    +{note.tags.length - 3}
-                  </span>
-                )}
               </div>
             </div>
           )}

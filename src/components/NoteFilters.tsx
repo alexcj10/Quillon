@@ -25,6 +25,15 @@ export function NoteFilters() {
       .flatMap(note => note.tags.filter(tag => !isFileTag(tag)))
   );
 
+  // Sort tags so file tags appear first, then normal tags
+  const sortedTags = allTags.sort((a, b) => {
+    const aIsFile = isFileTag(a);
+    const bIsFile = isFileTag(b);
+    if (aIsFile && !bIsFile) return -1;
+    if (!aIsFile && bIsFile) return 1;
+    return a.localeCompare(b);
+  });
+
   return (
     <div className="mb-6 space-y-4 w-full max-w-3xl mx-auto px-4 sm:px-6">      
       <div className="flex gap-4 items-center">
@@ -53,11 +62,27 @@ export function NoteFilters() {
       </div>
       
       <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-        {allTags.map(tag => {
+        {sortedTags.map(tag => {
           const isFile = isFileTag(tag);
           const isSelected = selectedTags.includes(tag);
           const isInsideFolderTag = !isFile && tagsInFileFolders.has(tag);
           
+          const baseClasses = "inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation";
+          const selectedClasses = "bg-blue-500 text-white";
+          const unselectedFileClasses = "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-800/50";
+          const unselectedFolderTagClasses = "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-800/50";
+          const unselectedNormalClasses = "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600";
+          
+          const classes = `${baseClasses} ${
+            isSelected
+              ? selectedClasses
+              : isFile
+                ? unselectedFileClasses
+                : isInsideFolderTag
+                  ? unselectedFolderTagClasses
+                  : unselectedNormalClasses
+          }`;
+
           return (
             <button
               key={tag}
@@ -68,19 +93,7 @@ export function NoteFilters() {
                     : [...selectedTags, tag]
                 );
               }}
-              className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation ${
-                isSelected
-                  ? isFile
-                    ? 'bg-blue-500 text-white'
-                    : isInsideFolderTag
-                      ? 'bg-green-500 text-white'
-                      : 'bg-blue-500 text-white'
-                  : isFile
-                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-800/50'
-                    : isInsideFolderTag
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-800/50'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-              }`}
+              className={classes}
             >
               {isFile && <Folder className="h-4 w-4" />}
               {isFile ? getFileTagDisplayName(tag) : tag}
