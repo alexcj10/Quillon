@@ -25,14 +25,8 @@ export function NoteFilters() {
       .flatMap(note => note.tags.filter(tag => !isFileTag(tag)))
   );
 
-  // Sort tags so file tags appear first, then normal tags
-  const sortedTags = allTags.sort((a, b) => {
-    const aIsFile = isFileTag(a);
-    const bIsFile = isFileTag(b);
-    if (aIsFile && !bIsFile) return -1;
-    if (!aIsFile && bIsFile) return 1;
-    return a.localeCompare(b);
-  });
+  // No sorting - maintain FIFO order
+  const sortedTags = allTags;
 
   return (
     <div className="mb-6 space-y-4 w-full max-w-3xl mx-auto px-4 sm:px-6">      

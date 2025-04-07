@@ -110,13 +110,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
           {note.tags.length > 0 && (
             <div className="mb-2">
               <div className="flex flex-wrap gap-1">
-                {note.tags.sort((a, b) => {
-                  const aIsFile = isFileTag(a);
-                  const bIsFile = isFileTag(b);
-                  if (aIsFile && !bIsFile) return -1;
-                  if (!aIsFile && bIsFile) return 1;
-                  return a.localeCompare(b);
-                }).slice(0, 3).map(tag => {
+                {note.tags.slice(0, 3).map(tag => {
                   const isFile = isFileTag(tag);
                   const noteHasFileTag = note.tags.some(t => isFileTag(t));
                   const isInsideFolderTag = !isFile && noteHasFileTag;
