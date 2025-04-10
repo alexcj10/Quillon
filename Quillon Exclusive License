@@ -1,92 +1,33 @@
-# Exclusive File Organization System: Virtual File Folders 🗂️
+Quillon Exclusive License (QEL)
 
-## Overview
-Introducing a powerful new way to organize your notes using an exclusive virtual file folder system. Notes within file folders are only visible when accessing their specific folder, creating a clean and organized workspace.
+Version: Q2 Effective Date: April 10, 2025
 
-## Key Features
+This license governs the use, distribution, and contribution to the software and any associated materials ("Software") under the Quillon Exclusive License (QEL). By accessing, using, or contributing to the Software, you agree to be bound by the terms of this license.
 
-### 📁 Exclusive File Folders
-- Notes tagged with file tags are only visible within their respective folders
-- Main view shows only non-file-tagged notes
-- Clear separation between regular notes and file-organized notes
+Permission is hereby granted, free of charge, to any individual or entity ("User") to use the Software solely under the following terms and conditions:
 
-### 🎯 Folder Navigation
-- Click on a file tag to enter its exclusive folder view
-- Clear visual indicator showing current folder location
-- Easy exit from folder view with a single click
-- Search specifically within the current folder
+1. Permitted Uses
+   a. Open Contribution: Users are permitted to contribute to the Software by submitting code, reporting issues, or offering suggestions through approved contribution channels (e.g., GitHub pull requests).
+   b. Personal Use: Users may use the Software for non-commercial, personal projects and experimentation.
 
-### 📝 Note Organization
-- Tag notes with `file` prefix to move them into a virtual folder
-  - Example: `fileWork`, `filePersonal`, `fileProjects`
-- Notes can belong to only one file folder at a time
-- Maintain regular tags alongside file organization
+2. Prohibited Uses
+   a. Commercial Use: Users are strictly prohibited from selling, sublicensing, or otherwise monetizing the Software, in whole or in part.
+   b. Rebranding and Redeployment: Users may not alter the name, branding, or identifiers of the Software and redistribute or re-deploy it as a distinct or derivative product.
+   c. Unauthorized Redistribution: Redistribution of the Software outside of the official repository or without explicit approval from the original authors is prohibited.
 
-### 🎨 Visual Enhancements
-- Distinctive folder view header showing current location
-- File tags styled with folder icons for easy identification
-- Smooth transitions between main view and folder views
-- Theme-aware styling in both light and dark modes
+3. Enforcement and Compliance
+   a. Any violation of this license, including but not limited to commercial misuse, unauthorized rebranding, or redistribution, shall constitute grounds for enforcement actions, which may include, but are not limited to:
+      - Reporting violations to GitHub for policy enforcement.
+      - Issuing DMCA takedown notices.
+      - Legal remedies under applicable intellectual property laws.
+   b. Continued or repeated violations may result in permanent revocation of access to the Software and removal of contributions.
 
-### 🔍 Smart Filtering
-- Search within specific folders
-- Combine regular tags with folder views
-- Clear separation between file tags and regular tags
-- Intuitive navigation between folders
+4. Disclaimer
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-## Usage
+5. Additional Terms
+   a. This license is intended to protect the integrity, identity, and intended use of the Software while encouraging open collaboration.
+   b. For special permissions, exemptions, or clarifications, please contact the maintainers through the official GitHub repository.
 
-### Creating File Folders
-1. Open the note editor
-2. Add a tag starting with `file` (e.g., `fileWork`)
-3. The note will now be exclusively visible in that folder
+END OF LICENSE
 
-### Accessing File Folders
-1. Click on any file tag in the filter bar
-2. View only notes within that specific folder
-3. Use the search and filter features within the folder
-4. Click the X button or file tag again to exit
-
-### Managing Notes
-- Notes with file tags are hidden from the main view
-- Each note can only be visible in one folder
-- Regular tags still work within folders
-- Star and pin features work across all views
-
-## Benefits
-- Clean main workspace without folder clutter
-- Strict organization with exclusive folder views
-- Intuitive folder navigation
-- Maintains simplicity while adding powerful organization
-
-## Technical Details
-
-### File Tag System
-- Prefix-based detection (`file` prefix)
-- Automatic folder creation with first use
-- Validation ensures proper folder naming
-- Efficient note filtering and organization
-
-### User Interface
-- Clear folder location indicators
-- Contextual search placeholders
-- Smooth transitions between views
-- Responsive design for all screen sizes
-
-### Data Management
-- No migration required for existing notes
-- Seamless integration with existing features
-- Efficient note filtering and display
-- Maintains all note properties within folders
-
-## Best Practices
-1. Use descriptive folder names (e.g., `fileProjects`, `filePersonal`)
-2. Organize related notes in the same folder
-3. Use regular tags for cross-folder categorization
-4. Keep folder structure simple and intuitive
-
-## Compatibility
-- Works with existing notes and tags
-- No data migration required
-- Preserves all existing functionality
-- Compatible with all Quillon features
