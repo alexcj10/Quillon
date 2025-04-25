@@ -9,7 +9,7 @@
 
 🔗 **[Live Demo](https://quillon.netlify.app/)** | 🌟 **[Star on GitHub](https://github.com/alexjoshva/Quillon)**  
 <p align="center">
-  <strong>Scan the QR Code to open the <a href="https://quillon.netlify.app/" target="_blank">Quillon Application</a></strong><br><br>
+  <strong>Scan the QR Code to open the application</strong><br><br>
   <img src="https://github.com/user-attachments/assets/8bc29b88-d5fc-411c-afc2-7eca587eb05a" alt="QR Code" width="100"/>
 </p>
 
