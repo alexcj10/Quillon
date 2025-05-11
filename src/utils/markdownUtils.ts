@@ -8,22 +8,23 @@ export function formatMarkdown(text: string, cursorPosition: number): FormattedT
   let formatted = text;
   let cursorOffset = 0;
 
-  // Handle headers
-  formatted = formatted.replace(/^(#{1,6})\s(.+)$/gm, (match, hashes, content) => {
+  // Handle headers (hide # symbol)
+  formatted = formatted.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content) => {
     const level = hashes.length;
-    return `<h${level}>${content}</h${level}>`;
+    if (cursorPosition > 0 && cursorPosition <= match.length) {
+      cursorOffset = -(hashes.length + 1); // +1 for the space
+    }
+    return `<h${level} class="markdown-header">${content}</h${level}>`;
   });
 
-  // Handle bold text
-  let boldOffset = 0;
+  // Handle bold text (hide ** symbols)
   formatted = formatted.replace(/\*\*(.+?)\*\*/g, (match, content, offset) => {
-    // If cursor is within or right after the bold marks, adjust offset
     if (cursorPosition > offset && cursorPosition <= offset + match.length) {
       const beforeCursor = match.substring(0, cursorPosition - offset);
-      const boldCount = (beforeCursor.match(/\*\*/g) || []).length;
-      cursorOffset -= boldCount * 2;
+      const asteriskCount = (beforeCursor.match(/\*\*/g) || []).length;
+      cursorOffset -= asteriskCount * 2;
     }
-    return `<strong>${content}</strong>`;
+    return `<strong class="markdown-bold">${content}</strong>`;
   });
 
   return {
