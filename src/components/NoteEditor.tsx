@@ -3,6 +3,7 @@ import { Note } from '../types';
 import { X, Lock, Unlock, AlertCircle } from 'lucide-react';
 import { NOTE_COLORS } from '../constants/colors';
 import { isFileTag } from '../types';
+import { MarkdownEditor } from './MarkdownEditor';
 
 interface NoteEditorProps {
   note?: Note;
@@ -10,7 +11,7 @@ interface NoteEditorProps {
   onClose: () => void;
 }
 
-const MAX_TAG_LENGTH = 50; // Maximum characters allowed for a tag
+const MAX_TAG_LENGTH = 50;
 const FILE_TAG_REGEX = /^file[a-zA-Z0-9\-_]+$/;
 
 export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
@@ -67,7 +68,6 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
         return;
       }
 
-      // Prevent duplicate tags
       if (!tags.includes(newTag)) {
         setTags([...tags, newTag]);
         setTagError('');
@@ -119,21 +119,19 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           </div>
 
           <div className="space-y-4">
-            <input
-              type="text"
+            <MarkdownEditor
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={setTitle}
               placeholder="Note title"
-              className="w-full p-3 border rounded-lg bg-white/90 dark:bg-gray-700/90 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200"
-              required
+              isTitle
+              className="text-lg font-medium"
             />
 
-            <textarea
+            <MarkdownEditor
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={setContent}
               placeholder="Note content"
-              className="w-full p-3 border rounded-lg h-32 bg-white/90 dark:bg-gray-700/90 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200"
-              required
+              className="h-32 resize-none"
             />
 
             <div className="flex flex-wrap gap-2 items-center">

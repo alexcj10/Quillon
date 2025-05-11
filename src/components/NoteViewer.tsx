@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { downloadNote } from '../utils/downloadUtils';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { useNotes } from '../context/NoteContext';
+import { getFormattedHTML } from '../utils/markdownUtils';
 
 interface NoteViewerProps {
   note: {
@@ -44,6 +45,9 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
     setIsTitleExpanded(!isTitleExpanded);
   };
 
+  const formattedTitle = getFormattedHTML(note.title);
+  const formattedContent = getFormattedHTML(note.content);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -62,9 +66,7 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
           }`}
           onClick={e => e.stopPropagation()}
         >
-          {/* Main Content */}
           <div className="flex-1 flex flex-col max-h-[90vh] overflow-hidden">
-            {/* Header */}
             <div className={`p-4 sm:p-6 border-b ${
               note.color ? `border-note-${note.color}-dark/20 dark:border-note-${note.color}-light/20` : 'border-gray-200 dark:border-gray-700'
             }`}>
@@ -75,9 +77,8 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
                     className={`text-base sm:text-lg md:text-xl font-bold mb-2 break-words text-gray-900 dark:text-white cursor-pointer ${
                       isTitleExpanded ? '' : 'line-clamp-2'
                     } transition-all duration-200`}
-                  >
-                    {note.title || 'Untitled Note'}
-                  </h2>
+                    dangerouslySetInnerHTML={{ __html: formattedTitle }}
+                  />
                   <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -149,18 +150,14 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
               </div>
             </div>
 
-            {/* Content */}
             <div className="flex-1 overflow-y-auto">
               <div className="p-4 sm:p-6">
-                <div className={`prose prose-sm sm:prose dark:prose-invert max-w-none ${
-                  note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
-                }`}>
-                  {note.content.split('\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4">
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
+                <div 
+                  className={`prose prose-sm sm:prose dark:prose-invert max-w-none ${
+                    note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
+                  }`}
+                  dangerouslySetInnerHTML={{ __html: formattedContent }}
+                />
               </div>
             </div>
           </div>
@@ -168,4 +165,4 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
       </motion.div>
     </AnimatePresence>
   );
-} 
+}
