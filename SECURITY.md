@@ -6,7 +6,10 @@ We currently support *Quillon v1.0.0*. Future updates will introduce new feature
 
 | Version  | Status           |
 |----------|----------------|
-| *Q1*  | ✅ Supported  |
+| *Tutorial*  | ✅ Supported  |
+| *documentation*  | ✅ Supported  |
+| *q2*  | ✅ Supported  |
+| *q1*  | ✅ Supported  |
 | *< Q1*  | ❌ Not Supported |
 
 ---
@@ -21,7 +24,7 @@ If you discover a security vulnerability, *report it immediately* to help keep Q
 - The *potential impact* on users  
 
 📩 *How to report?*  
-Submit your findings via a [GitHub Security Advisory](https://github.com/alexjoshva/Quillon/security/advisories) or email us at *alexchandarjoshva@gmail.com* (if applicable).  
+Submit your findings via a [GitHub Security Advisory](https://github.com/alexcj831/Quillon/security/advisories) or email us at *alexchandarjoshva@gmail.com* (if applicable).  
 
 🔔 *What happens next?*  
 - We’ll *acknowledge* your report and begin assessment.  
