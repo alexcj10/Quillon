@@ -2,8 +2,6 @@
 
 ## 🔹 Supported Versions
 
-We currently support *Quillon v1.0.0*. Future updates will introduce new features and enhancements.
-
 | Version  | Status           |
 |----------|----------------|
 | *Tutorial*  | ✅ Supported  |
