@@ -46,7 +46,7 @@
 
 #### 1⃣ Clone the Repository  
 ```bash
-git clone https://github.com/alexjoshva/Quillon.git
+git clone https://github.com/alexcj831/Quillon.git
 ```
 
 #### 2⃣ Navigate to Project Directory  
@@ -95,13 +95,13 @@ We welcome contributions to **Quillon**! To get started:
 🔹 Write meaningful commit messages.  
 🔹 Test changes thoroughly before submitting.  
 
-📜 See detailed contribution guidelines in the **[CONTRIBUTING.md](https://github.com/alexjoshva/Quillon/blob/main/CONTRIBUTING.md)** file.
+📜 See detailed contribution guidelines in the **[CONTRIBUTING.md](https://github.com/alexcj831/Quillon/blob/main/CONTRIBUTING.md)** file.
 
 ---
 
 ## 🐝 License  
 
-This project is licensed under the **Quillon Exclusive License**. See **[LICENSE](https://github.com/alexjoshva/Quillon/blob/main/Quillon%20Exclusive%20License)** for details.
+This project is licensed under the **Quillon Exclusive License**. See **[LICENSE](https://github.com/831/Quillon/blob/main/Quillon%20Exclusive%20License)** for details.
 
 ---
 
@@ -112,4 +112,4 @@ This project is licensed under the **Quillon Exclusive License**. See **[LICENSE
 
 ---
 
-📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexjoshva/Quillon), and let’s build something amazing together!** 🎯  
+📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexcj831/Quillon), and let’s build something amazing together!** 🎯  
