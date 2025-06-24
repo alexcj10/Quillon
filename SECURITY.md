@@ -7,9 +7,9 @@ We currently support *Quillon v1.0.0*. Future updates will introduce new feature
 | Version  | Status           |
 |----------|----------------|
 | *Tutorial*  | ✅ Supported  |
-| *documentation*  | ✅ Supported  |
-| *q2*  | ✅ Supported  |
-| *q1*  | ✅ Supported  |
+| *Documentation*  | ✅ Supported  |
+| *Q2*  | ✅ Supported  |
+| *Q1*  | ✅ Supported  |
 | *< Q1*  | ❌ Not Supported |
 
 ---
