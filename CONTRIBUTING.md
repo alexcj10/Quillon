@@ -7,7 +7,7 @@ Welcome to **Quillon**! 🎉 Your contributions are highly valued, whether you'r
 ## 📌 How to Contribute
 
 ### 1️⃣ Fork & Clone the Repository
-1. Fork the repository by clicking the **Fork** button at the top-right corner of [Quillon Repository](https://github.com/alexjoshva/Quillon).
+1. Fork the repository by clicking the **Fork** button at the top-right corner of [Quillon Repository](https://github.com/alexcj831/Quillon).
 2. Clone your fork locally:
    ```bash
    git clone https://github.com/YOUR_GITHUB_USERNAME/Quillon.git
@@ -33,7 +33,7 @@ Welcome to **Quillon**! 🎉 Your contributions are highly valued, whether you'r
   ```
 
 ### 5️⃣ Submit a Pull Request (PR)
-1. Go to the [Quillon Repository](https://github.com/alexjoshva/Quillon).
+1. Go to the [Quillon Repository](https://github.com/alexcj831/Quillon).
 2. Click **New Pull Request**.
 3. Select your branch and submit the PR for review.
 
@@ -71,7 +71,7 @@ Welcome to **Quillon**! 🎉 Your contributions are highly valued, whether you'r
 
 ## 💡 Issues & Discussions
 
-- Check [existing issues](https://github.com/alexjoshva/Quillon/issues) before opening a new one.
+- Check [existing issues](https://github.com/alexcj831/Quillon/issues) before opening a new one.
 - Describe issues clearly with **steps to reproduce**.
 - Use appropriate labels (**bug**, **enhancement**, **documentation**).
 - Engage in **discussions** via the **Discussions** tab.
