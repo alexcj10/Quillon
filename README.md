@@ -7,7 +7,7 @@
 
 🚀 **Quillon** is a modern, lightweight, and intuitive note-taking application built with **Vite, React, and TypeScript**. Designed for speed and efficiency, it offers **powerful organization** and **seamless usability** to **capture, manage, and structure your notes effortlessly**.
 
-🔗 **[Live Demo](https://quillon.netlify.app/)** | 🌟 **[Star on GitHub](https://github.com/techflint/Quillon)**  
+🔗 **[Live Demo](https://quillon.netlify.app/)** | 🌟 **[Star on GitHub](https://github.com/alexcj831/Quillon)**  
 <p align="center">
   <strong>Scan the QR Code to open the application</strong><br><br>
   <img src="https://github.com/user-attachments/assets/8bc29b88-d5fc-411c-afc2-7eca587eb05a" alt="QR Code" width="100"/>
@@ -46,7 +46,7 @@
 
 #### 1⃣ Clone the Repository  
 ```bash
-git clone https://github.com/techflint/Quillon.git
+git clone https://github.com/alexcj831/Quillon.git
 ```
 
 #### 2⃣ Navigate to Project Directory  
@@ -95,13 +95,13 @@ We welcome contributions to **Quillon**! To get started:
 🔹 Write meaningful commit messages.  
 🔹 Test changes thoroughly before submitting.  
 
-📜 See detailed contribution guidelines in the **[CONTRIBUTING.md](https://github.com/techflint/Quillon/blob/main/CONTRIBUTING.md)** file.
+📜 See detailed contribution guidelines in the **[CONTRIBUTING.md](https://github.com/alexcj831/Quillon/blob/main/CONTRIBUTING.md)** file.
 
 ---
 
 ## 🐝 License  
 
-This project is licensed under the **Quillon Exclusive License**. See **[LICENSE](https://github.com/techflint/Quillon/blob/main/Quillon%20Exclusive%20License)** for details.
+This project is licensed under the **Quillon Exclusive License**. See **[LICENSE](https://github.com/alexcj831/Quillon/blob/main/Quillon%20Exclusive%20License)** for details.
 
 ---
 
@@ -112,4 +112,4 @@ This project is licensed under the **Quillon Exclusive License**. See **[LICENSE
 
 ---
 
-📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/techflint/Quillon), and let’s build something amazing together!** 🎯  
+📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexcj831/Quillon), and let’s build something amazing together!** 🎯  
