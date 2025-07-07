@@ -112,4 +112,4 @@ This project is licensed under the **Quillon Exclusive License**. See **[LICENSE
 
 ---
 
-📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexcj831/Quillon), and let’s build something amazing together!** 🎯  
+📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexcjosh/Quillon), and let’s build something amazing together!** 🎯  
