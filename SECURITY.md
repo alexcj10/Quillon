@@ -22,7 +22,7 @@ If you discover a security vulnerability, *report it immediately* to help keep Q
 - The *potential impact* on users  
 
 📩 *How to report?*  
-Submit your findings via a [GitHub Security Advisory](https://github.com/alexalexbits/Quillon/security/advisories) or email us at *alexchandarjoshva@gmail.com* (if applicable).  
+Submit your findings via a [GitHub Security Advisory](https://github.com/thirdprinse/Quillon/security/advisories) or email us at *alexchandarjoshva@gmail.com* (if applicable).  
 
 🔔 *What happens next?*  
 - We’ll *acknowledge* your report and begin assessment.  
