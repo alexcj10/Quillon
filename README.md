@@ -2,7 +2,7 @@
 
 # 📝 Quillon – Tag it. Find it. Done.
 
-![Screenshot 2025-04-04 134253](https://github.com/user-attachments/assets/6f1af88d-852d-4327-842f-0ad08491b33b)
+<img width="1920" height="1440" alt="576shots_so" src="https://github.com/user-attachments/assets/6a43b504-3f48-42ce-9a71-5096f99cd91c" />
 
 
 🚀 **Quillon** is a modern, lightweight, and intuitive note-taking application built with **Vite, React, and TypeScript**. Designed for speed and efficiency, it offers **powerful organization** and **seamless usability** to **capture, manage, and structure your notes effortlessly**.
