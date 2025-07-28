@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Note, isFileTag, getFileTagDisplayName } from '../types';
 import { Pin, Star, Trash2, Edit, Copy, Check, Lock, RotateCcw, XCircle, Eye, Download, ChevronDown, Share2, Folder } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
@@ -19,8 +19,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
     showPrivateNotes, 
     restoreFromTrash, 
     permanentlyDelete, 
-    showTrash,
-    selectedTags 
+    showTrash
   } = useNotes();
   const [copied, setCopied] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
@@ -46,8 +45,24 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
   };
 
   const handleDownload = async (format: 'txt' | 'pdf') => {
-    await downloadNote(note, { format });
-    setShowFormatOptions(false);
+    try {
+      await downloadNote(note, { 
+        format,
+        onSuccess: (message, downloadFormat) => {
+          // Trigger notification in parent component
+          window.dispatchEvent(new CustomEvent('downloadSuccess', {
+            detail: { message, format: downloadFormat }
+          }));
+        }
+      });
+      setShowFormatOptions(false);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Keep the dropdown open so user can try again
+      // Show user-friendly error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Download failed: ${errorMessage}\n\nPlease try again or check your browser settings.`);
+    }
   };
 
   const isContentVisible = !note.isPrivate || showPrivateNotes;

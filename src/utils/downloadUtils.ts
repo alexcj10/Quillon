@@ -1,504 +1,325 @@
 import { Note } from '../types';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
+// Define a simple type for the download options
 interface DownloadOptions {
   format: 'txt' | 'pdf';
   suggestedName?: string;
+  onSuccess?: (message: string, format: 'txt' | 'pdf') => void;
 }
 
-// Enhanced utility function for cross-device downloads
+/**
+ * Triggers a file download in the browser with enhanced cross-device compatibility.
+ * @param blob - The data Blob to download.
+ * @param fileName - The suggested name for the downloaded file.
+ */
 function triggerDownload(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
   link.download = fileName;
-  link.style.display = 'none';
   
-  // Enhanced for mobile compatibility
+  // Set target to _blank as a fallback for mobile browsers
   link.setAttribute('target', '_blank');
-  link.setAttribute('rel', 'noopener noreferrer');
-  
-  // Add to DOM, trigger click, and clean up
+  link.style.display = 'none';
+
   document.body.appendChild(link);
-  
-  // Multiple click attempts for better mobile compatibility
-  try {
-    link.click();
-  } catch (e) {
-    // Fallback for older browsers
-    const event = new MouseEvent('click', {
-      view: window,
-      bubbles: true,
-      cancelable: true
-    });
-    link.dispatchEvent(event);
-  }
-  
-  // Clean up
+  link.click();
+
+  // Clean up the DOM and revoke the object URL after a short delay
   setTimeout(() => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }, 100);
 }
 
-// Device detection utility
-function getDeviceInfo() {
-  const userAgent = navigator.userAgent.toLowerCase();
-  const isMobile = /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-  const isTablet = /ipad|android(?!.*mobile)|tablet/i.test(userAgent);
-  const isIOS = /iphone|ipad|ipod/i.test(userAgent);
-  const isAndroid = /android/i.test(userAgent);
-  const isSafari = /safari/i.test(userAgent) && !/chrome/i.test(userAgent);
-  
-  return {
-    isMobile,
-    isTablet,
-    isIOS,
-    isAndroid,
-    isSafari,
-    isDesktop: !isMobile && !isTablet
-  };
+
+/**
+ * Displays a lightweight, non-intrusive toast notification at the top-center of the screen.
+ * The animation has been refined to prevent any page layout shifts.
+ * @param message - The message to display in the toast.
+ */
+function showToast(message: string) {
+  // Remove any existing toast to prevent duplicates
+  const existingToast = document.getElementById('quillon-toast');
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  // Inject the toast's stylesheet into the head once
+  if (!document.getElementById('quillon-toast-style')) {
+    const style = document.createElement('style');
+    style.id = 'quillon-toast-style';
+    style.innerHTML = `
+      @keyframes quillonToastSlide {
+        0% { transform: translate(-50%, -100px); opacity: 0; }
+        10% { transform: translate(-50%, 0); opacity: 1; }
+        90% { transform: translate(-50%, 0); opacity: 1; }
+        100% { transform: translate(-50%, -100px); opacity: 0; }
+      }
+      #quillon-toast {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #27ae60;
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 30px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 15px;
+        font-weight: 500;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: quillonToastSlide 3.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        width: max-content;
+        max-width: 90vw;
+        white-space: nowrap;
+      }`;
+    document.head.appendChild(style);
+  }
+
+  const toast = document.createElement('div');
+  toast.id = 'quillon-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // Remove the toast element after the animation completes
+  setTimeout(() => {
+    toast.remove();
+  }, 3500); // Duration matches the animation
 }
 
-// Convert image to base64 for embedding
-function getQuillonLogo(): Promise<string> {
+/**
+ * Loads the Quillon logo as a base64 string for embedding in the PDF.
+ * Returns null if the logo fails to load.
+ * @returns A Promise that resolves to the base64 string or null.
+ */
+function getQuillonLogo(): Promise<string | null> {
   return new Promise((resolve) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(null); // Canvas not supported
+        return;
+      }
       canvas.width = img.width;
       canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
+      ctx.drawImage(img, 0, 0);
       const base64 = canvas.toDataURL('image/png');
       resolve(base64);
     };
     img.onerror = () => {
-      // Fallback: create a simple green text-based logo
-      resolve('data:image/svg+xml;base64,' + btoa(`
-        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="45" fill="#27ae60" stroke="#2c3e50" stroke-width="3"/>
-          <text x="50" y="60" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="white" text-anchor="middle">Q</text>
-        </svg>
-      `));
+      console.warn('Could not load Quillon logo. PDF will be generated without it.');
+      resolve(null); // Resolve with null if the image fails to load
     };
+    // Ensure this path is correct relative to your public/index.html file
     img.src = './letter-q.png';
   });
 }
 
-// Generate true PDF using jsPDF and html2canvas
-async function generateTruePDF(note: Note, fileName: string): Promise<void> {
-  try {
-    const logoBase64 = await getQuillonLogo();
-    const htmlContent = generateMobilePDFContent(note, logoBase64);
+/**
+ * Cleans the note content by stripping HTML tags and decoding entities.
+ * @param content - The raw HTML content of the note.
+ * @returns Plain text content.
+ */
+function getCleanTextContent(content: string | null | undefined): string {
+    if (!content) return 'No content available.';
     
-    // Create a temporary container for rendering
-    const tempContainer = document.createElement('div');
-    tempContainer.innerHTML = htmlContent;
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.left = '-9999px';
-    tempContainer.style.top = '-9999px';
-    tempContainer.style.width = '794px'; // A4 width in pixels at 96 DPI
-    tempContainer.style.background = 'white';
-    document.body.appendChild(tempContainer);
+    // Create a temporary element to leverage the browser's parsing
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
     
-    // Wait a bit for fonts and images to load
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Replace <br> with newlines before stripping tags
+    tempDiv.querySelectorAll('br').forEach(br => br.parentNode?.replaceChild(document.createTextNode('\n'), br));
     
-    // Convert HTML to canvas
-    const canvas = await html2canvas(tempContainer, {
-      scale: 2, // Higher quality
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: '#ffffff',
-      width: 794,
-      height: 1123, // A4 height in pixels
-      scrollX: 0,
-      scrollY: 0
-    });
-    
-    // Remove temporary container
-    document.body.removeChild(tempContainer);
-    
-    // Create PDF
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    // Calculate dimensions to fit A4
-    const imgWidth = 210; // A4 width in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    // Add image to PDF
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-    
-    // Download the PDF
-    pdf.save(fileName);
-    
-    console.log(`✅ True PDF generated and downloaded: ${fileName}`);
-    
-  } catch (error) {
-    console.error('❌ PDF generation failed:', error);
-    throw error;
-  }
+    // Get text content, which naturally handles entities
+    return tempDiv.textContent || tempDiv.innerText || '';
 }
 
-// Generate mobile-friendly PDF as HTML with proper download
-function generateMobilePDFContent(note: Note, logoBase64: string): string {
-  const createdDate = new Date(note.createdAt).toLocaleDateString();
-  const updatedDate = note.updatedAt !== note.createdAt ? new Date(note.updatedAt).toLocaleDateString() : null;
-  
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${note.title || 'Untitled Note'} - Quillon</title>
-    <style>
-        @page {
-            margin: 0.5in;
-            size: A4;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
-            line-height: 1.7;
-            color: #2c3e50;
-            background: white;
-            position: relative;
-            min-height: 100vh;
-        }
-        
-
-        
-        .document {
-            max-width: 100%;
-            margin: 0;
-            padding: 30px 20px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .header {
-            display: flex;
-            align-items: center;
-            border-bottom: 3px solid #27ae60;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-            position: relative;
-        }
-        
-        .logo {
-            width: 60px;
-            height: 60px;
-            margin-right: 20px;
-            border-radius: 50%;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .header-content {
-            flex: 1;
-        }
-        
-        .title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 12px;
-            word-wrap: break-word;
-            line-height: 1.2;
-        }
-        
-        .metadata {
-            font-size: 14px;
-            color: #7f8c8d;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        
-        .metadata-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: #f8f9fa;
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .content {
-            font-size: 16px;
-            line-height: 1.8;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            margin-bottom: 30px;
-            min-height: 100px;
-            text-align: justify;
-            color: #34495e;
-        }
-        
-        .tags-section {
-            border-top: 2px solid #ecf0f1;
-            padding-top: 20px;
-            margin-top: 30px;
-        }
-        
-        .tags-label {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-        
-        .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .tag {
-            background: linear-gradient(135deg, #27ae60, #229954);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
-        }
-        
-        .footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 2px solid #ecf0f1;
-            text-align: center;
-            position: relative;
-        }
-        
-
-        
-        .footer-text {
-            font-size: 12px;
-            color: #95a5a6;
-            font-weight: 500;
-        }
-        
-        .brand {
-            color: #27ae60;
-            font-weight: 600;
-        }
-        
-        @media print {
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            
-            .document {
-                padding: 0;
-            }
-            
-
-        }
-        
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .logo {
-                margin: 0 0 15px 0;
-            }
-            
-            .title {
-                font-size: 28px;
-            }
-            
-            .metadata {
-                justify-content: center;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <div class="document">
-        <div class="header">
-            <img src="${logoBase64}" alt="Quillon Logo" class="logo">
-            <div class="header-content">
-                <div class="title">${note.title || 'Untitled Note'}</div>
-                <div class="metadata">
-                    <div class="metadata-item">
-                        <strong>📅 Created:</strong> ${createdDate}
-                    </div>
-                    ${updatedDate ? `<div class="metadata-item"><strong>🔄 Updated:</strong> ${updatedDate}</div>` : ''}
-                    ${note.isPrivate ? '<div class="metadata-item"><strong>🔒 Status:</strong> Private</div>' : ''}
-                    ${note.isFavorite ? '<div class="metadata-item"><strong>⭐ Favorite</strong></div>' : ''}
-                </div>
-            </div>
-        </div>
-        
-        <div class="content">${note.content || 'No content available.'}</div>
-        
-        ${note.tags && note.tags.length > 0 ? `
-        <div class="tags-section">
-            <div class="tags-label">🏷️ Tags:</div>
-            <div class="tags">
-                ${note.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-            </div>
-        </div>
-        ` : ''}
-        
-        <div class="footer">
-            <div class="footer-text">
-                Generated by <span class="brand">Quillon – Tag it. Find it. Done.</span> on ${new Date().toLocaleDateString()}
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // Mobile-friendly PDF generation
-        function downloadAsPDF() {
-            // For mobile devices, create a downloadable HTML file that can be converted to PDF
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                // Create HTML file for mobile download
-                const htmlContent = document.documentElement.outerHTML;
-                const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = '${note.title || 'note'}-quillon.html';
-                link.click();
-                URL.revokeObjectURL(url);
-                
-                // Show instructions for mobile users
-                setTimeout(() => {
-                    alert('📱 Mobile Instructions:\n\n1. Open the downloaded HTML file\n2. Use your browser\'s "Share" or "Print" option\n3. Select "Save as PDF" or "Print to PDF"\n\nThis ensures the best quality PDF with your Quillon watermark!');
-                }, 1000);
-            } else {
-                // Desktop: use print dialog
-                window.print();
-            }
-        }
-        
-        // Auto-trigger download after page loads
-        window.onload = () => {
-            setTimeout(downloadAsPDF, 500);
-        };
-    </script>
-</body>
-</html>`;
-}
-
-// Generate clean TXT content without emojis
+/**
+ * Generates the content for the .txt file download.
+ * @param note - The note object.
+ * @returns A formatted string for the TXT file.
+ */
 function generateTXTContent(note: Note): string {
-  const createdDate = new Date(note.createdAt).toLocaleDateString();
-  const updatedDate = note.updatedAt !== note.createdAt ? new Date(note.updatedAt).toLocaleDateString() : null;
-  
-  // Remove emojis from content
-  const cleanContent = (note.content || 'No content available.')
-    .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-  
-  const quillonBanner = `
-================================================================
-                          QUILLON                            
-                   Tag it. Find it. Done.                    
-================================================================
-`;
-  
-  const watermark = `
-                            QUILLON
-                     Tag it. Find it. Done.
-`;
-  
+  const createdDate = new Date(note.createdAt).toLocaleString();
+  const updatedDate = note.updatedAt !== note.createdAt ? new Date(note.updatedAt).toLocaleString() : null;
+  const cleanContent = getCleanTextContent(note.content);
+
   const txtContent = [
-    quillonBanner,
+    'QUILLON - Tag it. Find it. Done.',
+    '====================================',
     '',
     `Title: ${note.title || 'Untitled Note'}`,
-    '='.repeat(Math.max(60, `Title: ${note.title || 'Untitled Note'}`.length + 4)),
     '',
     `Created: ${createdDate}`,
-    updatedDate ? `Updated: ${updatedDate}` : '',
-    note.isPrivate ? 'Status: Private' : 'Status: Public',
-    note.isFavorite ? 'Favorite: Yes' : '',
+    updatedDate ? `Updated: ${updatedDate}` : null,
+    `Status: ${note.isPrivate ? 'Private' : 'Public'}`,
+    note.isFavorite ? 'Favorite: Yes' : null,
+    note.tags && note.tags.length > 0 ? `Tags: ${note.tags.map(tag => `#${tag}`).join(' ')}` : null,
     '',
-    'Content:',
-    '-'.repeat(60),
+    '------------------------------------',
+    'CONTENT',
+    '------------------------------------',
+    '',
     cleanContent,
     '',
-    watermark,
-    '',
-    note.tags && note.tags.length > 0 ? `Tags: ${note.tags.map(tag => `#${tag}`).join(' ')}` : '',
-    '',
-    '-'.repeat(60),
-    `Generated by Quillon on ${new Date().toLocaleDateString()}`,
-    '-'.repeat(60)
-  ].filter(line => line !== '').join('\n');
+    '====================================',
+    `Generated by Quillon on ${new Date().toLocaleDateString()}`
+  ].filter(line => line !== null).join('\n');
   
   return txtContent;
 }
 
+/**
+ * Generates a high-quality, text-based PDF using jsPDF.
+ * This approach creates a professional-looking document with selectable text.
+ * @param note - The note object.
+ * @param fileName - The desired filename for the PDF.
+ */
+async function generateNativePDF(note: Note, fileName: string): Promise<void> {
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+  
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 40;
+  let y = margin;
+
+  // 1. Header with Logo (if available)
+  const logoBase64 = await getQuillonLogo();
+  if (logoBase64) {
+    pdf.addImage(logoBase64, 'PNG', margin, y, 40, 40);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(26);
+    pdf.setTextColor('#27ae60');
+    pdf.text('QUILLON', margin + 50, y + 28);
+  } else {
+    // Fallback if logo is missing
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(26);
+    pdf.setTextColor('#27ae60');
+    pdf.text('QUILLON', margin, y + 20);
+  }
+  y += 70;
+  pdf.setDrawColor('#e0e0e0').line(margin, y - 20, pageWidth - margin, y - 20);
+
+  // 2. Note Title
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(20);
+  pdf.setTextColor('#2c3e50');
+  const splitTitle = pdf.splitTextToSize(note.title || 'Untitled Note', pageWidth - margin * 2);
+  pdf.text(splitTitle, margin, y);
+  y += (splitTitle.length * 20) + 20;
+
+  // 3. Metadata
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(10);
+  pdf.setTextColor('#34495e');
+  const createdDate = `Created: ${new Date(note.createdAt).toLocaleString()}`;
+  pdf.text(createdDate, margin, y);
+  if (note.updatedAt !== note.createdAt) {
+    const updatedDate = `Updated: ${new Date(note.updatedAt).toLocaleString()}`;
+    pdf.text(updatedDate, margin, y + 15);
+    y += 15;
+  }
+  y += 30;
+
+  // 4. Note Content (with text wrapping and page breaks)
+  const cleanContent = getCleanTextContent(note.content);
+  pdf.setFontSize(12);
+  pdf.setTextColor('#2c3e50');
+  const contentLines = pdf.splitTextToSize(cleanContent, pageWidth - margin * 2);
+  
+  contentLines.forEach((line: string) => {
+    if (y > pageHeight - margin - 20) { // Check space for line and footer
+      pdf.addPage();
+      y = margin;
+    }
+    pdf.text(line, margin, y, { lineHeightFactor: 1.5 });
+    y += 12 * 1.5; // Font size * line height factor
+  });
+
+  // 5. Tags
+  if (note.tags && note.tags.length > 0) {
+    y += 20;
+    if (y > pageHeight - margin - 40) {
+      pdf.addPage();
+      y = margin;
+    }
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(11);
+    pdf.text('Tags:', margin, y);
+    y += 18;
+    
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(10);
+    pdf.setTextColor('#27ae60');
+    const tagsString = note.tags.map(tag => `#${tag}`).join('  ');
+    const splitTags = pdf.splitTextToSize(tagsString, pageWidth - margin * 2);
+    splitTags.forEach((line: string) => {
+        if (y > pageHeight - margin - 20) {
+            pdf.addPage();
+            y = margin;
+        }
+        pdf.text(line, margin, y);
+        y += 14;
+    });
+  }
+
+  // 6. Footer on all pages
+  const pageCount = pdf.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    pdf.setPage(i);
+    pdf.setFontSize(9);
+    pdf.setTextColor('#7f8c8d');
+    const footerText = `Generated by Quillon | Tag it. Find it. Done.`;
+    const pageNumText = `Page ${i} of ${pageCount}`;
+    pdf.text(footerText, margin, pageHeight - margin / 2);
+    pdf.text(pageNumText, pageWidth - margin - pdf.getStringUnitWidth(pageNumText) * 9, pageHeight - margin / 2);
+  }
+
+  // Trigger the download
+  pdf.save(fileName);
+}
+
+
+/**
+ * Main exportable function to handle downloading a note in the specified format.
+ * @param note - The note object to download.
+ * @param options - Download options including format and callbacks.
+ */
 export async function downloadNote(note: Note, options: DownloadOptions) {
-  const { format, suggestedName } = options;
-  
-  // Create filename with timestamp
-  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
-  const noteTitle = note.title ? note.title.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-') : 'untitled';
-  const defaultFileName = suggestedName || `${noteTitle}-quillon-${timestamp}`;
-  const fileName = `${defaultFileName}.${format}`;
-  
+  const { format, suggestedName, onSuccess } = options;
+
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  const noteTitle = (note.title || 'untitled').replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  const fileName = `${suggestedName || noteTitle}-${timestamp}.${format}`;
+
   try {
+    showToast(`Preparing ${format.toUpperCase()} download...`);
+    
     if (format === 'txt') {
-      // Generate TXT content with Quillon branding and emoji support
       const txtContent = generateTXTContent(note);
-      
-      // Use UTF-8 encoding to support emojis
       const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
       triggerDownload(blob, fileName);
       
-      console.log(`✅ TXT download initiated: ${fileName}`);
-      
     } else if (format === 'pdf') {
-      // Generate true PDF using jsPDF - works on ALL devices!
-      try {
-        await generateTruePDF(note, fileName);
-        console.log(`✅ True PDF downloaded successfully: ${fileName}`);
-        
-      } catch (pdfError) {
-        console.warn('PDF generation failed, using HTML fallback:', pdfError);
-        
-        // Fallback to HTML if PDF generation fails
-        const logoBase64 = await getQuillonLogo();
-        const htmlContent = generateMobilePDFContent(note, logoBase64);
-        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-        triggerDownload(blob, `${defaultFileName}.html`);
-        
-        alert('🚨 PDF generation failed. Downloaded as HTML instead.\n\n💡 Open the file and use Ctrl+P (Cmd+P on Mac) to save as PDF.');
-      }
+      await generateNativePDF(note, fileName);
     }
     
+    showToast('Download started!');
+    if (onSuccess) {
+      onSuccess(`Note downloaded as ${format.toUpperCase()}`, format);
+    }
+    console.log(`✅ ${format.toUpperCase()} download initiated: ${fileName}`);
+
   } catch (error) {
-    console.error(`❌ Download failed:`, error);
-    
-    // User-friendly error with emoji
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    alert(`🚨 Download Failed\n\n${errorMessage}\n\n💡 Try again or contact Quillon support if the issue persists.`);
+    console.error(`❌ Download failed for ${fileName}:`, error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    showToast(`Download failed: ${errorMessage}`);
   }
 }

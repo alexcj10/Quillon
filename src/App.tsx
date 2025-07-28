@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NoteProvider } from './context/NoteContext';
 import { useNotes } from './context/NoteContext';
 import { NoteCard } from './components/NoteCard';
 import { NoteEditor } from './components/NoteEditor';
 import { NoteFilters } from './components/NoteFilters';
 import { PrivateSpaceDialog } from './components/PrivateSpaceDialog';
-import { Plus, Moon, Sun, Lock, Trash2, Folder } from 'lucide-react';
-import { isFileTag } from './types';
+import { DownloadNotification } from './components/DownloadNotification';
+import { Plus, Moon, Sun, Lock, Trash2 } from 'lucide-react';
+import { isFileTag, Note } from './types';
 
 function NoteList() {
   const { 
@@ -28,10 +29,10 @@ function NoteList() {
   } = useNotes();
   
   const [isEditing, setIsEditing] = useState(false);
-  const [editingNote, setEditingNote] = useState(undefined);
+  const [editingNote, setEditingNote] = useState<Note | undefined>(undefined);
   const [showPrivateSpaceDialog, setShowPrivateSpaceDialog] = useState(false);
 
-  const handleEdit = (note) => {
+  const handleEdit = (note: Note) => {
     setEditingNote(note);
     setIsEditing(true);
   };
@@ -176,7 +177,18 @@ function NoteList() {
               if (editingNote) {
                 updateNote(editingNote.id, { ...note, updatedAt: new Date().toISOString() });
               } else {
-                addNote(note);
+                // Ensure required fields have default values for new notes
+                const newNote = {
+                  ...note,
+                  color: note.color || 'default', // Default color if empty
+                  title: note.title || 'Untitled',
+                  content: note.content || '',
+                  tags: note.tags || [],
+                  isPinned: note.isPinned || false,
+                  isFavorite: note.isFavorite || false,
+                  isPrivate: note.isPrivate || false
+                };
+                addNote(newNote);
               }
               setIsEditing(false);
             }}
