@@ -202,12 +202,6 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                         >
                           Download TXT
                         </button>
-                        <button
-                          onClick={() => handleDownload('pdf')}
-                          className="w-full px-3 py-1.5 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                        >
-                          Download PDF
-                        </button>
                       </div>
                     )}
                   </div>

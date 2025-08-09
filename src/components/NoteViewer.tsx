@@ -1,23 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import { X, Tag, Star, Lock, Clock, Download, ChevronDown, Users } from 'lucide-react';
+import { X, Star, Lock, Clock, Download, ChevronDown, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { downloadNote } from '../utils/downloadUtils';
 import { useOutsideClick } from '../hooks/useOutsideClick';
-import { useNotes } from '../context/NoteContext';
+
+import { Note } from '../types';
 
 interface NoteViewerProps {
-  note: {
-    id: string;
-    title: string;
-    content: string;
-    tags: string[];
-    isFavorite: boolean;
-    isPrivate: boolean;
-    createdAt: string;
-    updatedAt: string;
-    isShared?: boolean;
-    color?: string;
-  };
+  note: Note;
   onClose: () => void;
 }
 
@@ -127,14 +117,6 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
                           }`}
                         >
                           Download TXT
-                        </button>
-                        <button
-                          onClick={() => handleDownload('pdf')}
-                          className={`w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${
-                            note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
-                          }`}
-                        >
-                          Download PDF
                         </button>
                       </div>
                     )}
