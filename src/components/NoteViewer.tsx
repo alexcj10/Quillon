@@ -55,7 +55,7 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
           {/* Main Content */}
           <div className="flex-1 flex flex-col max-h-[90vh] overflow-hidden">
             {/* Header */}
-            <div className={`p-4 sm:p-6 border-b ${
+            <div className={`px-4 py-3 sm:p-6 border-b ${
               note.color ? `border-note-${note.color}-dark/20 dark:border-note-${note.color}-light/20` : 'border-gray-200 dark:border-gray-700'
             }`}>
               <div className="flex items-start justify-between gap-2 sm:gap-4">
@@ -133,7 +133,7 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
-              <div className="p-4 sm:p-6">
+              <div className="px-4 py-3 sm:p-6">
                 <div className={`prose prose-sm sm:prose dark:prose-invert max-w-none ${
                   note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
                 }`}>
