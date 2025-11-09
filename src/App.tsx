@@ -180,7 +180,7 @@ function NoteList() {
                 // Ensure required fields have default values for new notes
                 const newNote = {
                   ...note,
-                  color: note.color || 'default', // Default color if empty
+                  color: note.color || undefined, // Default color if empty
                   title: note.title || 'Untitled',
                   content: note.content || '',
                   tags: note.tags || [],

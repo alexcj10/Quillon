@@ -6,6 +6,7 @@ import { NoteViewer } from './NoteViewer';
 import { downloadNote } from '../utils/downloadUtils';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { ShareDialog } from './ShareDialog';
+import { getNoteColorClass } from '../utils/colorUtils';
 
 interface NoteCardProps {
   note: Note;
@@ -79,7 +80,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
   return (
     <>
       <div className={`relative p-5 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg border h-[200px] flex flex-col ${
-        note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-800'
+        getNoteColorClass(note.color)
       } border-gray-200 dark:border-gray-700`}>
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">

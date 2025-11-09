@@ -22,4 +22,9 @@ export default {
     },
   ],
   plugins: [],
+  safelist: [
+    {
+      pattern: /bg-note-.*-(light|dark)/,
+    },
+  ],
 };

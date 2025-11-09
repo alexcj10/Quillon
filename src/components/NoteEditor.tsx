@@ -32,7 +32,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
       title,
       content,
       tags,
-      color,
+      color: color || undefined,
       isPinned,
       isFavorite,
       isPrivate,
