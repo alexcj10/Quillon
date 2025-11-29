@@ -14,19 +14,19 @@ interface NoteCardProps {
 }
 
 export function NoteCard({ note, onEdit }: NoteCardProps) {
-  const { 
-    updateNote, 
-    deleteNote, 
-    showPrivateNotes, 
-    restoreFromTrash, 
-    permanentlyDelete, 
+  const {
+    updateNote,
+    deleteNote,
+    showPrivateNotes,
+    restoreFromTrash,
+    permanentlyDelete,
     showTrash
   } = useNotes();
   const [copied, setCopied] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
   const [showFormatOptions, setShowFormatOptions] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
-  
+
   const formattedDate = new Date(note.updatedAt).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -47,7 +47,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
 
   const handleDownload = async (format: 'txt' | 'pdf') => {
     try {
-      await downloadNote(note, { 
+      await downloadNote(note, {
         format,
         onSuccess: (message, downloadFormat) => {
           // Trigger notification in parent component
@@ -79,9 +79,8 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
 
   return (
     <>
-      <div className={`relative p-5 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg border h-[200px] flex flex-col ${
-        getNoteColorClass(note.color)
-      } border-gray-200 dark:border-gray-700`}>
+      <div className={`relative p-5 rounded-xl shadow-md dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)] transition-all duration-200 hover:shadow-lg hover:dark:shadow-[0_10px_15px_-3px_rgba(255,255,255,0.1)] border h-[200px] flex flex-col ${getNoteColorClass(note.color)
+        } border-gray-200 dark:border-gray-700`}>
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white truncate">
@@ -108,7 +107,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
             </div>
           )}
         </div>
-        
+
         <div className="flex-1 min-h-0 overflow-hidden mb-3">
           {isContentVisible ? (
             <p className="text-gray-600 dark:text-gray-200 text-sm line-clamp-4">
@@ -130,22 +129,21 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                   const isFile = isFileTag(tag);
                   const noteHasFileTag = note.tags.some(t => isFileTag(t));
                   const isInsideFolderTag = !isFile && noteHasFileTag;
-                  
+
                   const baseClasses = "inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full";
                   const fileClasses = "bg-blue-100/50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200";
                   const folderTagClasses = "bg-green-100/50 dark:bg-green-900/50 text-green-700 dark:text-green-200";
                   const normalClasses = "bg-gray-200/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200";
-                  
-                  const classes = `${baseClasses} ${
-                    isFile
+
+                  const classes = `${baseClasses} ${isFile
                       ? fileClasses
                       : isInsideFolderTag
                         ? folderTagClasses
                         : normalClasses
-                  }`;
+                    }`;
 
                   return (
-                    <span 
+                    <span
                       key={tag}
                       className={classes}
                     >
@@ -193,7 +191,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                       <ChevronDown className="h-3 w-3" />
                     </button>
                     {showFormatOptions && (
-                      <div 
+                      <div
                         className="absolute right-0 bottom-full mb-1 w-32 bg-white dark:bg-gray-700 rounded-lg shadow-lg overflow-hidden z-[60]"
                         style={{ minWidth: '8rem' }}
                       >

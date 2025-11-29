@@ -71,10 +71,18 @@ function NoteList() {
       // If note has a file tag
       if (hasFileTag) {
         // If a file tag is selected, must match that file tag
-        if (selectedFileTag && !note.tags.includes(selectedFileTag)) {
-          return false;
+        if (selectedFileTag) {
+          if (!note.tags.includes(selectedFileTag)) {
+            return false;
+          }
+        } else {
+          // No file tag selected.
+          // Only show if specific normal tags are selected and match
+          if (normalTags.length === 0 || !matchesNormalTags) {
+            return false; // Hide from main page
+          }
         }
-        // Always check search and normal tags
+        // Check search and normal tags
         return matchesSearch && matchesNormalTags;
       }
 
