@@ -47,12 +47,12 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className={`rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex ${note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-800'
+          className={`rounded-2xl shadow-xl w-full mx-4 md:mx-8 max-w-4xl max-h-[70vh] overflow-hidden flex ${note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-800'
             }`}
           onClick={e => e.stopPropagation()}
         >
           {/* Main Content */}
-          <div className="flex-1 flex flex-col max-h-[90vh] overflow-hidden">
+          <div className="flex-1 flex flex-col max-h-[70vh] overflow-hidden">
             {/* Header */}
             <div className={`px-4 py-3 sm:p-6 border-b ${note.color ? `border-note-${note.color}-dark/20 dark:border-note-${note.color}-light/20` : 'border-gray-200 dark:border-gray-700'
               }`}>
