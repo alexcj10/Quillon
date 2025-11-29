@@ -7,14 +7,14 @@ interface PrivateSpaceDialogProps {
 }
 
 export function PrivateSpaceDialog({ onClose }: PrivateSpaceDialogProps) {
-  const { 
-    privateSpaceExists, 
-    setupPrivateSpace, 
+  const {
+    privateSpaceExists,
+    setupPrivateSpace,
     unlockPrivateSpace,
     deletePrivateSpace,
-    showPrivateNotes 
+    showPrivateNotes
   } = useNotes();
-  
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -54,13 +54,13 @@ export function PrivateSpaceDialog({ onClose }: PrivateSpaceDialogProps) {
   if (showDeleteConfirm) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md shadow-xl">
+        <div className="bg-white dark:bg-gray-800 rounded-lg w-full mx-4 md:mx-8 max-w-md shadow-xl">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4 text-red-500">
               <AlertTriangle className="h-6 w-6" />
               <h2 className="text-xl font-bold">Delete Private Space</h2>
             </div>
-            
+
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Are you sure you want to delete your private space? This will permanently delete all private notes and cannot be undone.
             </p>
@@ -87,7 +87,7 @@ export function PrivateSpaceDialog({ onClose }: PrivateSpaceDialogProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md shadow-xl">
+      <div className="bg-white dark:bg-gray-800 rounded-lg w-full mx-4 md:mx-8 max-w-md shadow-xl">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
@@ -167,11 +167,10 @@ export function PrivateSpaceDialog({ onClose }: PrivateSpaceDialogProps) {
                 </button>
                 <button
                   type="submit"
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    showPrivateNotes 
-                      ? 'bg-purple-600 hover:bg-purple-700' 
+                  className={`px-4 py-2 rounded-lg transition-colors ${showPrivateNotes
+                      ? 'bg-purple-600 hover:bg-purple-700'
                       : 'bg-purple-500 hover:bg-purple-600'
-                  } text-white`}
+                    } text-white`}
                 >
                   {privateSpaceExists ? 'Unlock' : 'Create'}
                 </button>
