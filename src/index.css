@@ -3,29 +3,31 @@
 @tailwind utilities;
 
 @layer base {
+
+  /* ROOT FIX (VERY IMPORTANT) */
+  html {
+    @apply bg-gray-100 dark:bg-gray-900;
+  }
+
   body {
     @apply antialiased;
-    overflow-y: scroll; /* Enable vertical scrolling */
-    overflow-x: hidden; /* Disable horizontal scrolling */
-    -ms-overflow-style: none; /* Hide scrollbar in IE and Edge */
-    scrollbar-width: none; /* Hide scrollbar in Firefox */
-    @apply text-black dark:text-white; /* Dynamic text color for light/dark mode */
+
+    /* Allow browser to manage scroll normally */
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    @apply text-black dark:text-white bg-gray-100 dark:bg-gray-900;
   }
 
   /* Hide scrollbar for WebKit browsers */
   body::-webkit-scrollbar {
-    display: none; /* Hide scrollbar in Chrome, Safari, and Opera */
-  }
-
-  /* Ensure all scrollable elements also have hidden scrollbars */
-  * {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  *::-webkit-scrollbar {
     display: none;
   }
+
 }
 
 @layer components {

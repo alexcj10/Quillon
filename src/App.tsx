@@ -10,9 +10,9 @@ import { Plus, Moon, Sun, Lock, Trash2 } from 'lucide-react';
 import { isFileTag, Note } from './types';
 
 function NoteList() {
-  const { 
-    notes, 
-    searchTerm, 
+  const {
+    notes,
+    searchTerm,
     selectedTags,
     showStarredOnly,
     showPrivateNotes,
@@ -22,12 +22,12 @@ function NoteList() {
     privateSpaceExists,
     isPrivateSpaceUnlocked,
     lockPrivateSpace,
-    isDarkMode, 
+    isDarkMode,
     toggleDarkMode,
     addNote,
-    updateNote 
+    updateNote
   } = useNotes();
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | undefined>(undefined);
   const [showPrivateSpaceDialog, setShowPrivateSpaceDialog] = useState(false);
@@ -56,39 +56,43 @@ function NoteList() {
       const hasFileTag = note.tags.some(tag => isFileTag(tag));
       const selectedFileTag = selectedTags.find(tag => isFileTag(tag));
       const normalTags = selectedTags.filter(tag => !isFileTag(tag));
-      
+
       // Search functionality - applies to both main view and file folders
-      const matchesSearch = 
+      const matchesSearch =
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
         note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
 
       // Check if note matches selected normal tags
-      const matchesNormalTags = 
+      const matchesNormalTags =
         normalTags.length === 0 ||
         normalTags.every(tag => note.tags.includes(tag));
 
-      // If note has a file tag, only show it when its file tag is selected
+      // If note has a file tag
       if (hasFileTag) {
-        if (!selectedFileTag) return false;
-        return note.tags.includes(selectedFileTag) && matchesSearch && matchesNormalTags;
+        // If a file tag is selected, must match that file tag
+        if (selectedFileTag && !note.tags.includes(selectedFileTag)) {
+          return false;
+        }
+        // Always check search and normal tags
+        return matchesSearch && matchesNormalTags;
       }
-      
+
       // If a file tag is selected, don't show regular notes
       if (selectedFileTag) return false;
-      
+
       // For main view, check normal tags
       return matchesSearch && matchesNormalTags;
     })
     .sort((a, b) => {
       // First sort by pinned status
       if (a.isPinned !== b.isPinned) return b.isPinned ? 1 : -1;
-      
+
       // If in trash, sort by deletion date
       if (showTrash) {
         return new Date(b.deletedAt!).getTime() - new Date(a.deletedAt!).getTime();
       }
-      
+
       // Otherwise sort by creation date (oldest first)
       return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     });
@@ -100,15 +104,14 @@ function NoteList() {
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 dark:text-white tracking-tight">
             Quillon
           </h1>
-          
+
           <div className="flex items-center gap-2 w-full justify-center">
             <button
               onClick={() => setShowTrash(!showTrash)}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                showTrash 
-                  ? 'bg-red-500 text-white fill-current' 
-                  : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-              }`}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${showTrash
+                ? 'bg-red-500 text-white fill-current'
+                : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+                }`}
               aria-label="Trash"
               title="Trash"
             >
@@ -116,11 +119,10 @@ function NoteList() {
             </button>
             <button
               onClick={handlePrivateClick}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                showPrivateNotes 
-                  ? 'bg-purple-500 text-white fill-current' 
-                  : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-              }`}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${showPrivateNotes
+                ? 'bg-purple-500 text-white fill-current'
+                : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+                }`}
               aria-label={showPrivateNotes ? 'Lock private notes' : 'Access private notes'}
               title={showPrivateNotes ? 'Lock private notes' : 'Access private notes'}
             >
@@ -160,10 +162,10 @@ function NoteList() {
           {filteredNotes.length === 0 && (
             <div className="col-span-full text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">
-                {showTrash 
-                  ? 'Trash is empty' 
-                  : showPrivateNotes 
-                    ? 'No private notes found' 
+                {showTrash
+                  ? 'Trash is empty'
+                  : showPrivateNotes
+                    ? 'No private notes found'
                     : 'No notes found'}
               </p>
             </div>
@@ -180,7 +182,7 @@ function NoteList() {
                 // Ensure required fields have default values for new notes
                 const newNote = {
                   ...note,
-                  color: note.color || undefined, // Default color if empty
+                  color: note.color || '', // Default to empty string if no color
                   title: note.title || 'Untitled',
                   content: note.content || '',
                   tags: note.tags || [],
@@ -215,3 +217,4 @@ function App() {
 }
 
 export default App;
+
