@@ -14,7 +14,7 @@ interface NoteViewerProps {
 export function NoteViewer({ note, onClose }: NoteViewerProps) {
   const [showFormatOptions, setShowFormatOptions] = useState(false);
   const [isTitleExpanded, setIsTitleExpanded] = useState(false);
-  
+
   const handleCloseFormatOptions = useCallback(() => {
     setShowFormatOptions(false);
   }, []);
@@ -47,24 +47,21 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className={`rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex ${
-            note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-800'
-          }`}
+          className={`rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex ${note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-800'
+            }`}
           onClick={e => e.stopPropagation()}
         >
           {/* Main Content */}
           <div className="flex-1 flex flex-col max-h-[90vh] overflow-hidden">
             {/* Header */}
-            <div className={`px-4 py-3 sm:p-6 border-b ${
-              note.color ? `border-note-${note.color}-dark/20 dark:border-note-${note.color}-light/20` : 'border-gray-200 dark:border-gray-700'
-            }`}>
+            <div className={`px-4 py-3 sm:p-6 border-b ${note.color ? `border-note-${note.color}-dark/20 dark:border-note-${note.color}-light/20` : 'border-gray-200 dark:border-gray-700'
+              }`}>
               <div className="flex items-start justify-between gap-2 sm:gap-4">
                 <div className="flex-1 min-w-0">
-                  <h2 
+                  <h2
                     onClick={toggleTitleExpansion}
-                    className={`text-base sm:text-lg md:text-xl font-bold mb-2 break-words text-gray-900 dark:text-white cursor-pointer ${
-                      isTitleExpanded ? '' : 'line-clamp-2'
-                    } transition-all duration-200`}
+                    className={`text-base sm:text-lg md:text-xl font-bold mb-2 break-words text-gray-900 dark:text-white cursor-pointer ${isTitleExpanded ? '' : 'line-clamp-2'
+                      } transition-all duration-200`}
                   >
                     {note.title || 'Untitled Note'}
                   </h2>
@@ -104,17 +101,15 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
                       <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                     {showFormatOptions && (
-                      <div 
-                        className={`absolute right-0 mt-2 w-28 sm:w-32 rounded-lg shadow-lg overflow-hidden z-50 ${
-                          note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-700'
-                        }`}
+                      <div
+                        className={`absolute right-0 mt-2 w-28 sm:w-32 rounded-lg shadow-lg overflow-hidden z-50 ${note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-700'
+                          }`}
                         style={{ top: '100%' }}
                       >
                         <button
                           onClick={() => handleDownload('txt')}
-                          className={`w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${
-                            note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
-                          }`}
+                          className={`w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
+                            }`}
                         >
                           Download TXT
                         </button>
@@ -134,9 +129,8 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
               <div className="px-4 py-3 sm:p-6">
-                <div className={`prose prose-sm sm:prose dark:prose-invert max-w-none ${
-                  note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
-                }`}>
+                <div className={`prose prose-sm sm:prose dark:prose-invert max-w-none ${note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
+                  }`}>
                   {note.content.split('\n').map((paragraph, index) => (
                     <p key={index} className="mb-4">
                       {paragraph}

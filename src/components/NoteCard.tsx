@@ -79,8 +79,8 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
 
   return (
     <>
-      <div className={`relative p-5 rounded-xl shadow-md dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)] transition-all duration-200 hover:shadow-lg hover:dark:shadow-[0_10px_15px_-3px_rgba(255,255,255,0.1)] border h-[200px] flex flex-col ${getNoteColorClass(note.color)
-        } border-gray-200 dark:border-gray-700`}>
+      <div className={`relative p-5 rounded-xl shadow-md dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)] transition-all duration-200 hover:shadow-lg hover:dark:shadow-[0_10px_15px_-3px_rgba(255,255,255,0.1)] border border-[rgba(0,0,0,0.50)] dark:border-[rgba(255,255,255,0.50)] h-[200px] flex flex-col ${getNoteColorClass(note.color)
+        }`}>
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white truncate">
@@ -136,10 +136,10 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                   const normalClasses = "bg-gray-200/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200";
 
                   const classes = `${baseClasses} ${isFile
-                      ? fileClasses
-                      : isInsideFolderTag
-                        ? folderTagClasses
-                        : normalClasses
+                    ? fileClasses
+                    : isInsideFolderTag
+                      ? folderTagClasses
+                      : normalClasses
                     }`;
 
                   return (
