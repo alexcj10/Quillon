@@ -127,7 +127,29 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <style>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                  width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                  background-color: rgba(0, 0, 0, 0.2);
+                  border-radius: 10px;
+                  transition: background-color 0.2s;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                  background-color: rgba(0, 0, 0, 0.4);
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                  background-color: rgba(255, 255, 255, 0.2);
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                  background-color: rgba(255, 255, 255, 0.4);
+                }
+              `}</style>
               <div className="px-4 py-3 sm:p-6">
                 <div className={`prose prose-sm sm:prose dark:prose-invert max-w-none ${note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
                   }`}>
