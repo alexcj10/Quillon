@@ -44,7 +44,7 @@ export function TagModal({
                             targetName = 'file' + newTagName;
                         }
 
-                        const exists = tags.some(t => t.toLowerCase() === targetName.toLowerCase());
+                        const exists = tags.some(t => t === targetName);
 
                         if (exists) {
                             setValidationState({
@@ -198,7 +198,7 @@ export function TagModal({
         if (command.tagType === 'blue') {
             // For blue tags, we need to find the file tag
             const fileTag = tags.find(tag =>
-                isFileTag(tag) && getFileTagDisplayName(tag).toLowerCase() === command.oldName.toLowerCase()
+                isFileTag(tag) && getFileTagDisplayName(tag) === command.oldName
             );
             if (!fileTag) {
                 setErrorMessage(`File tag "${command.oldName}" not found.`);
@@ -208,7 +208,7 @@ export function TagModal({
         } else if (command.tagType === 'green') {
             // For green tags, find the tag in tagsInFileFolders
             const greenTag = tags.find(tag =>
-                tagsInFileFolders.has(tag) && tag.toLowerCase() === command.oldName.toLowerCase()
+                tagsInFileFolders.has(tag) && tag === command.oldName
             );
             if (!greenTag) {
                 setErrorMessage(`Content tag "${command.oldName}" not found.`);
@@ -218,7 +218,7 @@ export function TagModal({
         } else {
             // For grey tags, find regular tags
             const greyTag = tags.find(tag =>
-                !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag.toLowerCase() === command.oldName.toLowerCase()
+                !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === command.oldName
             );
             if (!greyTag) {
                 setErrorMessage(`Tag "${command.oldName}" not found.`);
@@ -298,8 +298,8 @@ export function TagModal({
                     )}
                     {validationState && (
                         <div className={`mt-2 p-2 border rounded-md flex items-center gap-2 ${validationState.isValid
-                                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                                : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
                             }`}>
                             {validationState.isValid ? (
                                 <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
@@ -307,8 +307,8 @@ export function TagModal({
                                 <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
                             )}
                             <p className={`text-sm ${validationState.isValid
-                                    ? 'text-green-600 dark:text-green-400'
-                                    : 'text-red-600 dark:text-red-400'
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-red-600 dark:text-red-400'
                                 }`}>
                                 {validationState.message}
                             </p>
