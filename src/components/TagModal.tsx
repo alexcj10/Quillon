@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Search, Folder, Tag } from 'lucide-react';
 import { isFileTag, getFileTagDisplayName } from '../types';
 import { useNotes } from '../context/NoteContext';
-import { parseTagEditCommand, isTagEditCommandStart } from '../utils/tagCommandParser';
+import { parseTagEditCommand, isTagEditCommandStart, extractSearchTermFromCommand, extractTagTypeFromCommand } from '../utils/tagCommandParser';
 import { TagEditPopup } from './TagEditPopup';
 
 interface TagModalProps {
@@ -30,13 +30,76 @@ export function TagModal({
     const { renameTag } = useNotes();
 
     const filteredTags = useMemo(() => {
-        if (!searchTerm.trim() || isTagEditCommandStart(searchTerm)) return tags;
+        // If no search term, return all tags
+        if (!searchTerm.trim()) return tags;
+
+        // Check if this is an edit command with search term
+        const commandInfo = extractSearchTermFromCommand(searchTerm);
+
+        if (commandInfo) {
+            // Filter by tag type and search term
+            const { tagType, searchTerm: extractedSearchTerm } = commandInfo;
+            const lowerTerm = extractedSearchTerm.toLowerCase();
+
+            return tags.filter(tag => {
+                // First filter by tag type
+                const isFile = isFileTag(tag);
+                const isInFolder = tagsInFileFolders.has(tag);
+
+                let matchesType = false;
+                if (tagType === 'blue' && isFile) {
+                    matchesType = true;
+                } else if (tagType === 'green' && isInFolder && !isFile) {
+                    matchesType = true;
+                } else if (tagType === 'grey' && !isFile && !isInFolder) {
+                    matchesType = true;
+                }
+
+                if (!matchesType) return false;
+
+                // Then filter by search term
+                if (isFile) {
+                    return getFileTagDisplayName(tag).toLowerCase().includes(lowerTerm);
+                } else {
+                    return tag.toLowerCase().includes(lowerTerm);
+                }
+            });
+        }
+
+        // Check if user typed just @[type]- without search term (e.g., "@green-")
+        const tagType = extractTagTypeFromCommand(searchTerm);
+        if (tagType) {
+            // Filter by tag type only
+            return tags.filter(tag => {
+                const isFile = isFileTag(tag);
+                const isInFolder = tagsInFileFolders.has(tag);
+
+                if (tagType === 'blue' && isFile) {
+                    return true;
+                } else if (tagType === 'green' && isInFolder && !isFile) {
+                    return true;
+                } else if (tagType === 'grey' && !isFile && !isInFolder) {
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        // Regular search (not an edit command)
+        if (isTagEditCommandStart(searchTerm)) {
+            // User typed @ but hasn't completed the command yet
+            return tags;
+        }
+
+        // Normal filtering
         const lowerTerm = searchTerm.toLowerCase();
         return tags.filter(tag =>
             tag.toLowerCase().includes(lowerTerm) ||
             (isFileTag(tag) && getFileTagDisplayName(tag).toLowerCase().includes(lowerTerm))
         );
-    }, [tags, searchTerm]);
+    }, [tags, searchTerm, tagsInFileFolders]);
+
+
 
     useEffect(() => {
         if (isOpen) {
@@ -143,11 +206,9 @@ export function TagModal({
         if (result.success) {
             setSearchTerm('');
             setErrorMessage('');
-            // Show success feedback
-            const successMsg = `Tag renamed successfully!`;
-            setErrorMessage('');
-            // You could add a success message state here if desired
+            // Tag renamed successfully - could add success message state here if desired
         } else {
+
             setErrorMessage(result.error || 'Failed to rename tag.');
         }
     };
@@ -192,6 +253,13 @@ export function TagModal({
                             inputRef={inputRef}
                         />
                     </div>
+                    {extractTagTypeFromCommand(searchTerm) && (
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                            <p className="text-sm text-blue-600 dark:text-blue-400">
+                                💡 Click on a tag below to select it for editing
+                            </p>
+                        </div>
+                    )}
                     {errorMessage && (
                         <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
                             <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>
@@ -235,6 +303,10 @@ export function TagModal({
                                 const isSelected = selectedTags.includes(tag);
                                 const isInsideFolderTag = !isFile && tagsInFileFolders.has(tag);
 
+                                // Check if we're in edit mode
+                                const tagType = extractTagTypeFromCommand(searchTerm);
+                                const isEditMode = tagType !== null;
+
                                 const baseClasses = "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer select-none";
                                 const selectedClasses = "bg-blue-500 text-white hover:bg-blue-600";
                                 const unselectedFileClasses = "bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-800/40";
@@ -250,10 +322,24 @@ export function TagModal({
                                             : unselectedNormalClasses
                                     }`;
 
+                                // Handle tag click based on mode
+                                const handleTagClick = () => {
+                                    if (isEditMode && tagType) {
+                                        // In edit mode: populate search field with the EXACT tag name
+                                        const tagName = isFile ? getFileTagDisplayName(tag) : tag;
+                                        // Preserve all characters including spaces, special symbols, etc.
+                                        setSearchTerm(`@${tagType}-${tagName}`);
+                                        setErrorMessage('');
+                                    } else {
+                                        // Normal mode: toggle tag selection
+                                        onToggleTag(tag);
+                                    }
+                                };
+
                                 return (
                                     <button
                                         key={tag}
-                                        onClick={() => onToggleTag(tag)}
+                                        onClick={handleTagClick}
                                         className={classes}
                                     >
                                         {isFile && <Folder className="h-3.5 w-3.5" />}
@@ -263,6 +349,7 @@ export function TagModal({
                             })}
                         </div>
                     )}
+
                 </div>
 
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl flex justify-between items-center">

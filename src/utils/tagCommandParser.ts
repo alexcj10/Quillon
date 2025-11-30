@@ -59,11 +59,65 @@ export function getPartialTagType(input: string): string | null {
   }
 
   const partial = input.slice(1).toLowerCase();
-  
+
   // Check if it matches the start of any tag type
   if ('blue'.startsWith(partial) || 'green'.startsWith(partial) || 'grey'.startsWith(partial)) {
     return partial;
   }
 
   return null;
+}
+
+/**
+ * Extracts search term from a partial tag edit command
+ * Examples:
+ * - "@blue-A" => { tagType: 'blue', searchTerm: 'A' }
+ * - "@green-Java" => { tagType: 'green', searchTerm: 'Java' }
+ * - "@grey-s" => { tagType: 'grey', searchTerm: 's' }
+ * - "@blue-Alex/edit-" => { tagType: 'blue', searchTerm: 'Alex' }
+ * Returns null if not a valid partial command
+ */
+export function extractSearchTermFromCommand(input: string): { tagType: 'blue' | 'green' | 'grey'; searchTerm: string } | null {
+  if (!input.startsWith('@')) {
+    return null;
+  }
+
+  // Match pattern: @[type]-[searchTerm] (with optional /edit-[newName])
+  const partialPattern = /^@(blue|green|grey)-([^/]+)/;
+  const match = input.match(partialPattern);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, tagType, searchTerm] = match;
+
+  return {
+    tagType: tagType as 'blue' | 'green' | 'grey',
+    searchTerm: searchTerm.trim(),
+  };
+}
+
+/**
+ * Extracts just the tag type from a command, even without a search term
+ * Examples:
+ * - "@blue-" => 'blue'
+ * - "@green-" => 'green'
+ * - "@grey-Code" => 'grey'
+ * Returns null if not a valid command start
+ */
+export function extractTagTypeFromCommand(input: string): 'blue' | 'green' | 'grey' | null {
+  if (!input.startsWith('@')) {
+    return null;
+  }
+
+  // Match pattern: @[type] (with optional dash and anything after)
+  const typePattern = /^@(blue|green|grey)/;
+  const match = input.match(typePattern);
+
+  if (!match) {
+    return null;
+  }
+
+  return match[1] as 'blue' | 'green' | 'grey';
 }
