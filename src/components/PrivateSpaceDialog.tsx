@@ -168,8 +168,8 @@ export function PrivateSpaceDialog({ onClose }: PrivateSpaceDialogProps) {
                 <button
                   type="submit"
                   className={`px-4 py-2 rounded-lg transition-colors ${showPrivateNotes
-                      ? 'bg-purple-600 hover:bg-purple-700'
-                      : 'bg-purple-500 hover:bg-purple-600'
+                    ? 'bg-purple-600 hover:bg-purple-700'
+                    : 'bg-purple-500 hover:bg-purple-600'
                     } text-white`}
                 >
                   {privateSpaceExists ? 'Unlock' : 'Create'}
