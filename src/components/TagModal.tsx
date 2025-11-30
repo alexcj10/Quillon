@@ -1,7 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Search, Folder, Tag } from 'lucide-react';
 import { isFileTag, getFileTagDisplayName } from '../types';
+import { useNotes } from '../context/NoteContext';
+import { parseTagEditCommand, isTagEditCommandStart } from '../utils/tagCommandParser';
+import { TagEditPopup } from './TagEditPopup';
 
 interface TagModalProps {
     isOpen: boolean;
@@ -21,9 +24,13 @@ export function TagModal({
     tagsInFileFolders
 }: TagModalProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [showPopup, setShowPopup] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const inputRef = useRef<HTMLInputElement>(null);
+    const { renameTag } = useNotes();
 
     const filteredTags = useMemo(() => {
-        if (!searchTerm.trim()) return tags;
+        if (!searchTerm.trim() || isTagEditCommandStart(searchTerm)) return tags;
         const lowerTerm = searchTerm.toLowerCase();
         return tags.filter(tag =>
             tag.toLowerCase().includes(lowerTerm) ||
@@ -37,11 +44,113 @@ export function TagModal({
         } else {
             document.body.style.overflow = 'unset';
             setSearchTerm(''); // Clear search when modal closes
+            setErrorMessage(''); // Clear error when modal closes
         }
         return () => {
             document.body.style.overflow = 'unset';
         };
     }, [isOpen]);
+
+    useEffect(() => {
+        // Show popup when user types @ and hide when they type more
+        if (searchTerm === '@') {
+            setShowPopup(true);
+            setErrorMessage('');
+        } else {
+            setShowPopup(false);
+        }
+    }, [searchTerm]);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        setErrorMessage(''); // Clear error on input change
+    };
+
+    const handleTagTypeSelect = (tagType: 'blue' | 'green' | 'grey') => {
+        setSearchTerm(`@${tagType}-`);
+        setShowPopup(false);
+        inputRef.current?.focus();
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleTagEdit();
+        } else if (e.key === 'Escape') {
+            setSearchTerm('');
+            setErrorMessage('');
+            setShowPopup(false);
+        }
+    };
+
+    const handleTagEdit = () => {
+        const command = parseTagEditCommand(searchTerm);
+
+        if (!command) {
+            if (isTagEditCommandStart(searchTerm) && searchTerm !== '@') {
+                setErrorMessage('Invalid command format. Use: @[type]-[old]/edit-[new]');
+            }
+            return;
+        }
+
+        // Find the actual tag name based on tag type
+        let actualOldTagName = '';
+
+        if (command.tagType === 'blue') {
+            // For blue tags, we need to find the file tag
+            const fileTag = tags.find(tag =>
+                isFileTag(tag) && getFileTagDisplayName(tag).toLowerCase() === command.oldName.toLowerCase()
+            );
+            if (!fileTag) {
+                setErrorMessage(`File tag "${command.oldName}" not found.`);
+                return;
+            }
+            actualOldTagName = fileTag;
+        } else if (command.tagType === 'green') {
+            // For green tags, find the tag in tagsInFileFolders
+            const greenTag = tags.find(tag =>
+                tagsInFileFolders.has(tag) && tag.toLowerCase() === command.oldName.toLowerCase()
+            );
+            if (!greenTag) {
+                setErrorMessage(`Content tag "${command.oldName}" not found.`);
+                return;
+            }
+            actualOldTagName = greenTag;
+        } else {
+            // For grey tags, find regular tags
+            const greyTag = tags.find(tag =>
+                !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag.toLowerCase() === command.oldName.toLowerCase()
+            );
+            if (!greyTag) {
+                setErrorMessage(`Tag "${command.oldName}" not found.`);
+                return;
+            }
+            actualOldTagName = greyTag;
+        }
+
+        // Determine the new tag name based on tag type
+        let actualNewTagName = '';
+        if (command.tagType === 'blue') {
+            // For file tags, add the 'file' prefix
+            actualNewTagName = 'file' + command.newName;
+        } else {
+            actualNewTagName = command.newName;
+        }
+
+        // Execute the rename
+        const result = renameTag(actualOldTagName, actualNewTagName);
+
+        if (result.success) {
+            setSearchTerm('');
+            setErrorMessage('');
+            // Show success feedback
+            const successMsg = `Tag renamed successfully!`;
+            setErrorMessage('');
+            // You could add a success message state here if desired
+        } else {
+            setErrorMessage(result.error || 'Failed to rename tag.');
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -68,14 +177,26 @@ export function TagModal({
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                         <input
+                            ref={inputRef}
                             type="text"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search tags..."
+                            onChange={handleSearchChange}
+                            onKeyDown={handleKeyDown}
+                            placeholder="Search tags or type @ to edit..."
                             className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                             autoFocus
                         />
+                        <TagEditPopup
+                            isVisible={showPopup}
+                            onSelect={handleTagTypeSelect}
+                            inputRef={inputRef}
+                        />
                     </div>
+                    {errorMessage && (
+                        <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                            <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-4 overflow-y-auto flex-1 custom-scrollbar">

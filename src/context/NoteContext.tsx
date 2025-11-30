@@ -141,7 +141,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     setShowPrivateNotes(false);
   };
 
-  const toggleDarkMode = () => setIsDarkMode(prev => !prev);
+  const toggleDarkMode = () => setIsDarkMode((prev: boolean) => !prev);
 
   const incrementViewCount = (id: string) => {
     setNotes(prev => prev.map(note =>
@@ -281,6 +281,41 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
     return true;
   };
+  const renameTag = (oldTagName: string, newTagName: string): { success: boolean; error?: string } => {
+    // Check if the old tag exists in any note
+    const tagExists = notes.some(note => note.tags.includes(oldTagName));
+    
+    if (!tagExists) {
+      return {
+        success: false,
+        error: `The tag "${oldTagName}" does not exist.`
+      };
+    }
+
+    // Check if the new tag name already exists in any note
+    const newTagExists = notes.some(note => note.tags.includes(newTagName));
+    
+    if (newTagExists) {
+      return {
+        success: false,
+        error: `The tag name "${newTagName}" already exists. Please choose a different name.`
+      };
+    }
+
+    // Rename the tag in all notes
+    setNotes(prev => prev.map(note => {
+      if (note.tags.includes(oldTagName)) {
+        return {
+          ...note,
+          tags: note.tags.map(tag => tag === oldTagName ? newTagName : tag),
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      return note;
+    }));
+
+    return { success: true };
+  };
 
   return (
     <NoteContext.Provider value={{
@@ -318,6 +353,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       removeSharedUser,
       getSharedUsers,
       getNoteActivity,
+      renameTag,
     }}>
       {children}
     </NoteContext.Provider>

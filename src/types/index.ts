@@ -47,6 +47,17 @@ export const getFileTagDisplayName = (tag: string): string => {
   return isFileTag(tag) ? tag.slice(4) : tag;
 };
 
+// Helper function to determine tag type (blue/green/grey)
+export const getTagType = (tag: string, tagsInFileFolders: Set<string>): 'blue' | 'green' | 'grey' => {
+  if (isFileTag(tag)) {
+    return 'blue';
+  }
+  if (tagsInFileFolders.has(tag)) {
+    return 'green';
+  }
+  return 'grey';
+};
+
 export interface NoteContextType {
   notes: Note[];
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -81,4 +92,6 @@ export interface NoteContextType {
   getNoteActivity: (noteId: string) => NoteActivity[];
   generateShareUrl: (id: string, protection?: ShareProtection) => string;
   removeShareUrl: (id: string) => void;
+  checkShareProtection: (id: string, password?: string) => boolean;
+  renameTag: (oldTagName: string, newTagName: string) => { success: boolean; error?: string };
 }
