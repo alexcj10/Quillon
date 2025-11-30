@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Search, Folder, Tag } from 'lucide-react';
+import { X, Search, Folder, Tag, Check, AlertCircle } from 'lucide-react';
 import { isFileTag, getFileTagDisplayName } from '../types';
 import { useNotes } from '../context/NoteContext';
 import { parseTagEditCommand, isTagEditCommandStart, extractSearchTermFromCommand, extractTagTypeFromCommand } from '../utils/tagCommandParser';
@@ -28,6 +28,42 @@ export function TagModal({
     const [errorMessage, setErrorMessage] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
     const { renameTag } = useNotes();
+    const [validationState, setValidationState] = useState<{ isValid: boolean; message: string } | null>(null);
+
+    useEffect(() => {
+        if (searchTerm.includes('/edit-')) {
+            const parts = searchTerm.split('/edit-');
+            if (parts.length === 2) {
+                const newTagName = parts[1];
+                if (newTagName.length > 0) {
+                    const commandInfo = extractSearchTermFromCommand(searchTerm);
+                    if (commandInfo) {
+                        const { tagType } = commandInfo;
+                        let targetName = newTagName;
+                        if (tagType === 'blue') {
+                            targetName = 'file' + newTagName;
+                        }
+
+                        const exists = tags.some(t => t.toLowerCase() === targetName.toLowerCase());
+
+                        if (exists) {
+                            setValidationState({
+                                isValid: false,
+                                message: `The tag name '${newTagName}' already exists. Please choose a different name.`
+                            });
+                        } else {
+                            setValidationState({
+                                isValid: true,
+                                message: 'This tag name is available'
+                            });
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+        setValidationState(null);
+    }, [searchTerm, tags]);
 
     const filteredTags = useMemo(() => {
         // If no search term, return all tags
@@ -253,10 +289,28 @@ export function TagModal({
                             inputRef={inputRef}
                         />
                     </div>
-                    {extractTagTypeFromCommand(searchTerm) && (
+                    {extractTagTypeFromCommand(searchTerm) && !searchTerm.includes('/edit-') && (
                         <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                             <p className="text-sm text-blue-600 dark:text-blue-400">
                                 💡 Click on a tag below to select it for editing
+                            </p>
+                        </div>
+                    )}
+                    {validationState && (
+                        <div className={`mt-2 p-2 border rounded-md flex items-center gap-2 ${validationState.isValid
+                                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                                : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                            }`}>
+                            {validationState.isValid ? (
+                                <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                            ) : (
+                                <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                            )}
+                            <p className={`text-sm ${validationState.isValid
+                                    ? 'text-green-600 dark:text-green-400'
+                                    : 'text-red-600 dark:text-red-400'
+                                }`}>
+                                {validationState.message}
                             </p>
                         </div>
                     )}
