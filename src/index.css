@@ -26,7 +26,11 @@
   }
 
   body::-webkit-scrollbar-track {
-    background: transparent;
+    @apply bg-gray-100;
+  }
+
+  .dark body::-webkit-scrollbar-track {
+    @apply bg-gray-900;
   }
 
   body::-webkit-scrollbar-thumb {
