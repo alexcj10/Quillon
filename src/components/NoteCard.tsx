@@ -6,6 +6,7 @@ import { NoteViewer } from './NoteViewer';
 import { downloadNote } from '../utils/downloadUtils';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { ShareDialog } from './ShareDialog';
+import { ConfirmDialog } from './ConfirmDialog';
 import { getNoteColorClass } from '../utils/colorUtils';
 
 interface NoteCardProps {
@@ -26,6 +27,9 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
   const [isViewing, setIsViewing] = useState(false);
   const [showFormatOptions, setShowFormatOptions] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showRestoreDialog, setShowRestoreDialog] = useState(false);
+  const [showPermanentDeleteDialog, setShowPermanentDeleteDialog] = useState(false);
 
   const formattedDate = new Date(note.updatedAt).toLocaleDateString('en-US', {
     month: 'short',
@@ -224,14 +228,14 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
               {showTrash ? (
                 <>
                   <button
-                    onClick={() => restoreFromTrash(note.id)}
+                    onClick={() => setShowRestoreDialog(true)}
                     className="p-1 hover:text-green-500 dark:text-gray-300 dark:hover:text-green-400"
                     title="Restore note"
                   >
                     <RotateCcw className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => permanentlyDelete(note.id)}
+                    onClick={() => setShowPermanentDeleteDialog(true)}
                     className="p-1 hover:text-red-500 dark:text-gray-300 dark:hover:text-red-400"
                     title="Delete permanently"
                   >
@@ -240,7 +244,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                 </>
               ) : (
                 <button
-                  onClick={() => deleteNote(note.id)}
+                  onClick={() => setShowDeleteDialog(true)}
                   className="p-1 hover:text-red-500 dark:text-gray-300 dark:hover:text-red-400"
                   title="Move to trash"
                 >
@@ -263,6 +267,78 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
         <ShareDialog
           note={note}
           onClose={() => setShowShareDialog(false)}
+        />
+      )}
+
+      {showDeleteDialog && (
+        <ConfirmDialog
+          isOpen={showDeleteDialog}
+          type="delete"
+          title="Delete Note?"
+          description={
+            <>
+              <p className="mb-1">
+                Are you sure you want to delete <span className="font-semibold text-gray-900 dark:text-white" title={note.title}>"{note.title.length > 40 ? `${note.title.substring(0, 40)}...` : note.title}"</span>?
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                This note will be moved to trash and can be restored later.
+              </p>
+            </>
+          }
+          confirmLabel="Delete"
+          onConfirm={() => {
+            deleteNote(note.id);
+            setShowDeleteDialog(false);
+          }}
+          onCancel={() => setShowDeleteDialog(false)}
+        />
+      )}
+
+      {showRestoreDialog && (
+        <ConfirmDialog
+          isOpen={showRestoreDialog}
+          type="restore"
+          title="Restore Note?"
+          description={
+            <>
+              <p className="mb-1">
+                Are you sure you want to restore <span className="font-semibold text-gray-900 dark:text-white" title={note.title}>"{note.title.length > 40 ? `${note.title.substring(0, 40)}...` : note.title}"</span>?
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                This note will be moved back to your notes and removed from trash.
+              </p>
+            </>
+          }
+          confirmLabel="Restore"
+          onConfirm={() => {
+            restoreFromTrash(note.id);
+            setShowRestoreDialog(false);
+          }}
+          onCancel={() => setShowRestoreDialog(false)}
+        />
+      )}
+
+      {showPermanentDeleteDialog && (
+        <ConfirmDialog
+          isOpen={showPermanentDeleteDialog}
+          type="delete"
+          title="Permanently Delete Note?"
+          description={
+            <>
+              <p className="mb-1">
+                Are you sure you want to permanently delete <span className="font-semibold text-gray-900 dark:text-white" title={note.title}>"{note.title.length > 40 ? `${note.title.substring(0, 40)}...` : note.title}"</span>?
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                This action cannot be undone and the note will be lost forever.
+              </p>
+            </>
+          }
+          confirmLabel="Delete Forever"
+          onConfirm={() => {
+            permanentlyDelete(note.id);
+            setShowPermanentDeleteDialog(false);
+          }}
+          onCancel={() => setShowPermanentDeleteDialog(false)}
         />
       )}
     </>
