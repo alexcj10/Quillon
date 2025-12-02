@@ -392,7 +392,7 @@ export function TagModal({
                             value={searchTerm}
                             onChange={handleSearchChange}
                             onKeyDown={handleKeyDown}
-                            placeholder="Search tags or type @ to edit/delete..."
+                            placeholder="Search tags or @ to edit/delete"
                             className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                             autoFocus
                         />
