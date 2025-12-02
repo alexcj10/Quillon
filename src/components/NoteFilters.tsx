@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Star, Folder, MoreHorizontal } from 'lucide-react';
+import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { isFileTag, getFileTagDisplayName } from '../types';
 import { TagModal } from './TagModal';
@@ -67,6 +67,14 @@ export function NoteFilters() {
         >
           <Star className={`h-5 w-5 ${showStarredOnly ? 'fill-current' : ''}`} />
           <span className="hidden sm:inline">Starred</span>
+        </button>
+        <button
+          onClick={() => setIsTagModalOpen(true)}
+          className="p-3 rounded-lg transition-colors flex items-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+          title="Manage all tags"
+        >
+          <Tag className="h-5 w-5" />
+          <span className="hidden sm:inline">All Tags</span>
         </button>
       </div>
 
