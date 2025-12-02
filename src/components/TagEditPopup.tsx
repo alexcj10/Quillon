@@ -79,7 +79,7 @@ export function TagEditPopup({ isVisible, onSelect, inputRef }: TagEditPopupProp
 
             <div className="p-2">
                 <div className="text-xs font-medium text-gray-500 dark:text-gray-400 px-3 py-2">
-                    Select tag type to edit:
+                    Select tag type to edit or delete:
                 </div>
                 {tagTypes.map((tagType) => (
                     <button
@@ -97,8 +97,9 @@ export function TagEditPopup({ isVisible, onSelect, inputRef }: TagEditPopupProp
             </div>
 
             <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Format: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[old]/edit-[new]</code>
+                <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                    <div>Edit: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[old]/edit-[new]</code></div>
+                    <div>Delete: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[tag]/delete</code></div>
                 </div>
             </div>
         </div>

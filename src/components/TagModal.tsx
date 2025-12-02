@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Search, Folder, Tag, Check, AlertCircle } from 'lucide-react';
 import { isFileTag, getFileTagDisplayName } from '../types';
 import { useNotes } from '../context/NoteContext';
-import { parseTagEditCommand, isTagEditCommandStart, extractSearchTermFromCommand, extractTagTypeFromCommand } from '../utils/tagCommandParser';
+import { parseTagEditCommand, parseTagDeleteCommand, isTagEditCommandStart, extractSearchTermFromCommand, extractTagTypeFromCommand } from '../utils/tagCommandParser';
 import { TagEditPopup } from './TagEditPopup';
 
 interface TagModalProps {
@@ -22,15 +22,16 @@ export function TagModal({
     selectedTags,
     onToggleTag,
     tagsInFileFolders
-}: TagModalProps) {
+}: TagModalProps): JSX.Element | null {
     const [searchTerm, setSearchTerm] = useState('');
     const [showPopup, setShowPopup] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
-    const { renameTag } = useNotes();
+    const { renameTag, deleteTag } = useNotes();
     const [validationState, setValidationState] = useState<{ isValid: boolean; message: string } | null>(null);
 
     useEffect(() => {
+        // Check for edit command validation
         if (searchTerm.includes('/edit-')) {
             const parts = searchTerm.split('/edit-');
             if (parts.length === 2) {
@@ -62,8 +63,79 @@ export function TagModal({
                 }
             }
         }
+
+        // Check for delete command validation
+        if (searchTerm.includes('/delete')) {
+            const parts = searchTerm.split('/delete');
+            if (parts.length === 2 && parts[1] === '') {
+                // Valid delete command format
+                const commandInfo = extractSearchTermFromCommand(searchTerm);
+                if (commandInfo) {
+                    const { tagType, searchTerm: tagName } = commandInfo;
+
+                    // Check if the tag exists
+                    let tagExists = false;
+                    if (tagType === 'blue') {
+                        tagExists = tags.some(tag =>
+                            isFileTag(tag) && getFileTagDisplayName(tag) === tagName
+                        );
+                    } else if (tagType === 'green') {
+                        tagExists = tags.some(tag =>
+                            !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === tagName
+                        );
+                    } else {
+                        tagExists = tags.some(tag =>
+                            !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === tagName
+                        );
+                    }
+
+                    if (tagExists) {
+                        setValidationState({
+                            isValid: true,
+                            message: `Press Enter to delete this tag and move all associated notes to trash`
+                        });
+                    } else {
+                        setValidationState({
+                            isValid: false,
+                            message: `Tag '${tagName}' not found`
+                        });
+                    }
+                    return;
+                }
+            }
+        }
+
+        // Check for typos in command keywords (e.g., /editt, /deletes, etc.)
+        if (searchTerm.includes('/') && extractTagTypeFromCommand(searchTerm)) {
+            const afterSlash = searchTerm.split('/')[1];
+            if (afterSlash) {
+                const lowerAfterSlash = afterSlash.toLowerCase();
+
+                // Check if it's a typo of "edit" or "delete"
+                const isEditTypo = lowerAfterSlash.startsWith('edit') && !lowerAfterSlash.startsWith('edit-');
+                const isDeleteTypo = lowerAfterSlash.startsWith('delet') && lowerAfterSlash !== 'delete';
+
+                if (isEditTypo || isDeleteTypo) {
+                    setValidationState({
+                        isValid: false,
+                        message: `Invalid command. Use "/edit-" for renaming or "/delete" for deletion`
+                    });
+                    return;
+                }
+
+                // Check for other common typos
+                if (!lowerAfterSlash.startsWith('edit') && !lowerAfterSlash.startsWith('delete')) {
+                    setValidationState({
+                        isValid: false,
+                        message: `Invalid command. Use "/edit-[newname]" or "/delete"`
+                    });
+                    return;
+                }
+            }
+        }
+
         setValidationState(null);
-    }, [searchTerm, tags]);
+    }, [searchTerm, tags, tagsInFileFolders]);
 
     const filteredTags = useMemo(() => {
         // If no search term, return all tags
@@ -183,69 +255,110 @@ export function TagModal({
     };
 
     const handleTagEdit = () => {
-        const command = parseTagEditCommand(searchTerm);
+        // Try parsing as edit command first
+        const editCommand = parseTagEditCommand(searchTerm);
 
-        if (!command) {
-            if (isTagEditCommandStart(searchTerm) && searchTerm !== '@') {
-                setErrorMessage('Invalid command format. Use: @[type]-[old]/edit-[new]');
+        if (editCommand) {
+            // Handle rename logic (existing code)
+            let actualOldTagName = '';
+
+            if (editCommand.tagType === 'blue') {
+                const fileTag = tags.find(tag =>
+                    isFileTag(tag) && getFileTagDisplayName(tag) === editCommand.oldName
+                );
+                if (!fileTag) {
+                    setErrorMessage(`Blue tag "${editCommand.oldName}" not found.`);
+                    return;
+                }
+                actualOldTagName = fileTag;
+            } else if (editCommand.tagType === 'green') {
+                const greenTag = tags.find(tag =>
+                    !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === editCommand.oldName
+                );
+                if (!greenTag) {
+                    setErrorMessage(`Green tag "${editCommand.oldName}" not found.`);
+                    return;
+                }
+                actualOldTagName = greenTag;
+            } else {
+                const greyTag = tags.find(tag =>
+                    !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === editCommand.oldName
+                );
+                if (!greyTag) {
+                    setErrorMessage(`Grey tag "${editCommand.oldName}" not found.`);
+                    return;
+                }
+                actualOldTagName = greyTag;
+            }
+
+            let actualNewTagName = '';
+            if (editCommand.tagType === 'blue') {
+                actualNewTagName = 'file' + editCommand.newName;
+            } else {
+                actualNewTagName = editCommand.newName;
+            }
+
+            const result = renameTag(actualOldTagName, actualNewTagName);
+
+            if (result.success) {
+                setSearchTerm('');
+                setErrorMessage('');
+            } else {
+                setErrorMessage(result.error || 'Failed to rename tag.');
             }
             return;
         }
 
-        // Find the actual tag name based on tag type
-        let actualOldTagName = '';
+        // Try parsing as delete command
+        const deleteCommand = parseTagDeleteCommand(searchTerm);
 
-        if (command.tagType === 'blue') {
-            // For blue tags, we need to find the file tag
-            const fileTag = tags.find(tag =>
-                isFileTag(tag) && getFileTagDisplayName(tag) === command.oldName
-            );
-            if (!fileTag) {
-                setErrorMessage(`File tag "${command.oldName}" not found.`);
-                return;
+        if (deleteCommand) {
+            // Handle delete logic
+            let actualTagName = '';
+
+            if (deleteCommand.tagType === 'blue') {
+                const fileTag = tags.find(tag =>
+                    isFileTag(tag) && getFileTagDisplayName(tag) === deleteCommand.tagName
+                );
+                if (!fileTag) {
+                    setErrorMessage(`Blue tag "${deleteCommand.tagName}" not found.`);
+                    return;
+                }
+                actualTagName = fileTag;
+            } else if (deleteCommand.tagType === 'green') {
+                const greenTag = tags.find(tag =>
+                    !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === deleteCommand.tagName
+                );
+                if (!greenTag) {
+                    setErrorMessage(`Green tag "${deleteCommand.tagName}" not found.`);
+                    return;
+                }
+                actualTagName = greenTag;
+            } else {
+                const greyTag = tags.find(tag =>
+                    !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === deleteCommand.tagName
+                );
+                if (!greyTag) {
+                    setErrorMessage(`Grey tag "${deleteCommand.tagName}" not found.`);
+                    return;
+                }
+                actualTagName = greyTag;
             }
-            actualOldTagName = fileTag;
-        } else if (command.tagType === 'green') {
-            // For green tags, find the tag in tagsInFileFolders
-            const greenTag = tags.find(tag =>
-                tagsInFileFolders.has(tag) && tag === command.oldName
-            );
-            if (!greenTag) {
-                setErrorMessage(`Content tag "${command.oldName}" not found.`);
-                return;
+
+            const result = deleteTag(actualTagName);
+
+            if (result.success) {
+                setSearchTerm('');
+                setErrorMessage('');
+            } else {
+                setErrorMessage(result.error || 'Failed to delete tag.');
             }
-            actualOldTagName = greenTag;
-        } else {
-            // For grey tags, find regular tags
-            const greyTag = tags.find(tag =>
-                !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === command.oldName
-            );
-            if (!greyTag) {
-                setErrorMessage(`Tag "${command.oldName}" not found.`);
-                return;
-            }
-            actualOldTagName = greyTag;
+            return;
         }
 
-        // Determine the new tag name based on tag type
-        let actualNewTagName = '';
-        if (command.tagType === 'blue') {
-            // For file tags, add the 'file' prefix
-            actualNewTagName = 'file' + command.newName;
-        } else {
-            actualNewTagName = command.newName;
-        }
-
-        // Execute the rename
-        const result = renameTag(actualOldTagName, actualNewTagName);
-
-        if (result.success) {
-            setSearchTerm('');
-            setErrorMessage('');
-            // Tag renamed successfully - could add success message state here if desired
-        } else {
-
-            setErrorMessage(result.error || 'Failed to rename tag.');
+        // If neither command matched
+        if (isTagEditCommandStart(searchTerm) && searchTerm !== '@') {
+            setErrorMessage('Invalid command format. Use: @[type]-[old]/edit-[new] or @[type]-[tag]/delete');
         }
     };
 
@@ -279,7 +392,7 @@ export function TagModal({
                             value={searchTerm}
                             onChange={handleSearchChange}
                             onKeyDown={handleKeyDown}
-                            placeholder="Search tags or type @ to edit..."
+                            placeholder="Search tags or type @ to edit/delete..."
                             className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                             autoFocus
                         />
@@ -289,10 +402,10 @@ export function TagModal({
                             inputRef={inputRef}
                         />
                     </div>
-                    {extractTagTypeFromCommand(searchTerm) && !searchTerm.includes('/edit-') && (
+                    {extractTagTypeFromCommand(searchTerm) && !searchTerm.includes('/') && (
                         <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                             <p className="text-sm text-blue-600 dark:text-blue-400">
-                                💡 Click on a tag below to select it for editing
+                                💡 Click on a tag below to select it for editing or deleting
                             </p>
                         </div>
                     )}

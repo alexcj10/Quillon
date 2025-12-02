@@ -94,4 +94,5 @@ export interface NoteContextType {
   removeShareUrl: (id: string) => void;
   checkShareProtection: (id: string, password?: string) => boolean;
   renameTag: (oldTagName: string, newTagName: string) => { success: boolean; error?: string };
+  deleteTag: (tagName: string) => { success: boolean; error?: string };
 }

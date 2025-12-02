@@ -4,6 +4,11 @@ export interface TagEditCommand {
   newName: string;
 }
 
+export interface TagDeleteCommand {
+  tagType: 'blue' | 'green' | 'grey';
+  tagName: string;
+}
+
 /**
  * Parses tag edit command in format: @[type]-[old]/edit-[new]
  * Returns parsed command object or null if invalid
@@ -40,6 +45,37 @@ export function parseTagEditCommand(input: string): TagEditCommand | null {
     tagType: tagType as 'blue' | 'green' | 'grey',
     oldName: oldName.trim(),
     newName: newName.trim(),
+  };
+}
+
+/**
+ * Parses tag delete command in format: @[type]-[tagname]/delete
+ * Returns parsed command object or null if invalid
+ */
+export function parseTagDeleteCommand(input: string): TagDeleteCommand | null {
+  // Check if input starts with @
+  if (!input.startsWith('@')) {
+    return null;
+  }
+
+  // Match pattern: @[type]-[tagname]/delete
+  const pattern = /^@(blue|green|grey)-(.+?)\/delete$/;
+  const match = input.match(pattern);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, tagType, tagName] = match;
+
+  // Validate that tag name is not empty after trimming
+  if (!tagName.trim()) {
+    return null;
+  }
+
+  return {
+    tagType: tagType as 'blue' | 'green' | 'grey',
+    tagName: tagName.trim(),
   };
 }
 

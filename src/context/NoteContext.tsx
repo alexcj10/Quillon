@@ -72,13 +72,13 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateNote = (id: string, updates: Partial<Note>) => {
-    setNotes(prev => prev.map(note => 
-      note.id === id 
+    setNotes(prev => prev.map(note =>
+      note.id === id
         ? {
-            ...note,
-            ...updates,
-            updatedAt: new Date().toISOString(),
-          }
+          ...note,
+          ...updates,
+          updatedAt: new Date().toISOString(),
+        }
         : note
     ));
   };
@@ -87,12 +87,12 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     setNotes(prev => prev.map(note =>
       note.id === id
         ? {
-            ...note,
-            isDeleted: true,
-            deletedAt: new Date().toISOString(),
-            isPinned: false,
-            isFavorite: false,
-          }
+          ...note,
+          isDeleted: true,
+          deletedAt: new Date().toISOString(),
+          isPinned: false,
+          isFavorite: false,
+        }
         : note
     ));
   };
@@ -101,10 +101,10 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     setNotes(prev => prev.map(note =>
       note.id === id
         ? {
-            ...note,
-            isDeleted: false,
-            deletedAt: undefined,
-          }
+          ...note,
+          isDeleted: false,
+          deletedAt: undefined,
+        }
         : note
     ));
   };
@@ -147,9 +147,9 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     setNotes(prev => prev.map(note =>
       note.id === id
         ? {
-            ...note,
-            viewCount: (note.viewCount || 0) + 1,
-          }
+          ...note,
+          viewCount: (note.viewCount || 0) + 1,
+        }
         : note
     ));
   };
@@ -162,7 +162,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
           permission,
           sharedAt: new Date().toISOString(),
         };
-        
+
         const newActivity: NoteActivity = {
           user: 'You',
           action: `shared with ${email} (${permission} access)`,
@@ -205,7 +205,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     setNotes(prev => prev.map(note => {
       if (note.id === noteId) {
         const newSharedWith = (note.sharedWith || []).filter(user => user.email !== email);
-        
+
         const newActivity: NoteActivity = {
           user: 'You',
           action: `removed ${email}'s access`,
@@ -240,7 +240,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
     // Generate a unique share token
     const shareToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    
+
     // Create the share URL
     const baseUrl = window.location.origin;
     const shareUrl = `${baseUrl}/shared/${shareToken}`;
@@ -284,7 +284,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   const renameTag = (oldTagName: string, newTagName: string): { success: boolean; error?: string } => {
     // Check if the old tag exists in any note
     const tagExists = notes.some(note => note.tags.includes(oldTagName));
-    
+
     if (!tagExists) {
       return {
         success: false,
@@ -294,7 +294,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
     // Check if the new tag name already exists in any note
     const newTagExists = notes.some(note => note.tags.includes(newTagName));
-    
+
     if (newTagExists) {
       return {
         success: false,
@@ -309,6 +309,34 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
           ...note,
           tags: note.tags.map(tag => tag === oldTagName ? newTagName : tag),
           updatedAt: new Date().toISOString(),
+        };
+      }
+      return note;
+    }));
+
+    return { success: true };
+  };
+
+  const deleteTag = (tagName: string): { success: boolean; error?: string } => {
+    // Check if the tag exists in any note
+    const tagExists = notes.some(note => note.tags.includes(tagName));
+
+    if (!tagExists) {
+      return {
+        success: false,
+        error: `The tag "${tagName}" does not exist.`
+      };
+    }
+
+    // Move all notes with this tag to trash
+    setNotes(prev => prev.map(note => {
+      if (note.tags.includes(tagName) && !note.isDeleted) {
+        return {
+          ...note,
+          isDeleted: true,
+          deletedAt: new Date().toISOString(),
+          isPinned: false,
+          isFavorite: false,
         };
       }
       return note;
@@ -354,6 +382,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       getSharedUsers,
       getNoteActivity,
       renameTag,
+      deleteTag,
     }}>
       {children}
     </NoteContext.Provider>
@@ -367,3 +396,4 @@ export function useNotes() {
   }
   return context;
 }
+
