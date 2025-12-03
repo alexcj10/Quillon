@@ -19,22 +19,21 @@ export function NoteFilters() {
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
 
-  const visibleNotes = notes.filter(note => 
-    note.isPrivate === showPrivateNotes && (note.isDeleted || false) === (showTrash || false)
+  const visibleNotes = notes.filter(note =>
+    note.isPrivate === showPrivateNotes &&
+    (note.isDeleted || false) === (showTrash || false)
   );
+
   const allTags = Array.from(new Set(visibleNotes.flatMap(note => note.tags)));
 
-  // Get all tags that appear in notes that have file tags
   const tagsInFileFolders = new Set(
     visibleNotes
       .filter(note => note.tags.some(tag => isFileTag(tag)))
       .flatMap(note => note.tags.filter(tag => !isFileTag(tag)))
   );
 
-  // No sorting - maintain FIFO order
   const sortedTags = allTags;
 
-  // Limit visible tags to 20
   const VISIBLE_TAGS_LIMIT = 20;
   const visibleTags = sortedTags.slice(0, VISIBLE_TAGS_LIMIT);
   const hasMoreTags = sortedTags.length > VISIBLE_TAGS_LIMIT;
@@ -49,6 +48,9 @@ export function NoteFilters() {
 
   return (
     <div className="mb-6 space-y-4 w-full max-w-3xl mx-auto px-4 sm:px-6">
+      
+
+      {/* SEARCH + STARRED + ALL TAGS */}
       <div className="flex gap-2 items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -60,60 +62,101 @@ export function NoteFilters() {
             className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base"
           />
         </div>
+
         <button
           onClick={() => setShowStarredOnly(!showStarredOnly)}
-          className={`p-3 rounded-lg transition-colors flex items-center gap-2 ${showStarredOnly
-            ? 'bg-yellow-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-            }`}
-          title={showStarredOnly ? 'Show all notes' : 'Show starred notes only'}
+          className={`p-3 rounded-lg transition-colors flex items-center gap-2 ${
+            showStarredOnly
+              ? 'bg-yellow-500 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+          }`}
         >
           <Star className={`h-5 w-5 ${showStarredOnly ? 'fill-current' : ''}`} />
           <span className="hidden sm:inline">Starred</span>
         </button>
+
         <button
           onClick={() => setIsTagModalOpen(true)}
           className="p-3 rounded-lg transition-colors flex items-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-          title="Manage all tags"
         >
           <Tag className="h-5 w-5" />
           <span className="hidden sm:inline">All Tags</span>
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+
+      {/* TAG FILTER BAR */}
+      <div className="flex flex-wrap gap-2 items-center overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+
+        {/* 🌈 HOLOGRAM GRADIENT SPINNER (Trash Only) */}
+        {showTrash && (
+          <svg
+            className="hologram-spinner"
+            width="22"
+            height="22"
+            viewBox="0 0 50 50"
+            style={{
+              display: "inline-block",
+              verticalAlign: "middle"
+            }}
+          >
+            <defs>
+              <linearGradient id="holoGradient">
+                <stop offset="0%" stopColor="#FF7AB8" />
+                <stop offset="50%" stopColor="#FF4DA6" />
+                <stop offset="100%" stopColor="#FF1E8E" />
+              </linearGradient>
+            </defs>
+
+            <circle
+              cx="25"
+              cy="25"
+              r="20"
+              stroke="url(#holoGradient)"
+              strokeWidth="4"
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray="110"
+              strokeDashoffset="40"
+            />
+          </svg>
+        )}
+
+        {/* TAG BUTTONS */}
         {visibleTags.map(tag => {
           const isFile = isFileTag(tag);
           const isSelected = selectedTags.includes(tag);
           const isInsideFolderTag = !isFile && tagsInFileFolders.has(tag);
 
-          const baseClasses = "inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation";
+          const baseClasses =
+            "inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation";
           const selectedClasses = "bg-blue-500 text-white";
-          const unselectedFileClasses = "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-800/50";
-          const unselectedFolderTagClasses = "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-800/50";
-          const unselectedNormalClasses = "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600";
+          const unselectedFileClasses =
+            "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-800/50";
+          const unselectedFolderTagClasses =
+            "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-800/50";
+          const unselectedNormalClasses =
+            "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600";
 
-          const classes = `${baseClasses} ${isSelected
-            ? selectedClasses
-            : isFile
+          const classes = `${baseClasses} ${
+            isSelected
+              ? selectedClasses
+              : isFile
               ? unselectedFileClasses
               : isInsideFolderTag
-                ? unselectedFolderTagClasses
-                : unselectedNormalClasses
-            }`;
+              ? unselectedFolderTagClasses
+              : unselectedNormalClasses
+          }`;
 
           return (
-            <button
-              key={tag}
-              onClick={() => toggleTag(tag)}
-              className={classes}
-            >
+            <button key={tag} onClick={() => toggleTag(tag)} className={classes}>
               {isFile && <Folder className="h-4 w-4" />}
               {isFile ? getFileTagDisplayName(tag) : tag}
             </button>
           );
         })}
 
+        {/* + MORE TAGS */}
         {hasMoreTags && (
           <button
             onClick={() => setIsTagModalOpen(true)}
