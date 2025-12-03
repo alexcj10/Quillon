@@ -328,11 +328,12 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
-    // Move all notes with this tag to trash
+    // Move ALL notes with this tag to trash (keeping the tag visible in trash)
     setNotes(prev => prev.map(note => {
       if (note.tags.includes(tagName) && !note.isDeleted) {
         return {
           ...note,
+          // Keep ALL tags including the deleted one so they're visible in trash
           isDeleted: true,
           deletedAt: new Date().toISOString(),
           isPinned: false,

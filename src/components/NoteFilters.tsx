@@ -13,12 +13,15 @@ export function NoteFilters() {
     setSelectedTags,
     showStarredOnly,
     setShowStarredOnly,
-    showPrivateNotes
+    showPrivateNotes,
+    showTrash
   } = useNotes();
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
 
-  const visibleNotes = notes.filter(note => note.isPrivate === showPrivateNotes);
+  const visibleNotes = notes.filter(note => 
+    note.isPrivate === showPrivateNotes && (note.isDeleted || false) === (showTrash || false)
+  );
   const allTags = Array.from(new Set(visibleNotes.flatMap(note => note.tags)));
 
   // Get all tags that appear in notes that have file tags
