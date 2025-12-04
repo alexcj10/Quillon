@@ -95,4 +95,11 @@ export interface NoteContextType {
   checkShareProtection: (id: string, password?: string) => boolean;
   renameTag: (oldTagName: string, newTagName: string) => { success: boolean; error?: string };
   deleteTag: (tagName: string) => { success: boolean; error?: string };
+  selectionMode: boolean;
+  setSelectionMode: (mode: boolean) => void;
+  selectedNoteIds: Set<string>;
+  toggleNoteSelection: (noteId: string) => void;
+selectAllNotes: (noteIds?: string[]) => void;
+clearSelection: () => void;
+bulkRestoreFromTrash: () => void;
 }

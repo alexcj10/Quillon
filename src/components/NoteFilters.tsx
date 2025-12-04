@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { isFileTag, getFileTagDisplayName } from '../types';
 import { TagModal } from './TagModal';
+import { BulkRecoveryPopup } from './BulkRecoveryPopup';
 
-export function NoteFilters() {
+export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const {
     searchTerm,
     setSearchTerm,
@@ -14,10 +15,18 @@ export function NoteFilters() {
     showStarredOnly,
     setShowStarredOnly,
     showPrivateNotes,
-    showTrash
+    showTrash,
+    selectionMode,
+    setSelectionMode,
+    clearSelection,
+    selectAllNotes,
+    bulkRestoreFromTrash,
+    selectedNoteIds,
   } = useNotes();
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [isBulkPopupOpen, setIsBulkPopupOpen] = useState(false);
+  const hologramRef = useRef<HTMLButtonElement>(null);
 
   const visibleNotes = notes.filter(note =>
     note.isPrivate === showPrivateNotes &&
@@ -46,9 +55,13 @@ export function NoteFilters() {
     );
   };
 
+  // Use displayed notes if provided, otherwise fall back to visible notes
+  const notesToSelect = displayedNotes || visibleNotes;
+  const filteredNoteIds = notesToSelect.map(note => note.id);
+
   return (
     <div className="mb-6 space-y-4 w-full max-w-3xl mx-auto px-4 sm:px-6">
-      
+
 
       {/* SEARCH + STARRED + ALL TAGS */}
       <div className="flex gap-2 items-center">
@@ -65,11 +78,10 @@ export function NoteFilters() {
 
         <button
           onClick={() => setShowStarredOnly(!showStarredOnly)}
-          className={`p-3 rounded-lg transition-colors flex items-center gap-2 ${
-            showStarredOnly
-              ? 'bg-yellow-500 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-          }`}
+          className={`p-3 rounded-lg transition-colors flex items-center gap-2 ${showStarredOnly
+            ? 'bg-yellow-500 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+            }`}
         >
           <Star className={`h-5 w-5 ${showStarredOnly ? 'fill-current' : ''}`} />
           <span className="hidden sm:inline">Starred</span>
@@ -90,36 +102,54 @@ export function NoteFilters() {
 
         {/* 🌈 HOLOGRAM GRADIENT SPINNER (Trash Only) */}
         {showTrash && (
-          <svg
-            className="hologram-spinner"
-            width="22"
-            height="22"
-            viewBox="0 0 50 50"
-            style={{
-              display: "inline-block",
-              verticalAlign: "middle"
+          <button
+            ref={hologramRef}
+            onClick={() => {
+              if (selectionMode) {
+                // If already in selection mode, turn it off and clear selections
+                setSelectionMode(false);
+                setIsBulkPopupOpen(false);
+                clearSelection();
+              } else {
+                // Enable selection mode and show popup
+                setSelectionMode(true);
+                setIsBulkPopupOpen(true);
+              }
             }}
+            className="p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity"
+            title={selectionMode ? "Exit selection mode" : "Bulk recovery options"}
           >
-            <defs>
-              <linearGradient id="holoGradient">
-                <stop offset="0%" stopColor="#FF7AB8" />
-                <stop offset="50%" stopColor="#FF4DA6" />
-                <stop offset="100%" stopColor="#FF1E8E" />
-              </linearGradient>
-            </defs>
+            <svg
+              className="hologram-spinner"
+              width="22"
+              height="22"
+              viewBox="0 0 50 50"
+              style={{
+                display: "inline-block",
+                verticalAlign: "middle"
+              }}
+            >
+              <defs>
+                <linearGradient id="holoGradient">
+                  <stop offset="0%" stopColor="#FF7AB8" />
+                  <stop offset="50%" stopColor="#FF4DA6" />
+                  <stop offset="100%" stopColor="#FF1E8E" />
+                </linearGradient>
+              </defs>
 
-            <circle
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="url(#holoGradient)"
-              strokeWidth="4"
-              fill="none"
-              strokeLinecap="round"
-              strokeDasharray="110"
-              strokeDashoffset="40"
-            />
-          </svg>
+              <circle
+                cx="25"
+                cy="25"
+                r="20"
+                stroke="url(#holoGradient)"
+                strokeWidth="4"
+                fill="none"
+                strokeLinecap="round"
+                strokeDasharray="110"
+                strokeDashoffset="40"
+              />
+            </svg>
+          </button>
         )}
 
         {/* TAG BUTTONS */}
@@ -138,15 +168,14 @@ export function NoteFilters() {
           const unselectedNormalClasses =
             "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600";
 
-          const classes = `${baseClasses} ${
-            isSelected
-              ? selectedClasses
-              : isFile
+          const classes = `${baseClasses} ${isSelected
+            ? selectedClasses
+            : isFile
               ? unselectedFileClasses
               : isInsideFolderTag
-              ? unselectedFolderTagClasses
-              : unselectedNormalClasses
-          }`;
+                ? unselectedFolderTagClasses
+                : unselectedNormalClasses
+            }`;
 
           return (
             <button key={tag} onClick={() => toggleTag(tag)} className={classes}>
@@ -175,6 +204,24 @@ export function NoteFilters() {
         selectedTags={selectedTags}
         onToggleTag={toggleTag}
         tagsInFileFolders={tagsInFileFolders}
+      />
+
+      <BulkRecoveryPopup
+        isOpen={isBulkPopupOpen}
+        onClose={() => {
+          // Only close popup, keep selection mode active
+          setIsBulkPopupOpen(false);
+        }}
+        selectedCount={selectedNoteIds.size}
+        onSelectAll={() => {
+          selectAllNotes(filteredNoteIds);
+        }}
+        onRecover={() => {
+          bulkRestoreFromTrash();
+          setIsBulkPopupOpen(false);
+          // Recovery completes the action, so disable selection mode
+        }}
+        anchorRef={hologramRef}
       />
     </div>
   );

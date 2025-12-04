@@ -23,6 +23,10 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     return saved ? JSON.parse(saved) : false;
   });
 
+  // Selection state for bulk recovery
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(notes));
   }, [notes]);
@@ -346,6 +350,49 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     return { success: true };
   };
 
+  // Selection mode functions for bulk recovery
+  const toggleNoteSelection = (noteId: string) => {
+    setSelectedNoteIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(noteId)) {
+        newSet.delete(noteId);
+      } else {
+        newSet.add(noteId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllNotes = (noteIds?: string[]) => {
+  if (noteIds) {
+    // Select only the provided note IDs (filtered notes)
+    setSelectedNoteIds(new Set(noteIds));
+  } else {
+    // Select all trash notes (fallback)
+    const trashNotes = notes.filter(note => note.isDeleted);
+    setSelectedNoteIds(new Set(trashNotes.map(note => note.id)));
+  }
+};
+
+  const clearSelection = () => {
+    setSelectedNoteIds(new Set());
+    setSelectionMode(false);
+  };
+
+  const bulkRestoreFromTrash = () => {
+    const idsToRestore = Array.from(selectedNoteIds);
+    setNotes(prev => prev.map(note =>
+      idsToRestore.includes(note.id)
+        ? {
+          ...note,
+          isDeleted: false,
+          deletedAt: undefined,
+        }
+        : note
+    ));
+    clearSelection();
+  };
+
   return (
     <NoteContext.Provider value={{
       notes,
@@ -384,6 +431,13 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       getNoteActivity,
       renameTag,
       deleteTag,
+      selectionMode,
+      setSelectionMode,
+      selectedNoteIds,
+      toggleNoteSelection,
+      selectAllNotes,
+      clearSelection,
+      bulkRestoreFromTrash,
     }}>
       {children}
     </NoteContext.Provider>

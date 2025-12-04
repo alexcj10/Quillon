@@ -21,7 +21,10 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
     showPrivateNotes,
     restoreFromTrash,
     permanentlyDelete,
-    showTrash
+    showTrash,
+    selectionMode,
+    selectedNoteIds,
+    toggleNoteSelection,
   } = useNotes();
   const [copied, setCopied] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
@@ -85,6 +88,24 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
     <>
       <div className={`relative p-5 rounded-xl shadow-md dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)] transition-all duration-200 hover:shadow-lg hover:dark:shadow-[0_10px_15px_-3px_rgba(255,255,255,0.1)] border border-[rgba(0,0,0,0.50)] dark:border-[rgba(255,255,255,0.50)] h-[200px] flex flex-col ${getNoteColorClass(note.color)
         }`}>
+
+        {/* Checkbox for selection mode (trash only) */}
+        {selectionMode && showTrash && (
+          <div className="absolute top-3 left-3 z-10">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleNoteSelection(note.id);
+              }}
+              className="w-5 h-5 rounded-full border-2 border-gray-400 dark:border-gray-500 bg-white dark:bg-gray-800 flex items-center justify-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+            >
+              {selectedNoteIds.has(note.id) && (
+                <div className="w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-400" />
+              )}
+            </button>
+          </div>
+        )}
+
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white truncate">
