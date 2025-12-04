@@ -4,6 +4,7 @@ import { useNotes } from '../context/NoteContext';
 import { isFileTag, getFileTagDisplayName } from '../types';
 import { TagModal } from './TagModal';
 import { BulkRecoveryPopup } from './BulkRecoveryPopup';
+import { ConfirmDialog } from './ConfirmDialog';
 
 export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const {
@@ -26,6 +27,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isBulkPopupOpen, setIsBulkPopupOpen] = useState(false);
+  const [showRecoveryConfirm, setShowRecoveryConfirm] = useState(false);
   const hologramRef = useRef<HTMLButtonElement>(null);
 
   const visibleNotes = notes.filter(note =>
@@ -214,23 +216,42 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
         }}
         selectedCount={selectedNoteIds.size}
         onSelectAll={() => {
-  // Check if all filtered notes are already selected
-  const allSelected = filteredNoteIds.every(id => selectedNoteIds.has(id));
-  
-  if (allSelected) {
-    // If all are selected, deselect all (but keep selection mode active)
-    selectAllNotes([]);  // Pass empty array to deselect all
-  } else {
-    // Otherwise, select all
-    selectAllNotes(filteredNoteIds);
-  }
-}}
+          // Check if all filtered notes are already selected
+          const allSelected = filteredNoteIds.every(id => selectedNoteIds.has(id));
+
+          if (allSelected) {
+            // If all are selected, deselect all (but keep selection mode active)
+            selectAllNotes([]);  // Pass empty array to deselect all
+          } else {
+            // Otherwise, select all
+            selectAllNotes(filteredNoteIds);
+          }
+        }}
         onRecover={() => {
-          bulkRestoreFromTrash();
-          setIsBulkPopupOpen(false);
-          // Recovery completes the action, so disable selection mode
+          setShowRecoveryConfirm(true);
         }}
         anchorRef={hologramRef}
+      />
+
+      <ConfirmDialog
+        isOpen={showRecoveryConfirm}
+        type="restore"
+        onCancel={() => setShowRecoveryConfirm(false)}
+        onConfirm={() => {
+          bulkRestoreFromTrash();
+          setShowRecoveryConfirm(false);
+          setIsBulkPopupOpen(false);
+        }}
+        title={`Recover ${selectedNoteIds.size} Note${selectedNoteIds.size === 1 ? '' : 's'}?`}
+        description={
+          <>
+            {selectedNoteIds.size === 1
+              ? 'This note will be moved back to your notes and removed from trash.'
+              : `These ${selectedNoteIds.size} notes will be moved back to your notes and removed from trash.`
+            }
+          </>
+        }
+        confirmLabel="Recover"
       />
     </div>
   );
