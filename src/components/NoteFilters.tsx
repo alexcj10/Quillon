@@ -214,8 +214,17 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
         }}
         selectedCount={selectedNoteIds.size}
         onSelectAll={() => {
-          selectAllNotes(filteredNoteIds);
-        }}
+  // Check if all filtered notes are already selected
+  const allSelected = filteredNoteIds.every(id => selectedNoteIds.has(id));
+  
+  if (allSelected) {
+    // If all are selected, deselect all (but keep selection mode active)
+    selectAllNotes([]);  // Pass empty array to deselect all
+  } else {
+    // Otherwise, select all
+    selectAllNotes(filteredNoteIds);
+  }
+}}
         onRecover={() => {
           bulkRestoreFromTrash();
           setIsBulkPopupOpen(false);
