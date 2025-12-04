@@ -321,7 +321,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     return { success: true };
   };
 
-  const deleteTag = (tagName: string): { success: boolean; error?: string } => {
+  const deleteTag = (tagName: string, permanentDelete: boolean = false): { success: boolean; error?: string } => {
     // Check if the tag exists in any note
     const tagExists = notes.some(note => note.tags.includes(tagName));
 
@@ -332,20 +332,25 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
-    // Move ALL notes with this tag to trash (keeping the tag visible in trash)
-    setNotes(prev => prev.map(note => {
-      if (note.tags.includes(tagName) && !note.isDeleted) {
-        return {
-          ...note,
-          // Keep ALL tags including the deleted one so they're visible in trash
-          isDeleted: true,
-          deletedAt: new Date().toISOString(),
-          isPinned: false,
-          isFavorite: false,
-        };
-      }
-      return note;
-    }));
+    if (permanentDelete) {
+      // PERMANENTLY DELETE all notes with this tag (from trash)
+      setNotes(prev => prev.filter(note => !note.tags.includes(tagName)));
+    } else {
+      // Move ALL notes with this tag to trash (keeping the tag visible in trash)
+      setNotes(prev => prev.map(note => {
+        if (note.tags.includes(tagName) && !note.isDeleted) {
+          return {
+            ...note,
+            // Keep ALL tags including the deleted one so they're visible in trash
+            isDeleted: true,
+            deletedAt: new Date().toISOString(),
+            isPinned: false,
+            isFavorite: false,
+          };
+        }
+        return note;
+      }));
+    }
 
     return { success: true };
   };
@@ -364,15 +369,15 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   };
 
   const selectAllNotes = (noteIds?: string[]) => {
-  if (noteIds) {
-    // Select only the provided note IDs (filtered notes)
-    setSelectedNoteIds(new Set(noteIds));
-  } else {
-    // Select all trash notes (fallback)
-    const trashNotes = notes.filter(note => note.isDeleted);
-    setSelectedNoteIds(new Set(trashNotes.map(note => note.id)));
-  }
-};
+    if (noteIds) {
+      // Select only the provided note IDs (filtered notes)
+      setSelectedNoteIds(new Set(noteIds));
+    } else {
+      // Select all trash notes (fallback)
+      const trashNotes = notes.filter(note => note.isDeleted);
+      setSelectedNoteIds(new Set(trashNotes.map(note => note.id)));
+    }
+  };
 
   const clearSelection = () => {
     setSelectedNoteIds(new Set());

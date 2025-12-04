@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
-import { isFileTag, getFileTagDisplayName } from '../types';
+import { isFileTag, getFileTagDisplayName, Note } from '../types';
 import { TagModal } from './TagModal';
 import { BulkRecoveryPopup } from './BulkRecoveryPopup';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -206,6 +206,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
         selectedTags={selectedTags}
         onToggleTag={toggleTag}
         tagsInFileFolders={tagsInFileFolders}
+        showTrash={showTrash}
       />
 
       <BulkRecoveryPopup

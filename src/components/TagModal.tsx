@@ -13,6 +13,7 @@ interface TagModalProps {
     selectedTags: string[];
     onToggleTag: (tag: string) => void;
     tagsInFileFolders: Set<string>;
+    showTrash: boolean;
 }
 
 export function TagModal({
@@ -21,7 +22,8 @@ export function TagModal({
     tags,
     selectedTags,
     onToggleTag,
-    tagsInFileFolders
+    tagsInFileFolders,
+    showTrash
 }: TagModalProps): JSX.Element | null {
     const [searchTerm, setSearchTerm] = useState('');
     const [showPopup, setShowPopup] = useState(false);
@@ -92,7 +94,9 @@ export function TagModal({
                     if (tagExists) {
                         setValidationState({
                             isValid: true,
-                            message: `Press Enter to delete this tag and move all associated notes to trash`
+                            message: showTrash
+                                ? `Press Enter to permanently delete this tag and all associated notes`
+                                : `Press Enter to delete this tag and move all associated notes to trash`
                         });
                     } else {
                         setValidationState({
@@ -345,7 +349,7 @@ export function TagModal({
                 actualTagName = greyTag;
             }
 
-            const result = deleteTag(actualTagName);
+            const result = deleteTag(actualTagName, showTrash);
 
             if (result.success) {
                 setSearchTerm('');
