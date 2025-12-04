@@ -87,7 +87,9 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
 
   return (
     <>
-      <div className={`relative p-5 rounded-xl shadow-md dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)] transition-all duration-200 hover:shadow-lg hover:dark:shadow-[0_10px_15px_-3px_rgba(255,255,255,0.1)] border border-[rgba(0,0,0,0.50)] dark:border-[rgba(255,255,255,0.50)] h-[200px] flex flex-col ${getNoteColorClass(note.color)
+      <div className={`relative p-5 rounded-xl shadow-md dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)] transition-all duration-200 hover:shadow-lg hover:dark:shadow-[0_10px_15px_-3px_rgba(255,255,255,0.1)] h-[200px] flex flex-col ${getNoteColorClass(note.color)} ${isSelected
+          ? 'border-2 border-green-500 dark:border-green-400 animate-pulse shadow-[0_0_15px_rgba(34,197,94,0.5)] dark:shadow-[0_0_15px_rgba(74,222,128,0.6)]'
+          : 'border border-[rgba(0,0,0,0.50)] dark:border-[rgba(255,255,255,0.50)]'
         }`}>
 
         {/* Checkbox for selection mode (trash only) */}
@@ -99,8 +101,8 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                 toggleNoteSelection(note.id);
               }}
               className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${isSelected
-                  ? 'bg-blue-500 border-blue-500'
-                  : 'bg-white dark:bg-gray-800 border-gray-400 dark:border-gray-500 hover:border-blue-400'
+                ? 'bg-blue-500 border-blue-500'
+                : 'bg-white dark:bg-gray-800 border-gray-400 dark:border-gray-500 hover:border-blue-400'
                 }`}
             >
               {isSelected && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
