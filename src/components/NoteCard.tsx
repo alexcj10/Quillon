@@ -74,6 +74,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
   };
 
   const isContentVisible = !note.isPrivate || showPrivateNotes;
+  const isSelected = selectedNoteIds.has(note.id);
 
   const handleCloseFormatOptions = useCallback(() => {
     setShowFormatOptions(false);
@@ -91,21 +92,21 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
 
         {/* Checkbox for selection mode (trash only) */}
         {selectionMode && showTrash && (
-          <div className="absolute top-3 left-3 z-10">
+          <div className="absolute top-1.5 left-1.5 z-10">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 toggleNoteSelection(note.id);
               }}
-              className="w-5 h-5 rounded-full border-2 border-gray-400 dark:border-gray-500 bg-white dark:bg-gray-800 flex items-center justify-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+              className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${isSelected
+                  ? 'bg-blue-500 border-blue-500'
+                  : 'bg-white dark:bg-gray-800 border-gray-400 dark:border-gray-500 hover:border-blue-400'
+                }`}
             >
-              {selectedNoteIds.has(note.id) && (
-                <div className="w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-400" />
-              )}
+              {isSelected && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
             </button>
           </div>
         )}
-
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white truncate">
