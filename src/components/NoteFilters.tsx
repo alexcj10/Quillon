@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { isFileTag, getFileTagDisplayName, Note } from '../types';
@@ -31,6 +31,15 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const [showRecoveryConfirm, setShowRecoveryConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const hologramRef = useRef<HTMLButtonElement>(null);
+
+  // Close popup and clear selection when leaving trash view
+  useEffect(() => {
+    if (!showTrash) {
+      setIsBulkPopupOpen(false);
+      setSelectionMode(false);
+      clearSelection();
+    }
+  }, [showTrash, setSelectionMode, clearSelection]);
 
   const visibleNotes = notes.filter(note =>
     note.isPrivate === showPrivateNotes &&
