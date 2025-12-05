@@ -95,7 +95,6 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
           isDeleted: true,
           deletedAt: new Date().toISOString(),
           isPinned: false,
-          isFavorite: false,
         }
         : note
     ));
