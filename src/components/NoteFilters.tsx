@@ -54,7 +54,41 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
       .flatMap(note => note.tags.filter(tag => !isFileTag(tag)))
   );
 
-  const sortedTags = allTags;
+  // Maintain creation order while grouping file tags with their green tags
+  const sortedTags = (() => {
+    const result: string[] = [];
+    const processedTags = new Set<string>();
+
+    allTags.forEach(tag => {
+      // Skip if already processed
+      if (processedTags.has(tag)) return;
+
+      if (isFileTag(tag)) {
+        // Add the file tag
+        result.push(tag);
+        processedTags.add(tag);
+
+        // Find and add all green tags associated with this file tag
+        const associatedTags = visibleNotes
+          .filter(note => note.tags.includes(tag))
+          .flatMap(note => note.tags.filter(t => !isFileTag(t)));
+
+        const uniqueAssociatedTags = Array.from(new Set(associatedTags));
+        uniqueAssociatedTags.forEach(greenTag => {
+          if (!processedTags.has(greenTag)) {
+            result.push(greenTag);
+            processedTags.add(greenTag);
+          }
+        });
+      } else {
+        // Normal grey tag - add in its original position
+        result.push(tag);
+        processedTags.add(tag);
+      }
+    });
+
+    return result;
+  })();
 
   const VISIBLE_TAGS_LIMIT = 20;
   const visibleTags = sortedTags.slice(0, VISIBLE_TAGS_LIMIT);
