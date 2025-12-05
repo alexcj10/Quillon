@@ -398,6 +398,12 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     clearSelection();
   };
 
+  const bulkDeleteForever = () => {
+    const idsToDelete = Array.from(selectedNoteIds);
+    setNotes(prev => prev.filter(note => !idsToDelete.includes(note.id)));
+    clearSelection();
+  };
+
   return (
     <NoteContext.Provider value={{
       notes,
@@ -443,6 +449,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       selectAllNotes,
       clearSelection,
       bulkRestoreFromTrash,
+      bulkDeleteForever,
     }}>
       {children}
     </NoteContext.Provider>

@@ -102,4 +102,5 @@ export interface NoteContextType {
   selectAllNotes: (noteIds?: string[]) => void;
   clearSelection: () => void;
   bulkRestoreFromTrash: () => void;
+  bulkDeleteForever: () => void;
 }

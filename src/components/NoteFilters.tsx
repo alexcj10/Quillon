@@ -22,12 +22,14 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
     clearSelection,
     selectAllNotes,
     bulkRestoreFromTrash,
+    bulkDeleteForever,
     selectedNoteIds,
   } = useNotes();
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isBulkPopupOpen, setIsBulkPopupOpen] = useState(false);
   const [showRecoveryConfirm, setShowRecoveryConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const hologramRef = useRef<HTMLButtonElement>(null);
 
   const visibleNotes = notes.filter(note =>
@@ -231,6 +233,9 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
         onRecover={() => {
           setShowRecoveryConfirm(true);
         }}
+        onDeleteForever={() => {
+          setShowDeleteConfirm(true);
+        }}
         anchorRef={hologramRef}
       />
 
@@ -253,6 +258,27 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
           </>
         }
         confirmLabel="Recover"
+      />
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        type="delete"
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          bulkDeleteForever();
+          setShowDeleteConfirm(false);
+          setIsBulkPopupOpen(false);
+        }}
+        title={`Permanently Delete ${selectedNoteIds.size} Note${selectedNoteIds.size === 1 ? '' : 's'}?`}
+        description={
+          <>
+            {selectedNoteIds.size === 1
+              ? 'This note will be permanently deleted and cannot be recovered.'
+              : `These ${selectedNoteIds.size} notes will be permanently deleted and cannot be recovered.`
+            }
+          </>
+        }
+        confirmLabel="Delete Forever"
       />
     </div>
   );

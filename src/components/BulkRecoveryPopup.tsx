@@ -7,6 +7,7 @@ interface BulkRecoveryPopupProps {
     selectedCount: number;
     onSelectAll: () => void;
     onRecover: () => void;
+    onDeleteForever?: () => void;
     anchorRef: React.RefObject<HTMLElement>;
 }
 
@@ -16,6 +17,7 @@ export function BulkRecoveryPopup({
     selectedCount,
     onSelectAll,
     onRecover,
+    onDeleteForever,
     anchorRef,
 }: BulkRecoveryPopupProps) {
     const popupRef = useRef<HTMLDivElement>(null);
@@ -49,6 +51,13 @@ export function BulkRecoveryPopup({
                     disabled={selectedCount === 0}
                     className={`px-3 py-1 text-left text-xs transition-colors ${selectedCount === 0 ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed' : 'text-green-600 dark:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}                >
                     Recover ({selectedCount})
+                </button>
+                <button
+                    onClick={onDeleteForever}
+                    disabled={selectedCount === 0}
+                    className={`px-3 py-1 text-left text-xs transition-colors border-t border-gray-200 dark:border-gray-700 ${selectedCount === 0 ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed' : 'text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                >
+                    Delete Forever ({selectedCount})
                 </button>
             </div>
         </div>,
