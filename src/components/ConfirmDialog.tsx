@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 
 interface ConfirmDialogProps {
@@ -24,7 +25,6 @@ export function ConfirmDialog({
 
     useEffect(() => {
         if (isOpen) {
-            // Focus the cancel button by default to prevent accidental actions
             cancelButtonRef.current?.focus();
         }
     }, [isOpen]);
@@ -38,11 +38,10 @@ export function ConfirmDialog({
                 onCancel();
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                // Only confirm if the confirm button is focused
+
                 if (document.activeElement?.getAttribute('data-action') === 'confirm') {
                     onConfirm();
                 } else {
-                    // If cancel button or nothing specific is focused, cancel
                     onCancel();
                 }
             }
@@ -50,7 +49,6 @@ export function ConfirmDialog({
 
         if (isOpen) {
             document.addEventListener('keydown', handleKeyDown);
-            // Prevent body scroll when dialog is open
             document.body.style.overflow = 'hidden';
         }
 
@@ -64,7 +62,6 @@ export function ConfirmDialog({
 
     const isDelete = type === 'delete';
 
-    // Styles based on type
     const iconBgClass = isDelete
         ? "bg-red-100 dark:bg-red-900/30"
         : "bg-green-100 dark:bg-green-900/30";
@@ -77,9 +74,9 @@ export function ConfirmDialog({
         ? "bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 focus:ring-red-400 dark:focus:ring-red-500"
         : "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 focus:ring-green-400 dark:focus:ring-green-500";
 
-    return (
+    return createPortal(
         <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999] animate-fadeIn"
             onClick={onCancel}
         >
             <div
@@ -124,6 +121,7 @@ export function ConfirmDialog({
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
