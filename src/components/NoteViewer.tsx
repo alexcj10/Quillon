@@ -63,14 +63,14 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           className={`shadow-xl w-full overflow-hidden flex ${isMaximized
-            ? 'h-screen w-screen'
+            ? 'fixed inset-0'
             : 'rounded-2xl mx-4 md:mx-8 max-w-4xl max-h-[70vh]'
             } ${note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-800'
             }`}
           onClick={e => e.stopPropagation()}
         >
           {/* Main Content */}
-          <div className={`flex-1 flex flex-col overflow-hidden ${isMaximized ? 'h-screen' : 'max-h-[70vh]'}`}>
+          <div className={`flex-1 flex flex-col overflow-hidden ${isMaximized ? 'h-full' : 'max-h-[70vh]'}`}>
             {/* Header */}
             <div className={`px-4 py-3 sm:p-6 border-b ${note.color ? `border-note-${note.color}-dark/20 dark:border-note-${note.color}-light/20` : 'border-gray-200 dark:border-gray-700'
               }`}>
