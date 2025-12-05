@@ -51,6 +51,15 @@
     background-color: rgba(255, 255, 255, 0.4);
   }
 
+  /* Hide scrollbar when body has no-scroll class */
+  body.no-scroll {
+    overflow: hidden !important;
+  }
+
+  body.no-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
 }
 
 @layer components {

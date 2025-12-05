@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { X, Star, Lock, Clock, Download, ChevronDown, Users } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { X, Star, Lock, Clock, Download, ChevronDown, Users, Maximize2, Minimize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { downloadNote } from '../utils/downloadUtils';
 import { useOutsideClick } from '../hooks/useOutsideClick';
@@ -14,6 +14,21 @@ interface NoteViewerProps {
 export function NoteViewer({ note, onClose }: NoteViewerProps) {
   const [showFormatOptions, setShowFormatOptions] = useState(false);
   const [isTitleExpanded, setIsTitleExpanded] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+
+  // Lock body scroll when maximized
+  useEffect(() => {
+    if (isMaximized) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('no-scroll');
+    };
+  }, [isMaximized]);
 
   const handleCloseFormatOptions = useCallback(() => {
     setShowFormatOptions(false);
@@ -40,19 +55,22 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center ${isMaximized ? '' : 'p-4'}`}
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className={`rounded-2xl shadow-xl w-full mx-4 md:mx-8 max-w-4xl max-h-[70vh] overflow-hidden flex ${note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-800'
+          className={`shadow-xl w-full overflow-hidden flex ${isMaximized
+            ? 'h-screen w-screen'
+            : 'rounded-2xl mx-4 md:mx-8 max-w-4xl max-h-[70vh]'
+            } ${note.color ? `bg-note-${note.color}-light dark:bg-note-${note.color}-dark` : 'bg-white dark:bg-gray-800'
             }`}
           onClick={e => e.stopPropagation()}
         >
           {/* Main Content */}
-          <div className="flex-1 flex flex-col max-h-[70vh] overflow-hidden">
+          <div className={`flex-1 flex flex-col overflow-hidden ${isMaximized ? 'h-screen' : 'max-h-[70vh]'}`}>
             {/* Header */}
             <div className={`px-4 py-3 sm:p-6 border-b ${note.color ? `border-note-${note.color}-dark/20 dark:border-note-${note.color}-light/20` : 'border-gray-200 dark:border-gray-700'
               }`}>
@@ -116,6 +134,17 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
                       </div>
                     )}
                   </div>
+                  <button
+                    onClick={() => setIsMaximized(!isMaximized)}
+                    className="p-1.5 sm:p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                    title={isMaximized ? 'Minimize' : 'Maximize'}
+                  >
+                    {isMaximized ? (
+                      <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-gray-300" />
+                    ) : (
+                      <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-gray-300" />
+                    )}
+                  </button>
                   <button
                     onClick={onClose}
                     className="p-1.5 sm:p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
