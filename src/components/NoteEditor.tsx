@@ -147,7 +147,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const iconBtn = `w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700/60 transition`;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center sm:p-4">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center sm:p-6 md:p-8">
       <div
         ref={modalRef}
         className={`w-full max-w-4xl h-full sm:h-[92vh] sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col ${selectedColorClass}`}
@@ -256,7 +256,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     onChange={handleTagInput}
                     onKeyDown={handleTagKey}
                     placeholder="Add tags (max 50)"
-                    className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-500 min-w-[60px]"
+                    className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-500 min-w-[135px]"
                   />
                 </div>
                 {tagError && (
