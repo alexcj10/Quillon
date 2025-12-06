@@ -195,10 +195,10 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           <div className="flex items-center justify-between w-full gap-4">
 
             {/* LEFT SIDE — COLOR + TAG INPUT */}
-            <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
 
               {/* Color button */}
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <button
                   onClick={() => {
                     setShowColorPicker((v) => !v);
@@ -237,12 +237,12 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
               </div>
 
               {/* Tags */}
-              <div className="flex-1">
-                <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="h-10 px-2 rounded-lg bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] w-full max-w-full flex-nowrap">
                   {tags.map((t) => (
                     <span
                       key={t}
-                      className="px-2 py-1 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-transparent text-sm text-gray-700 dark:text-gray-200 flex items-center gap-1 shadow-sm dark:shadow-none"
+                      className="px-2 py-0.5 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-transparent text-sm text-gray-700 dark:text-gray-200 flex items-center gap-1 shadow-sm dark:shadow-none flex-shrink-0 whitespace-nowrap"
                     >
                       {t}
                       <button onClick={() => setTags(tags.filter((x) => x !== t))}>
@@ -256,7 +256,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     onChange={handleTagInput}
                     onKeyDown={handleTagKey}
                     placeholder="Add tags (max 50)"
-                    className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-500"
+                    className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-500 min-w-[60px]"
                   />
                 </div>
                 {tagError && (
@@ -295,7 +295,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             </div>
 
             {/* MOBILE MORE MENU */}
-            <div className="sm:hidden relative" ref={moreRef}>
+            <div className="sm:hidden relative flex-shrink-0" ref={moreRef}>
               <button
                 onClick={() => {
                   setMobileMoreOpen((v) => !v);
