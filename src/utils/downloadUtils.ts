@@ -18,7 +18,7 @@ function triggerDownload(blob: Blob, fileName: string) {
   const link = document.createElement('a');
   link.href = url;
   link.download = fileName;
-  
+
   // Set target to _blank as a fallback for mobile browsers
   link.setAttribute('target', '_blank');
   link.style.display = 'none';
@@ -46,10 +46,15 @@ function showToast(message: string) {
   }
 
   // Inject the toast's stylesheet into the head once
-  if (!document.getElementById('quillon-toast-style')) {
-    const style = document.createElement('style');
+  // Inject or update the toast's stylesheet
+  let style = document.getElementById('quillon-toast-style') as HTMLStyleElement;
+  if (!style) {
+    style = document.createElement('style');
     style.id = 'quillon-toast-style';
-    style.innerHTML = `
+    document.head.appendChild(style);
+  }
+
+  style.innerHTML = `
       @keyframes quillonToastSlide {
         0% { transform: translate(-50%, -100px); opacity: 0; }
         10% { transform: translate(-50%, 0); opacity: 1; }
@@ -74,9 +79,18 @@ function showToast(message: string) {
         width: max-content;
         max-width: 90vw;
         white-space: nowrap;
+      }
+      @media (max-width: 768px) {
+        #quillon-toast {
+          padding: 8px 16px;
+          min-width: unset;
+          width: auto;
+          font-size: 13px;
+          top: 16px;
+          border-radius: 20px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
       }`;
-    document.head.appendChild(style);
-  }
 
   const toast = document.createElement('div');
   toast.id = 'quillon-toast';
@@ -133,18 +147,18 @@ function getQuillonLogo(): Promise<string | null> {
  */
 function getExactTextContentForTXT(content: string | null | undefined): string {
   if (!content) return 'No content available.';
-  
+
   try {
     // Create a temporary element to leverage the browser's parsing
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = content;
-    
+
     // Handle different HTML elements to preserve formatting
     // Replace <br> and <br/> with actual line breaks
     tempDiv.querySelectorAll('br').forEach(br => {
       br.parentNode?.replaceChild(document.createTextNode('\n'), br);
     });
-    
+
     // Handle paragraph breaks - add double line breaks for paragraphs
     tempDiv.querySelectorAll('p').forEach((p, index) => {
       if (index > 0) {
@@ -156,27 +170,27 @@ function getExactTextContentForTXT(content: string | null | undefined): string {
         p.parentNode?.insertBefore(document.createTextNode('\n'), p.nextSibling);
       }
     });
-    
+
     // Handle div elements - treat them as block elements
     tempDiv.querySelectorAll('div').forEach((div, index) => {
       if (index > 0 && div.previousSibling && div.previousSibling.nodeType === Node.TEXT_NODE) {
         div.parentNode?.insertBefore(document.createTextNode('\n'), div);
       }
     });
-    
+
     // Handle list items
     tempDiv.querySelectorAll('li').forEach(li => {
       li.parentNode?.insertBefore(document.createTextNode('\n• '), li);
     });
-    
+
     // Get the final text content - this preserves emojis naturally for TXT
     let textContent = tempDiv.textContent || tempDiv.innerText || '';
-    
+
     // Clean up excessive line breaks but preserve intentional ones
     textContent = textContent
       .replace(/\n{3,}/g, '\n\n') // Replace 3+ consecutive line breaks with 2
       .trim(); // Remove leading/trailing whitespace
-    
+
     return textContent;
   } catch (error) {
     console.warn('Error extracting text content:', error);
@@ -193,18 +207,18 @@ function getExactTextContentForTXT(content: string | null | undefined): string {
  */
 function getExactTextContentForPDF(content: string | null | undefined): string {
   if (!content) return 'No content available.';
-  
+
   try {
     // Create a temporary element to leverage the browser's parsing
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = content;
-    
+
     // Handle different HTML elements to preserve formatting EXACTLY
     // Replace <br> and <br/> with actual line breaks
     tempDiv.querySelectorAll('br').forEach(br => {
       br.parentNode?.replaceChild(document.createTextNode('\n'), br);
     });
-    
+
     // Handle paragraph breaks - preserve exactly as user intended
     tempDiv.querySelectorAll('p').forEach((p, index) => {
       if (index > 0) {
@@ -214,22 +228,22 @@ function getExactTextContentForPDF(content: string | null | undefined): string {
         p.parentNode?.insertBefore(document.createTextNode('\n'), p.nextSibling);
       }
     });
-    
+
     // Handle div elements - treat them as block elements
     tempDiv.querySelectorAll('div').forEach((div, index) => {
       if (index > 0 && div.previousSibling && div.previousSibling.nodeType === Node.TEXT_NODE) {
         div.parentNode?.insertBefore(document.createTextNode('\n'), div);
       }
     });
-    
+
     // Handle list items
     tempDiv.querySelectorAll('li').forEach(li => {
       li.parentNode?.insertBefore(document.createTextNode('\n• '), li);
     });
-    
+
     // Get the text content
     let textContent = tempDiv.textContent || tempDiv.innerText || '';
-    
+
     // Remove ONLY emojis but keep all other characters and formatting
     textContent = textContent
       // Remove comprehensive emoji ranges but keep everything else
@@ -242,7 +256,7 @@ function getExactTextContentForPDF(content: string | null | undefined): string {
       .replace(/\r\n/g, '\n')
       .replace(/\r/g, '\n')
       .trim();
-    
+
     return textContent;
   } catch (error) {
     console.warn('Error extracting text content for PDF:', error);
@@ -261,7 +275,7 @@ function getExactTextContentForPDF(content: string | null | undefined): string {
  */
 function minimalSanitizeForPDF(text: string): string {
   if (!text) return '';
-  
+
   return text
     // Replace only the most problematic characters that break jsPDF
     .replace(/[\u2018\u2019]/g, "'") // Smart single quotes
@@ -304,7 +318,7 @@ function generateTXTContent(note: Note): string {
     '====================================',
     `Generated by Quillon on ${new Date().toLocaleDateString()}`
   ].filter(line => line !== null).join('\n');
-  
+
   return txtContent;
 }
 
@@ -343,11 +357,11 @@ function safeAddTextToPDF(pdf: jsPDF, text: string, x: number, y: number, option
 function safeSplitTextForPDF(pdf: jsPDF, text: string, maxWidth: number): string[] {
   try {
     const cleanText = minimalSanitizeForPDF(text);
-    
+
     // CRITICAL: Split by existing line breaks FIRST to preserve user formatting
     const userLines = cleanText.split('\n');
     const finalLines: string[] = [];
-    
+
     userLines.forEach(userLine => {
       if (userLine.trim() === '') {
         // Preserve empty lines exactly as user intended
@@ -362,7 +376,7 @@ function safeSplitTextForPDF(pdf: jsPDF, text: string, maxWidth: number): string
           // Manual word wrap as last resort
           const words = userLine.split(' ');
           let currentLine = '';
-          
+
           for (const word of words) {
             const testLine = currentLine ? `${currentLine} ${word}` : word;
             // Rough character width estimation
@@ -383,7 +397,7 @@ function safeSplitTextForPDF(pdf: jsPDF, text: string, maxWidth: number): string
         }
       }
     });
-    
+
     return finalLines;
   } catch (error) {
     console.warn('Major error in text splitting:', error);
@@ -398,13 +412,13 @@ function safeSplitTextForPDF(pdf: jsPDF, text: string, maxWidth: number): string
  */
 async function generateNativePDF(note: Note, fileName: string): Promise<void> {
   try {
-    const pdf = new jsPDF({ 
-      orientation: 'portrait', 
-      unit: 'pt', 
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
       format: 'a4',
       compress: true
     });
-    
+
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 40;
@@ -432,7 +446,7 @@ async function generateNativePDF(note: Note, fileName: string): Promise<void> {
       pdf.setTextColor('#27ae60');
       safeAddTextToPDF(pdf, 'QUILLON', margin, y + 20);
     }
-    
+
     y += 70;
     pdf.setDrawColor('#e0e0e0').line(margin, y - 20, pageWidth - margin, y - 20);
 
@@ -440,10 +454,10 @@ async function generateNativePDF(note: Note, fileName: string): Promise<void> {
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(20);
     pdf.setTextColor('#2c3e50');
-    
+
     const noteTitle = note.title || 'Untitled Note';
     const splitTitle = safeSplitTextForPDF(pdf, noteTitle, pageWidth - margin * 2);
-    
+
     splitTitle.forEach((line: string) => {
       safeAddTextToPDF(pdf, line, margin, y);
       y += 24;
@@ -454,26 +468,26 @@ async function generateNativePDF(note: Note, fileName: string): Promise<void> {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(10);
     pdf.setTextColor('#34495e');
-    
+
     const createdDate = `Created: ${new Date(note.createdAt).toLocaleString()}`;
     safeAddTextToPDF(pdf, createdDate, margin, y);
     y += 15;
-    
+
     if (note.updatedAt !== note.createdAt) {
       const updatedDate = `Updated: ${new Date(note.updatedAt).toLocaleString()}`;
       safeAddTextToPDF(pdf, updatedDate, margin, y);
       y += 15;
     }
-    
+
     const status = `Status: ${note.isPrivate ? 'Private' : 'Public'}`;
     safeAddTextToPDF(pdf, status, margin, y);
     y += 15;
-    
+
     if (note.isFavorite) {
       safeAddTextToPDF(pdf, 'Favorite: Yes', margin, y);
       y += 15;
     }
-    
+
     y += 20;
 
     // 4. Tags
@@ -483,14 +497,14 @@ async function generateNativePDF(note: Note, fileName: string): Promise<void> {
       pdf.setTextColor('#2c3e50');
       safeAddTextToPDF(pdf, 'Tags:', margin, y);
       y += 18;
-      
+
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
       pdf.setTextColor('#27ae60');
-      
+
       const tagsString = note.tags.map(tag => `#${tag}`).join('  ');
       const splitTags = safeSplitTextForPDF(pdf, tagsString, pageWidth - margin * 2);
-      
+
       splitTags.forEach((line: string) => {
         if (y > pageHeight - margin - 60) {
           pdf.addPage();
@@ -505,7 +519,7 @@ async function generateNativePDF(note: Note, fileName: string): Promise<void> {
     // 5. Content separator
     pdf.setDrawColor('#e0e0e0').line(margin, y, pageWidth - margin, y);
     y += 30;
-    
+
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(14);
     pdf.setTextColor('#2c3e50');
@@ -517,15 +531,15 @@ async function generateNativePDF(note: Note, fileName: string): Promise<void> {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(12);
     pdf.setTextColor('#2c3e50');
-    
+
     const contentLines = safeSplitTextForPDF(pdf, exactContent, pageWidth - margin * 2);
-    
+
     contentLines.forEach((line: string) => {
       if (y > pageHeight - margin - 40) {
         pdf.addPage();
         y = margin;
       }
-      
+
       // Handle empty lines (preserve exact spacing)
       if (line.trim() === '') {
         y += 18; // Same height as text line to preserve spacing
@@ -542,17 +556,17 @@ async function generateNativePDF(note: Note, fileName: string): Promise<void> {
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(9);
       pdf.setTextColor('#7f8c8d');
-      
+
       const footerText = 'Generated by Quillon | Tag it. Find it. Done.';
       const pageNumText = `Page ${i} of ${pageCount}`;
-      
+
       safeAddTextToPDF(pdf, footerText, margin, pageHeight - margin / 2);
       safeAddTextToPDF(pdf, pageNumText, pageWidth - margin - 80, pageHeight - margin / 2);
     }
 
     // Trigger the download
     pdf.save(fileName);
-    
+
   } catch (error) {
     console.error('PDF generation failed:', error);
     throw new Error(`PDF generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -576,18 +590,18 @@ export async function downloadNote(note: Note, options: DownloadOptions) {
 
   try {
     showToast(`Preparing ${format.toUpperCase()} download...`);
-    
+
     if (format === 'txt') {
       const txtContent = generateTXTContent(note);
       // Use UTF-8 BOM to ensure proper emoji display in text editors
       const BOM = '\uFEFF';
       const blob = new Blob([BOM + txtContent], { type: 'text/plain;charset=utf-8' });
       triggerDownload(blob, fileName);
-      
+
     } else if (format === 'pdf') {
       await generateNativePDF(note, fileName);
     }
-    
+
     showToast('Download completed successfully!');
     if (onSuccess) {
       onSuccess(`Note downloaded as ${format.toUpperCase()}`, format);
