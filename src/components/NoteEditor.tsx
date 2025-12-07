@@ -37,13 +37,16 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   const contentRef = useRef<HTMLTextAreaElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
-  const moreRef = useRef<HTMLDivElement | null>(null);
+  const mobileMoreRef = useRef<HTMLDivElement | null>(null);
+  const colorPickerRef = useRef<HTMLDivElement | null>(null);
 
   // Prevent page scroll while editing
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => (document.body.style.overflow = prev);
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, []);
 
   useEffect(() => {
@@ -73,8 +76,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     const onClick = (e: MouseEvent) => {
       if (
         mobileMoreOpen &&
-        moreRef.current &&
-        !moreRef.current.contains(e.target as Node)
+        mobileMoreRef.current &&
+        !mobileMoreRef.current.contains(e.target as Node)
       ) {
         setMobileMoreOpen(false);
       }
@@ -82,6 +85,20 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     window.addEventListener('mousedown', onClick);
     return () => window.removeEventListener('mousedown', onClick);
   }, [mobileMoreOpen]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (
+        showColorPicker &&
+        colorPickerRef.current &&
+        !colorPickerRef.current.contains(e.target as Node)
+      ) {
+        setShowColorPicker(false);
+      }
+    };
+    window.addEventListener('mousedown', onClick);
+    return () => window.removeEventListener('mousedown', onClick);
+  }, [showColorPicker]);
 
   const saveNote = () => {
     onSave({
@@ -150,7 +167,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center sm:p-8 md:p-12">
       <div
         ref={modalRef}
-        className={`w-full max-w-4xl h-full sm:h-[85vh] sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col ${selectedColorClass}`}
+        className={`w-full max-w-4xl h-full sm:h-[75vh] lg:h-[85vh] sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col ${selectedColorClass}`}
       >
         {/* TOP BAR */}
         <div className="flex items-center justify-between px-5 py-4 backdrop-blur-sm">
@@ -198,7 +215,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             <div className="flex items-center gap-3 flex-1 min-w-0">
 
               {/* Color button */}
-              <div className="relative flex-shrink-0">
+              <div className="relative flex-shrink-0" ref={colorPickerRef}>
                 <button
                   onClick={() => {
                     setShowColorPicker((v) => !v);
@@ -295,7 +312,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             </div>
 
             {/* MOBILE MORE MENU */}
-            <div className="sm:hidden relative flex-shrink-0" ref={moreRef}>
+            <div className="sm:hidden relative flex-shrink-0" ref={mobileMoreRef}>
               <button
                 onClick={() => {
                   setMobileMoreOpen((v) => !v);
