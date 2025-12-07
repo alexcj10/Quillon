@@ -73,6 +73,8 @@ function showToast(message: string) {
         font-family: 'Segoe UI', Arial, sans-serif;
         font-size: 14px;
         font-weight: 500;
+        line-height: 1.5;
+        letter-spacing: 0.01em;
         z-index: 9999;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         animation: quillonToastSlide 3.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
@@ -86,6 +88,7 @@ function showToast(message: string) {
           min-width: unset;
           width: auto;
           font-size: 13px;
+          line-height: 1.4;
           top: 16px;
           border-radius: 50px;
           box-shadow: 0 2px 8px rgba(0,0,0,0.15);
