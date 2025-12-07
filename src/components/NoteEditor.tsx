@@ -147,10 +147,10 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const iconBtn = `w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700/60 transition`;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center sm:p-6 md:p-8">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center sm:p-8 md:p-12">
       <div
         ref={modalRef}
-        className={`w-full max-w-4xl h-full sm:h-[92vh] sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col ${selectedColorClass}`}
+        className={`w-full max-w-4xl h-full sm:h-[85vh] sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col ${selectedColorClass}`}
       >
         {/* TOP BAR */}
         <div className="flex items-center justify-between px-5 py-4 backdrop-blur-sm">
