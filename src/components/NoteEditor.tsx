@@ -19,6 +19,7 @@ interface NoteEditorProps {
 }
 
 const MAX_TAG_LENGTH = 50;
+const MAX_TITLE_LENGTH = 100;
 const FILE_TAG_REGEX = /^file[a-zA-Z0-9\-_]+$/;
 
 export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
@@ -34,6 +35,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const [isTitleFocused, setIsTitleFocused] = useState(false);
 
   const contentRef = useRef<HTMLTextAreaElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
@@ -178,12 +180,28 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             <X className="w-5 h-5 text-gray-700 dark:text-gray-200" />
           </button>
 
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Note title"
-            className="text-xl font-semibold bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 flex-1 min-w-0 mx-3 sm:mx-6"
-          />
+          <div className="flex-1 flex items-center mx-3 sm:mx-6 min-w-0">
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onFocus={() => setIsTitleFocused(true)}
+              onBlur={() => setIsTitleFocused(false)}
+              maxLength={MAX_TITLE_LENGTH}
+              placeholder="Note title"
+              className="text-xl font-semibold bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 flex-1 min-w-0"
+            />
+            <span
+              className={`text-xs ml-2 transition-opacity duration-200 ${isTitleFocused || title.length > MAX_TITLE_LENGTH * 0.8
+                  ? 'opacity-100'
+                  : 'opacity-0'
+                } ${title.length >= MAX_TITLE_LENGTH
+                  ? 'text-red-500 font-medium'
+                  : 'text-gray-400'
+                }`}
+            >
+              {title.length}/{MAX_TITLE_LENGTH}
+            </span>
+          </div>
 
           <button
             onClick={() => {
