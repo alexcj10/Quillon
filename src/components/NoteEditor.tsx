@@ -54,8 +54,19 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   useEffect(() => {
     if (!contentRef.current) return;
     const el = contentRef.current;
+
+    // We need to preserve the scroll position of the PARENT container
+    // because shrinking the textarea momentarily can cause the parent to scroll up
+    const scrollParent = el.parentElement;
+    const currentScroll = scrollParent?.scrollTop;
+
     el.style.height = '0px';
     el.style.height = `${Math.min(el.scrollHeight + 10, 1800)}px`;
+
+    // Restore scroll position if we have a parent
+    if (scrollParent && typeof currentScroll === 'number') {
+      scrollParent.scrollTop = currentScroll;
+    }
   }, [content]);
 
   useEffect(() => {
@@ -192,8 +203,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             />
             <span
               className={`text-xs ml-2 transition-opacity duration-200 ${isTitleFocused || title.length > MAX_TITLE_LENGTH * 0.8
-                  ? 'opacity-100'
-                  : 'opacity-0'
+                ? 'opacity-100'
+                : 'opacity-0'
                 } ${title.length >= MAX_TITLE_LENGTH
                   ? 'text-red-500 font-medium'
                   : 'text-gray-400'
@@ -215,13 +226,13 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 pt-4 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pt-4 pb-2 no-scrollbar">
           <textarea
             ref={contentRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Start writing your note..."
-            className="w-full resize-none bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px]"
+            className="w-full resize-none bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] no-scrollbar"
           />
         </div>
 
@@ -273,7 +284,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
               {/* Tags */}
               <div className="flex-1 min-w-0">
-                <div className="h-10 px-2 rounded-lg bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] w-full max-w-full flex-nowrap">
+                <div className="h-10 px-2 rounded-lg bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 flex items-center gap-2 overflow-x-auto no-scrollbar w-full max-w-full flex-nowrap">
                   {tags.map((t) => (
                     <span
                       key={t}
