@@ -180,13 +180,9 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
                 }
               `}</style>
               <div className="px-4 py-3 sm:p-6">
-                <div className={`prose prose-sm sm:prose dark:prose-invert max-w-none ${note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
+                <div className={`whitespace-pre-wrap break-words text-base sm:text-lg leading-relaxed ${note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
                   }`}>
-                  {note.content.split('\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4">
-                      {paragraph}
-                    </p>
-                  ))}
+                  {note.content}
                 </div>
               </div>
             </div>
