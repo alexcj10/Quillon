@@ -42,7 +42,7 @@ export default function AIChat({ onClose }: AIChatProps) {
         setMessages(prev => [...prev, { role: 'user', content: question }]);
 
         try {
-            const answer = await ragQuery(question);
+            const answer = await ragQuery(question, messages);
             setMessages(prev => [...prev, { role: 'ai', content: answer }]);
         } catch (e) {
             setMessages(prev => [...prev, { role: 'ai', content: "Sorry, I encountered an error while searching your notes." }]);

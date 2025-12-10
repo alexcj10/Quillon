@@ -1,16 +1,59 @@
 import { getNotes } from "./storage";
 import { embedText } from "./embed";
 import { cosineSimilarity } from "./similarity";
-import { isFileTag, getFileTagDisplayName } from "../types";
+import { isFileTag, getFileTagDisplayName, Note } from "../types";
 import { getPersonalizedResponse } from "./personalizedResponses";
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
 
-export async function ragQuery(question: string) {
+export async function ragQuery(question: string, history: Array<{ role: 'user' | 'ai', content: string }> = []) {
     // Check for personalized responses first (greetings, identity questions)
-    const personalizedResponse = getPersonalizedResponse(question);
+    const normalizedQuestion = question.trim();
+    const personalizedResponse = getPersonalizedResponse(normalizedQuestion);
     if (personalizedResponse) {
         return personalizedResponse;
+    }
+
+    // --- 0. CONTEXT CORE (Memory) ---
+    // Rewrite the query if there is history, so "it" becomes "the Exam note"
+    let finalQuestion = normalizedQuestion;
+
+    if (history.length > 0) {
+        // We only look at the last 2-3 exchanges to keep it focused
+        const relevantHistory = history.slice(-4);
+
+        try {
+            const rewriteBody = {
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    {
+                        role: "system",
+                        content: `Rewrite the User's last question to be a standalone query based on the history. 
+                        Resolve textual references like "it", "that", "the first one". 
+                        Keep it concise. Do not answer the question. Just rewrite it.
+                        If no context is needed, return the original question.`
+                    },
+                    ...relevantHistory,
+                    { role: "user", content: normalizedQuestion }
+                ]
+            };
+
+            // Fast, small request for rewriting
+            if (GROQ_KEY) {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify(rewriteBody)
+                });
+                const data = await res.json();
+                if (data?.choices?.[0]?.message?.content) {
+                    finalQuestion = data.choices[0].message.content.trim();
+                    // console.log(`[Context Core] Rewrote "${normalizedQuestion}" -> "${finalQuestion}"`);
+                }
+            }
+        } catch (e) {
+            console.warn("Query rewriting failed, using original.", e);
+        }
     }
 
     const notes = getNotes();
@@ -70,7 +113,7 @@ Global Tag Structure:
 
     /* DEBUG LOGGING */
     // console.log(`[RAG] Loaded ${notes.length} notes from storage.`);
-    const qEmbed = embedText(question);
+    const qEmbed = embedText(finalQuestion);
 
     // --- UNIVERSAL HYBRID SEARCH ALGORITHM ("Universal Beast Mode") ---
 
@@ -90,7 +133,7 @@ Global Tag Structure:
 
     // 1. Prepare Query Keywords
     const stopWords = new Set(['a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'and', 'or', 'is', 'are', 'was', 'were', 'be', 'tell', 'me', 'about', 'show', 'list', 'what', 'where', 'when', 'who', 'how']);
-    const queryTerms = question.toLowerCase()
+    const queryTerms = finalQuestion.toLowerCase()
         .replace(/[?.,!]/g, '')
         .split(/\s+/)
         .filter(w => w.length > 2 && !stopWords.has(w));
@@ -173,12 +216,53 @@ Global Tag Structure:
             if (hoursSinceUpdate < 24) recencyScore = 1.0;
             else if (hoursSinceUpdate < 24 * 7) recencyScore = 0.5;
             else if (hoursSinceUpdate < 24 * 30) recencyScore = 0.2;
+            // D. Exact Phrase Match (optional but powerful)
+            if (contentLower.includes(finalQuestion.toLowerCase())) lexicalScore += 2.0;
 
             const finalScore = vectorScore + lexicalScore + tagBoost + recencyScore;
 
             return { n, score: finalScore, debug: { vectorScore, lexicalScore, tagBoost, recencyScore } };
         })
         .sort((a, b) => b.score - a.score);
+
+    // --- 4. CONTEXT CHAINING (Graph Brain) ---
+    // Scan Tier 1 notes for references to OTHER notes ("Mental Links")
+    const tier1Notes = ranked.slice(0, 10); // Look at top 10 strongest matches
+    const linkedNotes = new Map<string, Note>();
+
+    // Create a fast lookup map for all available note titles
+    const titleMap = new Map<string, Note>();
+    notes.forEach(n => {
+        if (n.title && n.title.length >= 3) {
+            titleMap.set(n.title.toLowerCase(), n);
+        }
+    });
+
+    tier1Notes.forEach(r => {
+        const contentLower = (r.n.content || "").toLowerCase();
+
+        // Check if this note mentions any OTHER note title
+        titleMap.forEach((targetNote, targetTitle) => {
+            // Avoid self-reference
+            if (targetNote.id === r.n.id) return;
+
+            // If the content mentions another note's title, LINK IT.
+            // (Using robust boundary check to avoid partial word matches)
+            if (contentLower.includes(targetTitle)) {
+                // Ensure it's not already in Tier 1
+                const isAlreadyInTier1 = tier1Notes.some(t1 => t1.n.id === targetNote.id);
+                if (!isAlreadyInTier1) {
+                    linkedNotes.set(targetNote.id, targetNote);
+                }
+            }
+        });
+    });
+
+    // Combine Tier 1 (Direct Match) + Tier 2 (Linked Context)
+    const finalNotesToProcess = [
+        ...tier1Notes.map(r => ({ n: r.n, type: 'Direct Match' })),
+        ...Array.from(linkedNotes.values()).map(n => ({ n, type: 'Linked Context' }))
+    ];
 
     // Dynamic Context Construction with Token Limit
     const MAX_TOKENS = 3000; // Safe limit for Groq's 12k TPM (allows ~3-4 requests/min)
@@ -188,17 +272,17 @@ Global Tag Structure:
     // Estimate tokens (rough approximation: 4 chars ~= 1 token)
     const estimateTokens = (text: string) => Math.ceil(text.length / 4);
 
-    for (const r of ranked) {
+    for (const item of finalNotesToProcess) {
         // Debug Log for verification (optional)
-        // console.log(`[RAG] ${r.n.title}: Score ${r.score.toFixed(2)} (Vec: ${r.debug.vectorScore.toFixed(2)}, Lex: ${r.debug.lexicalScore}, Folder: ${r.debug.folderBoost})`);
+        // console.log(`[RAG] Processing ${item.type}: ${item.n.title}`);
 
-        const richTags = r.n.tags ? r.n.tags.map(t => {
+        const richTags = item.n.tags ? item.n.tags.map(t => {
             if (isFileTag(t)) return `${getFileTagDisplayName(t)} (Blue Folder)`;
             if (tagsInFileFolders.has(t)) return `${t} (Green Tag)`;
             return `${t} (Grey Tag)`;
         }).join(", ") : "None";
 
-        const noteEntry = `Title: ${r.n.title}\nLast Updated: ${new Date(r.n.updatedAt).toLocaleString()}\nTags: ${richTags}\nContent: ${r.n.content}`;
+        const noteEntry = `[${item.type}]\nTitle: ${item.n.title}\nLast Updated: ${new Date(item.n.updatedAt).toLocaleString()}\nTags: ${richTags}\nContent: ${item.n.content}`;
         const noteTokens = estimateTokens(noteEntry);
 
         if (currentTokens + noteTokens > MAX_TOKENS) {
@@ -213,10 +297,15 @@ Global Tag Structure:
         selectedNotes.push(noteEntry);
         currentTokens += noteTokens;
 
-        if (selectedNotes.length >= 15) break; // Increased hard limit slightly as our ranking is now better
+        if (selectedNotes.length >= 15) break;
     }
 
     const context = selectedNotes.join("\n\n");
+
+    // Add instruction for AI to understand the [Linked Context] tag
+    const systemPromptExtras = `
+Notes labeled [Linked Context] were automatically retrieved because they are mentioned in the Direct Match notes. 
+Use them to provide a more complete answer, following the connections between notes.`;
 
     const body = {
         model: "llama-3.3-70b-versatile",
@@ -232,13 +321,15 @@ Context:
 - **Folder Tags (Green)**: Sub-tags inside Blue Folders
 - **Standalone Tags (Grey)**: Tags not in any folder
 
+${systemPromptExtras}
+
 When answering about notes, be specific about which folder (Blue) or tag (Green/Grey) they belong to.
 Be helpful, friendly, and conversational. If asked about your identity, remember you are Pownin, created by Quillon.
 
 Relevant Notes:
 ${context}`
             },
-            { role: "user", content: question }
+            { role: "user", content: finalQuestion }
         ]
     };
 
