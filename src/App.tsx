@@ -9,6 +9,7 @@ import { DownloadNotification } from './components/DownloadNotification';
 import { Plus, Moon, Sun, Lock, Trash2 } from 'lucide-react';
 import AIChat from './components/AIChat';
 import { isFileTag, Note } from './types';
+import powninLogo from './assets/pownin.png';
 
 function NoteList() {
   const {
@@ -151,7 +152,7 @@ function NoteList() {
               className="w-10 h-10 rounded-xl flex items-center justify-center hover:opacity-80 transition-opacity"
               title="Ask Pownin"
             >
-              <img src="/pownin.png" alt="Pownin" className="w-full h-full rounded-xl object-cover" />
+              <img src={powninLogo} alt="Pownin" className="w-full h-full rounded-xl object-cover" />
             </button>
             <button
               onClick={() => {

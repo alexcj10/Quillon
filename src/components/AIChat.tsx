@@ -4,6 +4,7 @@ import { X, Send, Loader2 } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import powninLogo from "../assets/pownin.png";
 
 interface AIChatProps {
     onClose: () => void;
@@ -83,7 +84,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                 {/* HEADER */}
                 <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-900">
                     <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-semibold">
-                        <img src="/pownin.png" alt="Pownin" className="w-6 h-6 rounded-full object-cover" />
+                        <img src={powninLogo} alt="Pownin" className="w-6 h-6 rounded-full object-cover" />
                         <span className="text-sm md:text-base">Pownin</span>
                     </div>
                     <div className="flex items-center gap-1">
