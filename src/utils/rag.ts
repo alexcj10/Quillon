@@ -72,41 +72,114 @@ Global Tag Structure:
     // console.log(`[RAG] Loaded ${notes.length} notes from storage.`);
     const qEmbed = embedText(question);
 
+    // --- UNIVERSAL HYBRID SEARCH ALGORITHM ("Universal Beast Mode") ---
+
+    // Helper: Levenshtein Distance for Fuzzy Matching (Typos)
+    const levenshtein = (a: string, b: string): number => {
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
+                else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+            }
+        }
+        return matrix[b.length][a.length];
+    };
+
+    // 1. Prepare Query Keywords
+    const stopWords = new Set(['a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'and', 'or', 'is', 'are', 'was', 'were', 'be', 'tell', 'me', 'about', 'show', 'list', 'what', 'where', 'when', 'who', 'how']);
+    const queryTerms = question.toLowerCase()
+        .replace(/[?.,!]/g, '')
+        .split(/\s+/)
+        .filter(w => w.length > 2 && !stopWords.has(w));
+
+    // 2. Universal Tag Matching (Blue, Green, Grey)
+    // We want to know if the user mentioned ANY tag (exact, plural, or typo)
+    const allKnownTags = new Set<string>([
+        ...Array.from(blueFolders),
+        ...Array.from(greenTags),
+        ...Array.from(greyTags)
+    ]);
+
+    const relevantTags = new Set<string>(); // Tags the user is asking about
+
+    // Helper to check fuzzy match against all tags
+    queryTerms.forEach(term => {
+        allKnownTags.forEach(tag => {
+            const t = tag.toLowerCase();
+            // Direct, Plural/Singular, or Fuzzy Match
+            if (
+                t === term ||
+                t === term + 's' ||
+                t + 's' === term ||
+                (levenshtein(term, t) <= 1) // 1 typo allowed
+            ) {
+                relevantTags.add(tag);
+            }
+        });
+    });
+
+    // 3. Score & Rank Notes
     const ranked = notes
         .map(n => {
-            // Consistent embedding text logic
-            // We rely on n.embedding being up to date from initializeEmbeddings/NoteContext
-            // But if we fallback, we must match the logic:
+            // A. Vector Score (Semantic)
             const tagText = n.tags ? n.tags.map(t => isFileTag(t) ? `${t} ${getFileTagDisplayName(t)}` : t).join(" ") : "";
             const baseText = `${n.title || ""} ${n.content || ""} ${tagText}`;
-
             const noteEmbed = n.embedding || embedText(baseText);
-            let score = cosineSimilarity(qEmbed, noteEmbed);
+            const vectorScore = cosineSimilarity(qEmbed, noteEmbed);
 
-            // KEYWORD BOOSTING:
-            // If the user's question explicitly mentions a tag/folder name, boost this note.
-            // This fixes the issue where short queries ("J") don't match long notes semantically.
-            if (n.tags) {
-                for (const t of n.tags) {
-                    const displayName = isFileTag(t) ? getFileTagDisplayName(t) : t;
-                    // Robust check: word boundary, case insensitive
-                    // e.g. "J" matches "j" but "Java" does not match "J"
-                    // Escape special regex chars in displayName just in case
-                    const escapedName = displayName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const regex = new RegExp(`\\b${escapedName}\\b`, 'i');
+            // B. Lexical Score (Text Match)
+            let lexicalScore = 0;
+            const titleLower = (n.title || "").toLowerCase();
+            const contentLower = (n.content || "").toLowerCase();
+            // const tagsLower = (n.tags || []).map(t => isFileTag(t) ? getFileTagDisplayName(t).toLowerCase() : t.toLowerCase());
 
-                    if (regex.test(question)) {
-                        // Massive boost to ensure it enters the context window
-                        // console.log(`[RAG] Boosting note "${n.title}" due to tag match "${displayName}"`);
-                        score += 10.0;
-                        break; // Only boost once per note
-                    }
+            queryTerms.forEach(term => {
+                // Title Match (Fuzzy allowed)
+                const titleTokens = titleLower.split(/\s+/);
+                if (titleTokens.some(t => t === term || levenshtein(t, term) <= 1)) {
+                    lexicalScore += 2.0;
+                }
+
+                // Content Term Frequency (TF)
+                const regex = new RegExp(`\\b${term}\\b`, 'gi');
+                const count = (contentLower.match(regex) || []).length;
+                lexicalScore += Math.min(count, 5) * 0.2;
+            });
+
+            // C. Tag Relevance Boost (The "Universal" Part)
+            // If this note has a tag that matches our 'relevantTags', BOOST IT.
+            // This applies to Folder (Blue), Subtag (Green), or Standalone (Grey).
+            let tagBoost = 0;
+            if (n.tags && relevantTags.size > 0) {
+                const noteTags = n.tags.map(t => isFileTag(t) ? getFileTagDisplayName(t) : t);
+
+                const hasRelevantTag = noteTags.some(nt => {
+                    // Check if this specific note tag was one of the ones identified as relevant
+                    // We check against the Set of "detected user intent tags"
+                    return relevantTags.has(nt);
+                });
+
+                if (hasRelevantTag) {
+                    tagBoost = 3.0; // Universal Boost for ANY relevant tag match
                 }
             }
 
-            return { n, score };
+            // D. Recency Boost
+            let recencyScore = 0;
+            const hoursSinceUpdate = (Date.now() - new Date(n.updatedAt).getTime()) / (1000 * 60 * 60);
+            if (hoursSinceUpdate < 24) recencyScore = 1.0;
+            else if (hoursSinceUpdate < 24 * 7) recencyScore = 0.5;
+            else if (hoursSinceUpdate < 24 * 30) recencyScore = 0.2;
+
+            const finalScore = vectorScore + lexicalScore + tagBoost + recencyScore;
+
+            return { n, score: finalScore, debug: { vectorScore, lexicalScore, tagBoost, recencyScore } };
         })
-        .sort((a, b) => b.score - a.score)
+        .sort((a, b) => b.score - a.score);
+
     // Dynamic Context Construction with Token Limit
     const MAX_TOKENS = 3000; // Safe limit for Groq's 12k TPM (allows ~3-4 requests/min)
     let currentTokens = 0;
@@ -116,6 +189,9 @@ Global Tag Structure:
     const estimateTokens = (text: string) => Math.ceil(text.length / 4);
 
     for (const r of ranked) {
+        // Debug Log for verification (optional)
+        // console.log(`[RAG] ${r.n.title}: Score ${r.score.toFixed(2)} (Vec: ${r.debug.vectorScore.toFixed(2)}, Lex: ${r.debug.lexicalScore}, Folder: ${r.debug.folderBoost})`);
+
         const richTags = r.n.tags ? r.n.tags.map(t => {
             if (isFileTag(t)) return `${getFileTagDisplayName(t)} (Blue Folder)`;
             if (tagsInFileFolders.has(t)) return `${t} (Green Tag)`;
@@ -137,7 +213,7 @@ Global Tag Structure:
         selectedNotes.push(noteEntry);
         currentTokens += noteTokens;
 
-        if (selectedNotes.length >= 10) break; // Hard limit on note count
+        if (selectedNotes.length >= 15) break; // Increased hard limit slightly as our ranking is now better
     }
 
     const context = selectedNotes.join("\n\n");
