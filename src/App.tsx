@@ -7,6 +7,7 @@ import { NoteFilters } from './components/NoteFilters';
 import { PrivateSpaceDialog } from './components/PrivateSpaceDialog';
 import { DownloadNotification } from './components/DownloadNotification';
 import { Plus, Moon, Sun, Lock, Trash2 } from 'lucide-react';
+import AIChat from './components/AIChat';
 import { isFileTag, Note } from './types';
 
 function NoteList() {
@@ -31,6 +32,7 @@ function NoteList() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | undefined>(undefined);
   const [showPrivateSpaceDialog, setShowPrivateSpaceDialog] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
 
   const handleEdit = (note: Note) => {
     setEditingNote(note);
@@ -145,6 +147,13 @@ function NoteList() {
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
             <button
+              onClick={() => setShowAIChat(true)}
+              className="w-10 h-10 rounded-xl flex items-center justify-center hover:opacity-80 transition-opacity"
+              title="Ask Pownin"
+            >
+              <img src="/pownin.png" alt="Pownin" className="w-full h-full rounded-xl object-cover" />
+            </button>
+            <button
               onClick={() => {
                 setEditingNote(undefined);
                 setIsEditing(true);
@@ -210,6 +219,10 @@ function NoteList() {
           <PrivateSpaceDialog
             onClose={() => setShowPrivateSpaceDialog(false)}
           />
+        )}
+
+        {showAIChat && (
+          <AIChat onClose={() => setShowAIChat(false)} />
         )}
       </div>
     </div>

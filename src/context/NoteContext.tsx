@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Note, NoteContextType, SharedUser, NoteActivity, ShareProtection } from '../types';
+import { Note, NoteContextType, SharedUser, NoteActivity, ShareProtection, isFileTag, getFileTagDisplayName } from '../types';
+import { embedText } from "../utils/embed";  // add this at top
+import { initializeEmbeddings } from "../utils/initializeEmbeddings";
 
 const NoteContext = createContext<NoteContextType | undefined>(undefined);
 
@@ -30,6 +32,13 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(notes));
   }, [notes]);
+
+  useEffect(() => {
+    const { changed, notes: updatedNotes } = initializeEmbeddings(notes);
+    if (changed) {
+      setNotes(updatedNotes);
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('privateSpacePassword', privateSpacePassword);
@@ -66,25 +75,43 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addNote = (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
+    // Generate text for embedding including decoded file tags
+    const tagText = note.tags.map(t => isFileTag(t) ? `${t} ${getFileTagDisplayName(t)}` : t).join(" ");
+
     const newNote: Note = {
       ...note,
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      embedding: embedText(`${note.title} ${note.content} ${tagText}`)
     };
     setNotes(prev => [...prev, newNote]);
   };
 
   const updateNote = (id: string, updates: Partial<Note>) => {
-    setNotes(prev => prev.map(note =>
-      note.id === id
-        ? {
+    setNotes(prev => prev.map(note => {
+      if (note.id === id) {
+        const updatedNote = {
           ...note,
           ...updates,
           updatedAt: new Date().toISOString(),
+        };
+
+        if (
+          updates.title !== undefined ||
+          updates.content !== undefined ||
+          updates.tags !== undefined
+        ) {
+          const t = updatedNote.title;
+          const c = updatedNote.content;
+          const tagStr = updatedNote.tags.map(tg => isFileTag(tg) ? `${tg} ${getFileTagDisplayName(tg)}` : tg).join(" ");
+          updatedNote.embedding = embedText(`${t} ${c} ${tagStr}`);
         }
-        : note
-    ));
+
+        return updatedNote;
+      }
+      return note;
+    }));
   };
 
   const moveToTrash = (id: string) => {

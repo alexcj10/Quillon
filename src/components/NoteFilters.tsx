@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { isFileTag, getFileTagDisplayName, Note } from '../types';
@@ -41,21 +41,21 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
     }
   }, [showTrash, setSelectionMode, clearSelection]);
 
-  const visibleNotes = notes.filter(note =>
+  const visibleNotes = useMemo(() => notes.filter(note =>
     note.isPrivate === showPrivateNotes &&
     (note.isDeleted || false) === (showTrash || false)
-  );
+  ), [notes, showPrivateNotes, showTrash]);
 
-  const allTags = Array.from(new Set(visibleNotes.flatMap(note => note.tags)));
+  const allTags = useMemo(() => Array.from(new Set(visibleNotes.flatMap(note => note.tags))), [visibleNotes]);
 
-  const tagsInFileFolders = new Set(
+  const tagsInFileFolders = useMemo(() => new Set(
     visibleNotes
       .filter(note => note.tags.some(tag => isFileTag(tag)))
       .flatMap(note => note.tags.filter(tag => !isFileTag(tag)))
-  );
+  ), [visibleNotes]);
 
   // Maintain creation order while grouping file tags with their green tags
-  const sortedTags = (() => {
+  const sortedTags = useMemo(() => {
     const result: string[] = [];
     const processedTags = new Set<string>();
 
@@ -88,7 +88,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
     });
 
     return result;
-  })();
+  }, [allTags, visibleNotes]);
 
   const VISIBLE_TAGS_LIMIT = 20;
   const visibleTags = sortedTags.slice(0, VISIBLE_TAGS_LIMIT);

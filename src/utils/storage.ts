@@ -34,16 +34,16 @@ export class DocumentStorage {
       // Save metadata to localStorage
       const metadata = documents.map(({ url, ...rest }) => rest);
       const metadataString = JSON.stringify(metadata);
-      
+
       try {
         localStorage.setItem(METADATA_KEY, metadataString);
       } catch (e) {
-        if (e.name === 'QuotaExceededError') {
+        if ((e as any).name === 'QuotaExceededError') {
           throw new StorageError('Storage quota exceeded. Please delete some documents to free up space.');
         }
         throw e;
       }
-      
+
       // Save files to IndexedDB
       await Promise.all(
         documents.map(doc => this.db.put(doc.id, doc.url))
@@ -84,7 +84,7 @@ export class DocumentStorage {
   async deleteDocument(id: string): Promise<void> {
     try {
       await this.db.delete(id);
-      
+
       // Update metadata
       const metadata = localStorage.getItem(METADATA_KEY);
       if (metadata) {
@@ -96,4 +96,13 @@ export class DocumentStorage {
       throw new StorageError('Failed to delete document');
     }
   }
+}
+
+import { Note } from '../types';
+
+export function getNotes(): Note[] {
+  return JSON.parse(localStorage.getItem("notes") || "[]");
+}
+export function saveNotes(notes: Note[]) {
+  localStorage.setItem("notes", JSON.stringify(notes));
 }

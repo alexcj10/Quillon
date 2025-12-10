@@ -35,6 +35,7 @@ export interface Note {
   isShared?: boolean;
   shareProtection?: ShareProtection;
   shareUrl?: string;
+  embedding?: number[];
 }
 
 // Helper function to identify file tags
