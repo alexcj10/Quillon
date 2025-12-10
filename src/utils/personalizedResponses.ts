@@ -236,14 +236,49 @@ export function getPersonalizedResponse(question: string): string | null {
 
     // ========== HELP/GUIDANCE & TUTORIALS (UPDATED ACCURACY) ==========
 
-    // ADVANCED TAG COMMANDS (Edit/Delete via @)
-    if (/how (do|to) (edit|change|rename|delete|remove) (a )?(tag|folder)|tag command|@ command/i.test(lowerQ)) {
+    // CONVERSATION REPAIR: CATCH SHORT "EDIT/DELETE" FOLLOW-UPS
+    // Catch cases where user says "just edit" or "how to delete" without context, 
+    // relying on the rewrite loop OR just catching common "tag" intents.
+    if (
+        /(just|only|what about|show me|for|and|about) (edit|editing|delete|deleting|remove|removing)/i.test(lowerQ) ||
+        /^(edit|delete|rename) (only|just|too|also|as well)?$/i.test(cleanQ)
+    ) {
+        // Assume they mean TAGS if they are using these specific command-like words in this context
+        // (Safe bet because 'editing a note' is usually "how to edit note")
+        return randomResponse([
+            "For **Editing**: ✏️\nUse the command: `@blue-MyFolder/edit-NewName` in the 'All Tags' menu.",
+            "To **Edit** a tag: Go to 'All Tags', type `@`, and select the tag you want to rename.",
+            "Focusing on **Editing**? 🛠️\nSimply type `@` in the All Tags search bar, pick your tag, and append `/edit-NewName`.",
+            "If you just want to **Delete**: 🗑️\nUse the syntax `@green-Tag/delete` in the All Tags menu."
+        ]);
+    }
+
+    // 1. SPECIFIC EDITING QUESTION
+    if (/(how|can i|way to) (to )?(do|perform)? ?(edit|change|rename) (a )?(tag|folder)/i.test(lowerQ)) {
+        return randomResponse([
+            "To **Edit** a tag: ✏️\n1. Open 'All Tags'.\n2. Type `@` in the search bar.\n3. Use the syntax: `@color-OldName/edit-NewName`.",
+            "Want to rename? 🛠️\nGo to 'All Tags', type `@`, and use: `@blue-MyFolder/edit-NewName`.",
+            "Editing tags is hidden! 🤫\nType `@` in the 'All Tags' menu, then use the command: `@color-Tag/edit-NewName`.",
+            "Rename Command: 💻\n`@blue-OldName/edit-NewName` inside the All Tags menu."
+        ]);
+    }
+
+    // 2. SPECIFIC DELETING QUESTION
+    if (/(how|can i|way to) (to )?(do|perform)? ?(delete|remove) (a )?(tag|folder)/i.test(lowerQ)) {
+        return randomResponse([
+            "To **Delete** a tag: 🗑️\n1. Open 'All Tags'.\n2. Type `@`.\n3. Use the syntax: `@green-TagName/delete`.",
+            "Want to delete one specific tag? ✂️\nGo to 'All Tags', type `@`, and enter: `@[type]-[name]/delete`.",
+            "Delete Command: 🚫\n`@grey-Tag/delete` inside the All Tags menu (after typing `@`).",
+            "Be careful! To delete a tag permanently, use `@[type]-[name]/delete` in the All Tags command menu."
+        ]);
+    }
+
+    // 3. GENERAL/MIXED TAG COMMANDS
+    if (/tag command|@ command|advanced tag/i.test(lowerQ)) {
         return randomResponse([
             "To **Edit or Delete Tags** (Power User Mode): ⚡\n1. Open the 'All Tags' menu.\n2. Type `@` to see the command menu.\n3. Syntax: `@color-TagName/edit-NewName` or `@color-TagName/delete`.",
             "You can manage tags via commands! 💻\n• Go to 'All Tags' and type `@`.\n• To Edit: `@blue-MyFolder/edit-NewName`\n• To Delete: `@green-SubTag/delete`",
-            "**Hidden Feature:** Type `@` in the All Tags search bar! 🤫\nIt unlocks the command interface to rename or delete specific tags (Blue, Green, or Grey).",
-            "Want to rename a folder? 📂\n1. Click 'All Tags'.\n2. Type `@blue-OldName/edit-NewName`.\n3. Press Enter!",
-            "To delete a tag permanently: 🗑️\nUse the command syntax in the All Tags menu: `@[type]-[name]/delete`. (e.g., `@grey-Todo/delete`)."
+            "**Hidden Feature:** Type `@` in the All Tags search bar! 🤫\nIt unlocks the command interface to rename or delete specific tags (Blue, Green, or Grey)."
         ]);
     }
 
@@ -451,6 +486,17 @@ export function getPersonalizedResponse(question: string): string | null {
             "I wish I could! But I'm stuck in this browser. 🌐",
             "That's a job for a human (or a different robot). 🦾 I'm just here for your notes.",
             "I'll leave that to the experts. I'll stick to what I know: Your notes! 📂"
+        ]);
+    }
+
+    // ========== COMPLEX WHY/HOW (Context Catch-All) ==========
+    if (/(why|how) (did|was) (he|alex|creator|dev) (build|create|make|do) (it|this|quillon)/i.test(lowerQ)) {
+        return randomResponse([
+            "**Alex CJ** built Quillon to solve the problem of disorganized thoughts. 🧠 He wanted a tool that used AI to connect ideas automatically.",
+            "He created it because standard note apps were too static. 📉 Quillon is designed to be alive and intelligent.",
+            "The mission was simple: Empower users to own their data while using state-of-the-art AI. 🚀",
+            "Alex built this to demonstrate the power of **Local RAG** (Retrieval Augmented Generation) in a browser. 🌐",
+            "To prove that a single developer can build world-class AI tools! 🦾"
         ]);
     }
 

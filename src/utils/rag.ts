@@ -29,7 +29,8 @@ export async function ragQuery(question: string, history: Array<{ role: 'user' |
                     {
                         role: "system",
                         content: `Rewrite the User's last question to be a standalone query based on the history. 
-                        Resolve textual references like "it", "that", "the first one". 
+                        Resolve textual references like "it", "that", "the first one", "he", "him".
+                        If the user asks "Why?", "How?", or "Who?", ensure the subject is clear (e.g., "Why did Alex build Quillon?").
                         Keep it concise. Do not answer the question. Just rewrite it.
                         If no context is needed, return the original question.`
                     },
@@ -53,6 +54,16 @@ export async function ragQuery(question: string, history: Array<{ role: 'user' |
             }
         } catch (e) {
             console.warn("Query rewriting failed, using original.", e);
+        }
+    }
+
+    // --- 0.5. RE-CHECK PERSONALITY (Trigger matches on resolved queries) ---
+    // If "What is that?" became "What is Quillon?", we want to catch it here!
+    if (finalQuestion !== normalizedQuestion) {
+        const contextResponse = getPersonalizedResponse(finalQuestion);
+        if (contextResponse) {
+            // console.log(`[Context System] Redirecting rewritten query to Personality Module`);
+            return contextResponse;
         }
     }
 
