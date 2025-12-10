@@ -254,31 +254,32 @@ export function getPersonalizedResponse(question: string): string | null {
     }
 
     // 1. SPECIFIC EDITING QUESTION
-    if (/(how|can i|way to) (to )?(do|perform)? ?(edit|change|rename) (a )?(tag|folder)/i.test(lowerQ)) {
+    // Regex allows words in between action and target (e.g. "edit Alex's blue tag")
+    if (/(how|can i|give|show|command|way to).*(edit|change|rename).*(tag|folder|blue|green|gray|grey)/i.test(lowerQ)) {
         return randomResponse([
-            "To **Edit** a tag: ✏️\n1. Open 'All Tags'.\n2. Type `@` in the search bar.\n3. Use the syntax: `@color-OldName/edit-NewName`.",
-            "Want to rename? 🛠️\nGo to 'All Tags', type `@`, and use: `@blue-MyFolder/edit-NewName`.",
-            "Editing tags is hidden! 🤫\nType `@` in the 'All Tags' menu, then use the command: `@color-Tag/edit-NewName`.",
-            "Rename Command: 💻\n`@blue-OldName/edit-NewName` inside the All Tags menu."
+            "To **Edit** a tag: ✏️\n1. Open 'All Tags'.\n2. Type `@` in the search bar.\n3. Use the syntax: `@[color]-[OldName]/edit-[NewName]`.\n*(e.g., `@blue-Work/edit-Office`)*",
+            "Want to rename? 🛠️\nGo to 'All Tags', type `@`, and use: `@[color]-[Name]/edit-[NewName]`.",
+            "Editing tags is hidden! 🤫\nType `@` in the 'All Tags' menu, then use the command: `@[color]-[Tag]/edit-[NewName]`.",
+            "Rename Command: 💻\n`@[Color]-[Name]/edit-[NewName]` inside the All Tags menu."
         ]);
     }
 
     // 2. SPECIFIC DELETING QUESTION
-    if (/(how|can i|way to) (to )?(do|perform)? ?(delete|remove) (a )?(tag|folder)/i.test(lowerQ)) {
+    if (/(how|can i|give|show|command|way to).*(delete|remove).*(tag|folder|blue|green|gray|grey)/i.test(lowerQ)) {
         return randomResponse([
-            "To **Delete** a tag: 🗑️\n1. Open 'All Tags'.\n2. Type `@`.\n3. Use the syntax: `@green-TagName/delete`.",
-            "Want to delete one specific tag? ✂️\nGo to 'All Tags', type `@`, and enter: `@[type]-[name]/delete`.",
-            "Delete Command: 🚫\n`@grey-Tag/delete` inside the All Tags menu (after typing `@`).",
-            "Be careful! To delete a tag permanently, use `@[type]-[name]/delete` in the All Tags command menu."
+            "To **Delete** a tag: 🗑️\n1. Open 'All Tags'.\n2. Type `@`.\n3. Use the syntax: `@[color]-[TagName]/delete`.\n*(e.g., `@green-Project/delete` or `@blue-Work/delete`)*",
+            "Want to delete a specific tag? ✂️\nGo to 'All Tags', type `@`, and enter: `@[Color]-[Name]/delete`.",
+            "Delete Command: 🚫\n`@[type]-[Tag]/delete` inside the All Tags menu (after typing `@`).",
+            "Be careful! To delete a tag permanently, use `@[Color]-[Name]/delete` in the All Tags command menu."
         ]);
     }
 
     // 3. GENERAL/MIXED TAG COMMANDS
     if (/tag command|@ command|advanced tag/i.test(lowerQ)) {
         return randomResponse([
-            "To **Edit or Delete Tags** (Power User Mode): ⚡\n1. Open the 'All Tags' menu.\n2. Type `@` to see the command menu.\n3. Syntax: `@color-TagName/edit-NewName` or `@color-TagName/delete`.",
-            "You can manage tags via commands! 💻\n• Go to 'All Tags' and type `@`.\n• To Edit: `@blue-MyFolder/edit-NewName`\n• To Delete: `@green-SubTag/delete`",
-            "**Hidden Feature:** Type `@` in the All Tags search bar! 🤫\nIt unlocks the command interface to rename or delete specific tags (Blue, Green, or Grey)."
+            "To **Edit or Delete Tags** (Power User Mode): ⚡\n1. Open the 'All Tags' menu.\n2. Type `@` to see the command menu.\n3. Syntax: `@[color]-[Name]/edit-[New]` or `@[color]-[Name]/delete`.",
+            "You can manage tags via commands! 💻\n• Go to 'All Tags' and type `@`.\n• To Edit: `@[Color]-[Name]/edit-[NewName]`\n• To Delete: `@[Color]-[Name]/delete`",
+            "**Hidden Feature:** Type `@` in the All Tags search bar! 🤫\nIt unlocks the command interface. Use `@[color]-[name]/...` to manage your tags."
         ]);
     }
 
