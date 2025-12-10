@@ -107,18 +107,40 @@ Global Tag Structure:
             return { n, score };
         })
         .sort((a, b) => b.score - a.score)
-        .slice(0, 25); // Increased to 25 to catch "everything"
+    // Dynamic Context Construction with Token Limit
+    const MAX_TOKENS = 3000; // Safe limit for Groq's 12k TPM (allows ~3-4 requests/min)
+    let currentTokens = 0;
+    const selectedNotes: string[] = [];
 
-    // Create context with rich tag info AND timestamps
-    const context = ranked.map(r => {
+    // Estimate tokens (rough approximation: 4 chars ~= 1 token)
+    const estimateTokens = (text: string) => Math.ceil(text.length / 4);
+
+    for (const r of ranked) {
         const richTags = r.n.tags ? r.n.tags.map(t => {
             if (isFileTag(t)) return `${getFileTagDisplayName(t)} (Blue Folder)`;
             if (tagsInFileFolders.has(t)) return `${t} (Green Tag)`;
             return `${t} (Grey Tag)`;
         }).join(", ") : "None";
 
-        return `Title: ${r.n.title}\nLast Updated: ${new Date(r.n.updatedAt).toLocaleString()}\nTags: ${richTags}\nContent: ${r.n.content}`;
-    }).join("\n\n");
+        const noteEntry = `Title: ${r.n.title}\nLast Updated: ${new Date(r.n.updatedAt).toLocaleString()}\nTags: ${richTags}\nContent: ${r.n.content}`;
+        const noteTokens = estimateTokens(noteEntry);
+
+        if (currentTokens + noteTokens > MAX_TOKENS) {
+            // If the first note itself is too big, truncate and add it
+            if (selectedNotes.length === 0) {
+                const allowedChars = MAX_TOKENS * 4;
+                selectedNotes.push(noteEntry.substring(0, allowedChars) + "\n... (truncated)");
+            }
+            break; // Stop adding notes once limit is reached
+        }
+
+        selectedNotes.push(noteEntry);
+        currentTokens += noteTokens;
+
+        if (selectedNotes.length >= 10) break; // Hard limit on note count
+    }
+
+    const context = selectedNotes.join("\n\n");
 
     const body = {
         model: "llama-3.3-70b-versatile",
