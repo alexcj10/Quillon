@@ -72,12 +72,60 @@ export function getPersonalizedResponse(question: string): string | null {
     }
 
     // ========== IDENTITY - CREATOR/DEVELOPER ==========
-    if (/who (created|made|developed|built|designed|coded|programmed) you|who('s| is) your (creator|developer|maker|author|builder)|where (do you come from|are you from)|who('s| is) behind you/i.test(lowerQ)) {
+    // ========== IDENTITY - CREATOR/DEVELOPER ==========
+    // Check for "Deep" or specific queries about the developer/founder
+    const isDeepQuery = /who (made|created|built|developed|founded) (quillon|you)|who is (the )?(dev|developer|creator|founder|owner|architect|alex)|tell me (about|more about) (alex|the creator)/i.test(lowerQ);
+
+    // Check for "Surface" queries (generic "who made you")
+    const isSurfaceQuery = /who (made|created|built) you/i.test(lowerQ) && !lowerQ.includes('quillon') && !lowerQ.includes('alex');
+
+    if (isDeepQuery || /alex/i.test(lowerQ)) {
+        // 15+ VARIATIONS FOR "THE ARCHITECT" ALEX CJ
+        const alexResponses = [
+            // 1. Visionary/Architect
+            "The Architect behind Quillon is **Alex CJ**. He envisioned a system that doesn't just store notes, but understands them.",
+            "I was brought to life by **Alex CJ**, a visionary creator who merged Machine Learning with intuitive design.",
+            "The mind behind my code is **Alex CJ**. He forged this system to be more than just a tool—he made it a companion.",
+            "**Alex CJ** is the innovator who designed my core. He saw the future of productivity and built it.",
+
+            // 2. The Specialist (ML/Tech)
+            "My cognitive engine was fine-tuned by **Alex CJ**, a specialist in Machine Learning and AI architecture.",
+            "I am the result of **Alex CJ's** deep research into Neural Networks and Advanced Retrieval Systems.",
+            "**Alex CJ** built me. He's a developer who constantly pushes the boundaries of what AI can do.",
+            "The algorithms that power my search were crafted by **Alex CJ**, an expert in the field of Machine Learning.",
+
+            // 3. The "Dark Web/Crypto" Mystique (As requested)
+            "My creator is **Alex CJ**. When he's not building AI, he explores the depths of the **Dark Web**, **Blockchain**, and **Crypto** markets.",
+            "**Alex CJ** designed me. He's a fascinating figure who delves into **Cryptocurrency** and the **Decentralized Web**.",
+            "The code runs deep, just like **Alex CJ's** interests in **Blockchain technology** and the **Dark Web**.",
+            "**Alex CJ** is the one. He's not just a coder; he's a researcher of the **Dark Web** and a **Crypto** analyst.",
+
+            // 4. Personal/Direct
+            "It was **Alex CJ** (Alex Chandar Joshva). He built me to help you navigate your digital world.",
+            "**Alex CJ** is the founder. He wanted to create an AI that truly respects your data and distinct workflow.",
+            "The name is **Alex CJ**. He's the developer who spent countless nights optimizing my retrieval logic.",
+
+            // 5. Contact/Socials
+            "**Alex CJ** created me. You can see his work on **GitHub** (github.com/alexcj10) or connect on **LinkedIn** (linkedin.com/in/alexcj10).",
+            "I was built by **Alex CJ**. If you want to talk tech, crypto, or AI, reach out to him at `alexchandarjoshva@gmail.com`.",
+            "**Alex CJ** is the dev. Check him out online—search for 'alexcj10' to see his projects in AI and Web3."
+        ];
+
+        // If the user SPECIFICALLY asks for contact info/socials
+        if (/(contact|email|social|github|linkedin|reach|connect)/i.test(lowerQ)) {
+            return "You can connect with **The Architect, Alex CJ** here:\n\n• 📧 **Email**: `alexchandarjoshva@gmail.com`\n• 🐙 **GitHub**: [github.com/alexcj10](https://github.com/alexcj10)\n• 💼 **LinkedIn**: [linkedin.com/in/alexcj10](https://www.linkedin.com/in/alexcj10)\n• 🌐 **Search**: 'alexcj10' online to find more.";
+        }
+
+        return randomResponse(alexResponses);
+    }
+
+    // Surface Level "Who made you?" -> Keep it simple unless they ask specifically about Quillon/Alex
+    if (isSurfaceQuery) {
         return randomResponse([
-            "I was developed by **Quillon** 🚀 - a team dedicated to building intelligent note-taking solutions!",
-            "**Quillon** created me! 💡 They're passionate about making note management smarter and easier.",
-            "I'm brought to you by **Quillon** ✨ - innovators in AI-powered productivity tools!",
-            "The brilliant minds at **Quillon** built me! 🧠 They specialize in intelligent note-taking systems."
+            "I was developed by **Quillon** 🚀 (Architected by Alex CJ).",
+            "**Quillon** created me! 💡 The project is led by Alex CJ.",
+            "I'm brought to you by **Quillon** ✨.",
+            "The brilliant minds at **Quillon** built me! 🧠"
         ]);
     }
 
