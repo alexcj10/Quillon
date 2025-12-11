@@ -5,7 +5,7 @@
 <img width="1920" height="1080" alt="790shots_so" src="https://github.com/user-attachments/assets/25d764ff-8c78-4cb5-99c6-176986f5baf3" />
 
 
-🚀 **Quillon** is a modern, lightweight, and intuitive note-taking application built with **Vite, React, and TypeScript**. Designed for speed and efficiency, it offers **powerful organization** and **seamless usability** to **capture, manage, and structure your notes effortlessly**.
+🚀 **Quillon** is a modern, lightweight, and intuitive note-taking application built with **Vite, React, and TypeScript**. Designed for speed and efficiency, it uses **Smart RAG** and **Intelligent Tags** to **capture, manage, and structure your notes effortlessly**.
 
 🔗 **[Live Demo](https://quillon.netlify.app/)** | 🌟 **[Star on GitHub](https://github.com/alexcj10/Quillon)**  
 <p align="center">
@@ -19,14 +19,24 @@
 
 ## ✨ Features That Make Quillon Stand Out  
 
-✅ **Full CRUD Support** – Create, Read, Update, and Delete notes effortlessly.  
-🔒 **Private Notes** – Secure sensitive notes in a private section.  
-⭐ **Favorites** – Mark and access important notes instantly.  
-🔍 **Advanced Search** – Find notes instantly with keywords and tags.  
-🌂 **Tag System** – Organize and categorize notes for easy access.  
-📱 **100% Responsive** – Works seamlessly across desktop, tablet, and mobile devices.  
+### 🧠 Pownin AI (Smart RAG 2.0)
+The heart of Quillon is **Pownin**, an Advanced AI powered by a 5-stage retrieval pipeline:
+1. **Query Expansion**: Automatically expands messy queries (e.g., "mtg w/ sarah") into strict search terms ("meeting", "Sarah").
+2. **Oracle Reranking**: Reads your notes like a human to find relevant content even in "Untitled" or messy files.
+3. **Context Chaining**: Creates a dynamic "Knowledge Graph" by following links between notes.
+4. **Keyword Sniper**: Instantly boosts exact Title matches for precision retrieval.
+5. **Reflection Core**: The AI self-corrects and rewrites answers if they aren't perfect.
 
-💎 **More exciting features coming soon! Stay tuned...**  
+### 🏷️ Intelligent Tagging System
+Forget manual color codes. Quillon organizes tags automatically:
+- **Blue Tags (Folders)**: Tags starting with `file` (e.g., `file-project`) become main folders.
+- **Green Tags (Context)**: Tags that live inside a Blue Folder automatically become "Context Tags".
+- **Grey Tags**: Standard tags for loose categorization.
+*No commands needed. Just tag it, and Quillon sorts it.*
+
+### 📝 Refined Note Editor
+- **Distraction-Free**: Full-screen, edge-to-edge editing experience.
+- **Responsive**: Perfectly optimized for Desktop, Tablet, and Mobile.
 
 ---
 
@@ -35,7 +45,8 @@
 | Category  | Technology |
 |-----------|------------|
 | **Frontend** | Vite, React, TypeScript |
-| **Styling**  | CSS Modules |
+| **AI / RAG** | **Pownin Core** (Custom 5-Stage RAG Pipeline), Llama-3, Groq SDK |
+| **Styling**  | CSS Modules, Tailwind |
 | **Deployment** | Netlify |
 
 ---
@@ -53,11 +64,6 @@ git clone https://github.com/alexcj10/Quillon.git
 ```bash
 cd Quillon
 ```
-📌 **If you downloaded from the releases section**, navigate using:  
-```bash
-cd Quillon-vQ1  
-# (Change version number for newer releases)
-```
 
 #### 3⃣ Install Dependencies  
 ```bash
@@ -68,15 +74,16 @@ npm install
 ```bash
 npm run dev
 ```
-📌 The app will be available at ```http://localhost:5173``` or ```http://localhost:5174``` 
+📌 The app will be available at ```http://localhost:5173``` 
 
 ---
 
 ## 🏠 Core Functionalities  
 
 📌 **Note Management** – Add, edit, delete, and organize notes effortlessly.  
+🧠 **Ask Pownin** – Chat with your notes using the "Smart RAG" AI assistant.  
 🔒 **Private & Favorite Notes** – Secure sensitive notes and highlight important ones.  
-🌂 **Tag & Search System** – Enhance organization with custom tags and an intelligent search.  
+🌂 **Smart Tags** – Automatic blue/green/grey hierarchy for effortless structure.  
 🌟 **Adaptive UI** – Seamless experience across devices with a responsive design.  
 
 ---
