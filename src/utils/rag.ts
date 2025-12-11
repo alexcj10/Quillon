@@ -6,7 +6,11 @@ import { getPersonalizedResponse } from "./personalizedResponses";
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
 
-export async function ragQuery(question: string, history: Array<{ role: 'user' | 'ai', content: string }> = []) {
+export async function ragQuery(
+    question: string, 
+    history: Array<{ role: 'user' | 'ai', content: string }> = [],
+    options: { includePrivate: boolean } = { includePrivate: false }
+) {
     // Check for personalized responses first (greetings, identity questions)
     const normalizedQuestion = question.trim();
     const personalizedResponse = getPersonalizedResponse(normalizedQuestion);
@@ -42,7 +46,7 @@ export async function ragQuery(question: string, history: Array<{ role: 'user' |
                     ...relevantHistory,
                     { role: "user", content: normalizedQuestion }
                 ],
-                response_format: { type: "json_object" }
+                response_format: { type: "json_object" } 
             };
 
             if (GROQ_KEY) {
@@ -62,15 +66,15 @@ export async function ragQuery(question: string, history: Array<{ role: 'user' |
                         } else if (parsed.queries && Array.isArray(parsed.queries)) {
                             searchQueries = parsed.queries;
                         }
-
+                        
                         if (parsed.hypothetical_answer) {
                             // HyDE: We treat the hypothetical answer as a generic "Concept Vector"
                             // We add it to the search queries so it gets its own embedding
                             searchQueries.push(parsed.hypothetical_answer);
                         }
                     } catch (e) {
-                        // Fallback: just use text if JSON fails
-                        searchQueries = [planRaw.replace(/[\[\]"]/g, '')];
+                         // Fallback: just use text if JSON fails
+                         searchQueries = [planRaw.replace(/[\[\]"]/g, '')]; 
                     }
                 }
             }
@@ -86,7 +90,9 @@ export async function ragQuery(question: string, history: Array<{ role: 'user' |
         if (contextResponse) return contextResponse;
     }
 
-    const notes = getNotes();
+    const allNotes = getNotes();
+    // SECURITY: Filter out Private notes UNLESS explicitly allowed by the caller (Authenticated User)
+    const notes = allNotes.filter(n => !n.isPrivate || (n.isPrivate && options.includePrivate));
     // Ensure we have notes
     if (!notes || notes.length === 0) return "No notes found.";
 

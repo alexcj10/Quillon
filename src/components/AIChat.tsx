@@ -10,12 +10,19 @@ interface AIChatProps {
     onClose: () => void;
 }
 
+import { useNotes } from "../context/NoteContext";
+
+interface AIChatProps {
+    onClose: () => void;
+}
+
 interface Message {
     role: 'user' | 'ai';
     content: string;
 }
 
 export default function AIChat({ onClose }: AIChatProps) {
+    const { isPrivateSpaceUnlocked } = useNotes();
     const [q, setQ] = useState("");
     const [loading, setLoading] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
@@ -42,7 +49,7 @@ export default function AIChat({ onClose }: AIChatProps) {
         setMessages(prev => [...prev, { role: 'user', content: question }]);
 
         try {
-            const answer = await ragQuery(question, messages);
+            const answer = await ragQuery(question, messages, { includePrivate: isPrivateSpaceUnlocked });
             setMessages(prev => [...prev, { role: 'ai', content: answer }]);
         } catch (e) {
             setMessages(prev => [...prev, { role: 'ai', content: "Sorry, I encountered an error while searching your notes." }]);
