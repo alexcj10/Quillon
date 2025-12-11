@@ -109,7 +109,9 @@ export function getPersonalizedResponse(question: string): string | null {
     }
 
     // ========== DEFINITION - WHAT IS QUILLON? (Product) ==========
-    if (/what (is|does) quillon|tell me about quillon|quillon features/i.test(lowerQ) && !/who|built|created|dev|made/i.test(lowerQ)) {
+    // Strict anchor to avoid capturing "What is Quillon Next Feature note?"
+    // Now only matches "What is Quillon?", "Tell me about Quillon", etc.
+    if (/^(what (is|does) quillon|tell me about quillon|quillon features)[?!.\s]*$/i.test(cleanQ) && !/who|built|created|dev|made/i.test(lowerQ)) {
         return randomResponse([
             "Quillon is an **intelligent note-taking application** designed to help you capture and organize your thoughts effortlessly. 🚀\n\nIt features:\n• 🧠 **AI-Powered Search**\n• 📂 **Smart Folder Organization**\n• 🏷️ **Flexible Tagging**\n• 🔒 **Private Notes**",
             "Think of Quillon as your **second brain**. 🧠 It's a modern note-taking app that uses AI to help you find connections between your ideas, organize with Blue/Green tags, and keep your data secure.",

@@ -14,57 +14,76 @@ export async function ragQuery(question: string, history: Array<{ role: 'user' |
         return personalizedResponse;
     }
 
-    // --- 0. CONTEXT CORE (Memory) ---
-    // Rewrite the query if there is history, so "it" becomes "the Exam note"
-    let finalQuestion = normalizedQuestion;
+    // --- 0. PLANNER CORE (Deep Reasoning) ---
+    // Instead of just rewriting, we break the query into steps for better retrieval.
+    let searchQueries: string[] = [normalizedQuestion];
 
-    if (history.length > 0) {
-        // We only look at the last 2-3 exchanges to keep it focused
-        const relevantHistory = history.slice(-4);
+    if (history.length > 0 || normalizedQuestion.length > 15) {
+        // We look at history + current query
+        const relevantHistory = history.slice(-3);
 
         try {
-            const rewriteBody = {
+            const plannerBody = {
                 model: "llama-3.3-70b-versatile",
                 messages: [
                     {
                         role: "system",
-                        content: `Rewrite the User's last question to be a standalone query based on the history. 
-                        Resolve textual references like "it", "that", "the first one", "he", "him".
-                        If the user asks "Why?", "How?", or "Who?", ensure the subject is clear (e.g., "Why did Alex build Quillon?").
-                        Keep it concise. Do not answer the question. Just rewrite it.
-                        If no context is needed, return the original question.`
+                        content: `You are Pownin's reasoning engine (Nexus Core).
+                        Goal: Analyze the User's request.
+                        Output: JSON object with:
+                        - "queries": string[] (1-3 atomic string search queries)
+                        - "hypothetical_answer": string (A short, ideal paragraph that WOULD answer the user's question. Hallucinate facts if needed to generate keywords.)
+                        
+                        Rules:
+                        1. Resolve pronouns ("it", "he") using History.
+                        2. If complex (e.g. "Compare X and Y"), output ["X", "Y"] in queries.
+                        3. If simple, Just output ["query"].`
                     },
                     ...relevantHistory,
                     { role: "user", content: normalizedQuestion }
-                ]
+                ],
+                response_format: { type: "json_object" }
             };
 
-            // Fast, small request for rewriting
             if (GROQ_KEY) {
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify(rewriteBody)
+                    body: JSON.stringify(plannerBody)
                 });
                 const data = await res.json();
-                if (data?.choices?.[0]?.message?.content) {
-                    finalQuestion = data.choices[0].message.content.trim();
-                    // console.log(`[Context Core] Rewrote "${normalizedQuestion}" -> "${finalQuestion}"`);
+                const planRaw = data?.choices?.[0]?.message?.content;
+                if (planRaw) {
+                    try {
+                        // The model might return { "queries": [...] } or just [...]
+                        const parsed = JSON.parse(planRaw);
+                        if (Array.isArray(parsed)) {
+                            searchQueries = parsed;
+                        } else if (parsed.queries && Array.isArray(parsed.queries)) {
+                            searchQueries = parsed.queries;
+                        }
+
+                        if (parsed.hypothetical_answer) {
+                            // HyDE: We treat the hypothetical answer as a generic "Concept Vector"
+                            // We add it to the search queries so it gets its own embedding
+                            searchQueries.push(parsed.hypothetical_answer);
+                        }
+                    } catch (e) {
+                        // Fallback: just use text if JSON fails
+                        searchQueries = [planRaw.replace(/[\[\]"]/g, '')];
+                    }
                 }
             }
         } catch (e) {
-            console.warn("Query rewriting failed, using original.", e);
+            console.warn("Planner failed, using original.", e);
         }
     }
 
-    // --- 0.5. RE-CHECK PERSONALITY (Trigger matches on resolved queries) ---
-    // If "What is that?" became "What is Quillon?", we want to catch it here!
-    if (finalQuestion !== normalizedQuestion) {
-        const contextResponse = getPersonalizedResponse(finalQuestion);
-        if (contextResponse) {
-            // console.log(`[Context System] Redirecting rewritten query to Personality Module`);
-            return contextResponse;
-        }
+    // --- 0.5. RE-CHECK PERSONALITY FOR FIRST STEP ---
+    // Sometimes the 'Plan' reveals it's a personality question (e.g. "Who is he?" -> "Who is Alex?")
+    if (searchQueries.length > 0 && searchQueries[0] !== normalizedQuestion) {
+        const contextResponse = getPersonalizedResponse(searchQueries[0]);
+        if (contextResponse) return contextResponse;
     }
 
     const notes = getNotes();
@@ -124,7 +143,7 @@ Global Tag Structure:
 
     /* DEBUG LOGGING */
     // console.log(`[RAG] Loaded ${notes.length} notes from storage.`);
-    const qEmbed = embedText(finalQuestion);
+    // const qEmbed = embedText(finalQuestion); // Legacy, replaced by multi-query embeds
 
     // --- UNIVERSAL HYBRID SEARCH ALGORITHM ("Universal Beast Mode") ---
 
@@ -142,34 +161,39 @@ Global Tag Structure:
         return matrix[b.length][a.length];
     };
 
-    // 1. Prepare Query Keywords
+    // Construct a combined query string for the LLM Prompt
+    const finalQuestion = searchQueries.join(" / ");
+
+    // 0.8. Prepare Multi-Query Embeddings & Terms
+    // We compute embeddings for EACH query in the plan.
+    // A note is relevant if it matches ANY of the planned queries.
+    const queryEmbeds = searchQueries.map(q => embedText(q));
+
     const stopWords = new Set(['a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'and', 'or', 'is', 'are', 'was', 'were', 'be', 'tell', 'me', 'about', 'show', 'list', 'what', 'where', 'when', 'who', 'how']);
-    const queryTerms = finalQuestion.toLowerCase()
-        .replace(/[?.,!]/g, '')
-        .split(/\s+/)
-        .filter(w => w.length > 2 && !stopWords.has(w));
+
+    // Union of all terms from all queries
+    const allQueryTerms = new Set<string>();
+    searchQueries.forEach(q => {
+        q.toLowerCase()
+            .replace(/[?.,!]/g, '')
+            .split(/\s+/)
+            .filter(w => w.length > 2 && !stopWords.has(w))
+            .forEach(w => allQueryTerms.add(w));
+    });
+    const queryTerms = Array.from(allQueryTerms);
 
     // 2. Universal Tag Matching (Blue, Green, Grey)
-    // We want to know if the user mentioned ANY tag (exact, plural, or typo)
     const allKnownTags = new Set<string>([
         ...Array.from(blueFolders),
         ...Array.from(greenTags),
         ...Array.from(greyTags)
     ]);
 
-    const relevantTags = new Set<string>(); // Tags the user is asking about
-
-    // Helper to check fuzzy match against all tags
+    const relevantTags = new Set<string>();
     queryTerms.forEach(term => {
         allKnownTags.forEach(tag => {
             const t = tag.toLowerCase();
-            // Direct, Plural/Singular, or Fuzzy Match
-            if (
-                t === term ||
-                t === term + 's' ||
-                t + 's' === term ||
-                (levenshtein(term, t) <= 1) // 1 typo allowed
-            ) {
+            if (t === term || t === term + 's' || t + 's' === term || (levenshtein(term, t) <= 1)) {
                 relevantTags.add(tag);
             }
         });
@@ -178,21 +202,23 @@ Global Tag Structure:
     // 3. Score & Rank Notes
     const ranked = notes
         .map(n => {
-            // A. Vector Score (Semantic)
+            // A. Vector Score (Max-Sim Multi-Query)
             const tagText = n.tags ? n.tags.map(t => isFileTag(t) ? `${t} ${getFileTagDisplayName(t)}` : t).join(" ") : "";
             const baseText = `${n.title || ""} ${n.content || ""} ${tagText}`;
             const noteEmbed = n.embedding || embedText(baseText);
-            const vectorScore = cosineSimilarity(qEmbed, noteEmbed);
+
+            // We take the BEST score across all planned queries.
+            // If the note matches Step 1 perfectly but not Step 2, it's still a perfect result for Step 1.
+            const vectorScore = Math.max(...queryEmbeds.map(qEmb => cosineSimilarity(qEmb, noteEmbed)));
 
             // B. Lexical Score (Text Match)
             let lexicalScore = 0;
             const titleLower = (n.title || "").toLowerCase();
             const contentLower = (n.content || "").toLowerCase();
-            // const tagsLower = (n.tags || []).map(t => isFileTag(t) ? getFileTagDisplayName(t).toLowerCase() : t.toLowerCase());
+            const titleTokens = titleLower.split(/\s+/);
 
             queryTerms.forEach(term => {
                 // Title Match (Fuzzy allowed)
-                const titleTokens = titleLower.split(/\s+/);
                 if (titleTokens.some(t => t === term || levenshtein(t, term) <= 1)) {
                     lexicalScore += 2.0;
                 }
@@ -203,22 +229,12 @@ Global Tag Structure:
                 lexicalScore += Math.min(count, 5) * 0.2;
             });
 
-            // C. Tag Relevance Boost (The "Universal" Part)
-            // If this note has a tag that matches our 'relevantTags', BOOST IT.
-            // This applies to Folder (Blue), Subtag (Green), or Standalone (Grey).
+            // C. Tag Relevance Boost
             let tagBoost = 0;
             if (n.tags && relevantTags.size > 0) {
                 const noteTags = n.tags.map(t => isFileTag(t) ? getFileTagDisplayName(t) : t);
-
-                const hasRelevantTag = noteTags.some(nt => {
-                    // Check if this specific note tag was one of the ones identified as relevant
-                    // We check against the Set of "detected user intent tags"
-                    return relevantTags.has(nt);
-                });
-
-                if (hasRelevantTag) {
-                    tagBoost = 3.0; // Universal Boost for ANY relevant tag match
-                }
+                const hasRelevantTag = noteTags.some(nt => relevantTags.has(nt));
+                if (hasRelevantTag) tagBoost = 3.0;
             }
 
             // D. Recency Boost
@@ -227,10 +243,26 @@ Global Tag Structure:
             if (hoursSinceUpdate < 24) recencyScore = 1.0;
             else if (hoursSinceUpdate < 24 * 7) recencyScore = 0.5;
             else if (hoursSinceUpdate < 24 * 30) recencyScore = 0.2;
-            // D. Exact Phrase Match (optional but powerful)
-            if (contentLower.includes(finalQuestion.toLowerCase())) lexicalScore += 2.0;
 
-            const finalScore = vectorScore + lexicalScore + tagBoost + recencyScore;
+            // E. TITLE TOKEN OVERLAP (The "Human Logic" Fix)
+            const tTokens = titleTokens.filter(t => t.length > 2);
+            let matches = 0;
+            if (tTokens.length > 0) {
+                tTokens.forEach(tt => {
+                    if (queryTerms.some(qt => qt === tt || levenshtein(qt, tt) <= 1)) {
+                        matches++;
+                    }
+                });
+                const ratio = matches / tTokens.length;
+                if (ratio >= 0.5) lexicalScore += 10.0;
+                else if (matches >= 1) lexicalScore += 3.0;
+            }
+
+            // F. Exact Phrase Match (Check against ANY query)
+            const hasExactMatch = searchQueries.some(q => contentLower.includes(q.toLowerCase()));
+            if (hasExactMatch) lexicalScore += 4.0;
+
+            const finalScore = vectorScore * 10 + lexicalScore + tagBoost + recencyScore;
 
             return { n, score: finalScore, debug: { vectorScore, lexicalScore, tagBoost, recencyScore } };
         })
@@ -366,7 +398,75 @@ ${context}`
             return `Error: ${data.error?.message || res.statusText}`;
         }
 
-        return data?.choices?.[0]?.message?.content ?? "No response from AI";
+        const initialAnswer = data?.choices?.[0]?.message?.content ?? "No response from AI";
+        if (!initialAnswer || initialAnswer.startsWith("Error")) return initialAnswer;
+
+        // --- 5. REFLECTION CORE (The Mirror) 🪞 ---
+        // We verify the answer quality before returning it. 
+        // Only trigger this for complex queries (length > 20 chars) to save latency on simple ones.
+        if (normalizedQuestion.length > 20) {
+            try {
+                const reflectionBody = {
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        {
+                            role: "system",
+                            content: `You are Pownin's Quality Control.
+                            Task: Rate the AI Answer based on the User Question.
+                            Score: 0-100.
+                            Critique: Short 1 sentence reason.
+                            
+                            Output JSON: { "score": number, "critique": string }`
+                        },
+                        { role: "user", content: `Question: ${finalQuestion}\n\nAnswer: ${initialAnswer}` }
+                    ],
+                    response_format: { type: "json_object" }
+                };
+
+                const refRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify(reflectionBody)
+                });
+                const refData = await refRes.json();
+                const critiqueRaw = refData?.choices?.[0]?.message?.content;
+
+                if (critiqueRaw) {
+                    const critique = JSON.parse(critiqueRaw);
+                    // If score is low (< 85), we REWRITE.
+                    if (critique.score < 85) {
+                        // console.log(`[Reflection] Low Score (${critique.score}). Rewriting... Reason: ${critique.critique}`);
+
+                        // Rewrite Call
+                        const rewriteBody = {
+                            model: "llama-3.3-70b-versatile",
+                            messages: [
+                                {
+                                    role: "system",
+                                    content: `You are Pownin. The previous answer was not good enough.
+                                    Critique: ${critique.critique}
+                                    
+                                    Rewrite the answer to be perfect. Use the same Context.`
+                                },
+                                // Re-inject the context and original system prompt logic implicitly by just asking for better one
+                                { role: "user", content: `Context: ${context}\n\nOriginal Question: ${finalQuestion}\n\nBetter Answer:` }
+                            ]
+                        };
+                        const rwRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                            method: "POST",
+                            headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+                            body: JSON.stringify(rewriteBody)
+                        });
+                        const rwData = await rwRes.json();
+                        return rwData?.choices?.[0]?.message?.content ?? initialAnswer;
+                    }
+                }
+            } catch (e) {
+                console.warn("Reflection failed, returning initial answer.", e);
+            }
+        }
+
+        return initialAnswer;
     } catch (err) {
         console.error("RAG Query Failed:", err);
         return "Error: Failed to connect to AI service";
