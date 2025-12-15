@@ -115,15 +115,17 @@ export default function AIChat({ onClose }: AIChatProps) {
                 onClick={onClose}
             />
 
-            {/* AI Chat Panel - Responsive positioning */}
-            <div className="fixed z-50 
-                bottom-0 left-0 right-0 h-[80vh] mx-2 mb-2
-                sm:bottom-4 sm:right-4 sm:left-auto sm:h-[75vh] sm:w-[500px] sm:mx-0
+            {/* AI Chat Panel - Mixed Adaptive Design */}
+            <div className="fixed z-50 flex flex-col overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl border border-white/20 dark:border-white/10 transition-all duration-300 ease-out
+                /* Mobile: Increased height (User Request) */
+                bottom-6 left-6 right-6 h-[70vh] rounded-[2rem]
+                
+                /* Tablet/Desktop: Reduced width (User Request) */
+                sm:left-auto sm:right-6 sm:bottom-6 sm:rounded-2xl
+                sm:w-[450px] sm:h-[75vh]
                 md:h-[80vh]
-                animate-slide-up
-                bg-white dark:bg-gray-900 rounded-3xl sm:rounded-2xl shadow-2xl 
-                flex flex-col overflow-hidden 
-                border-2 border-purple-500/20 dark:border-purple-400/20"
+                
+                animate-slide-up"
             >
                 {/* HEADER */}
                 <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-900">
@@ -284,7 +286,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                                             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                         >
                                             <div
-                                                className={`max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-2.5 text-xs md:text-sm leading-relaxed shadow-sm ${msg.role === 'user'
+                                                className={`max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-2.5 text-[15px] leading-relaxed shadow-sm ${msg.role === 'user'
                                                     ? 'bg-purple-600 text-white rounded-br-none'
                                                     : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-bl-none'
                                                     }`}
@@ -356,7 +358,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                                             onChange={e => setQ(e.target.value)}
                                             onKeyDown={handleKeyDown}
                                             placeholder="Ask about your notes..."
-                                            className="flex-1 bg-transparent border-none focus:ring-0 resize-none max-h-24 md:max-h-32 text-xs md:text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 p-2"
+                                            className="flex-1 bg-transparent border-none focus:ring-0 resize-none max-h-24 md:max-h-32 text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 p-2"
                                             rows={1}
                                         />
                                         <button
