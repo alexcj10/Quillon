@@ -105,3 +105,17 @@ export interface NoteContextType {
   bulkRestoreFromTrash: () => void;
   bulkDeleteForever: () => void;
 }
+
+export interface Message {
+  id?: string;
+  role: 'user' | 'ai';
+  content: string;
+  timestamp?: Date;
+}
+
+export interface Session {
+  id: string;
+  title: string;
+  messages: Message[];
+  lastUpdated: Date;
+}
