@@ -95,18 +95,19 @@ export function EnergySphere() {
         scene.add(sphere);
 
         /* ================= ANIMATION ================= */
-        let t = 0;
         let animationId: number;
 
         function animate() {
             animationId = requestAnimationFrame(animate);
-            t += 0.06;
+            // Use performance.now() / 15 to get roughly the same speed as the previous "+= 0.06"
+            // (0.06 increments at 60fps is ~3.6 units per second. performance.now() is ms.)
+            const t = performance.now() / 250;
 
             // Clear, visible motion at 22px
-            sphere.rotation.y += 0.02;
-            sphere.rotation.x += 0.015;
+            sphere.rotation.y = t * 0.3;
+            sphere.rotation.x = t * 0.2;
 
-            const pulse = 1 + Math.sin(t) * 0.08;
+            const pulse = 1 + Math.sin(t * 1.5) * 0.08;
             sphere.scale.set(pulse, pulse, pulse);
 
             renderer.render(scene, camera);

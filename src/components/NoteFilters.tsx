@@ -35,8 +35,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const [showRecoveryConfirm, setShowRecoveryConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showMainDeleteConfirm, setShowMainDeleteConfirm] = useState(false);
-  const hologramRef = useRef<HTMLButtonElement>(null);
-  const mainSphereRef = useRef<HTMLButtonElement>(null);
+  const sphereRef = useRef<HTMLButtonElement>(null);
 
   // Close popups and clear selection whenever view changes (Trash <-> Main)
   useEffect(() => {
@@ -161,51 +160,29 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
       {/* TAG FILTER BAR */}
       <div className="flex flex-wrap gap-2 items-center overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
 
-        {/* 🌸 ENERGY SPHERE (Main View Only) */}
-        {!showTrash && (
-          <button
-            ref={mainSphereRef}
-            onClick={() => {
-              if (selectionMode) {
-                // If already in selection mode, turn it off and clear selections
-                setSelectionMode(false);
-                setIsMainBulkPopupOpen(false);
-                clearSelection();
+        {/* 🌸 ENERGY SPHERE (Consolidated) */}
+        <button
+          ref={sphereRef}
+          onClick={() => {
+            if (selectionMode) {
+              setSelectionMode(false);
+              setIsMainBulkPopupOpen(false);
+              setIsBulkPopupOpen(false);
+              clearSelection();
+            } else {
+              setSelectionMode(true);
+              if (showTrash) {
+                setIsBulkPopupOpen(true);
               } else {
-                // Enable selection mode and show popup
-                setSelectionMode(true);
                 setIsMainBulkPopupOpen(true);
               }
-            }}
-            className="p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity"
-            title={selectionMode ? "Exit selection mode" : "Bulk actions"}
-          >
-            <EnergySphere />
-          </button>
-        )}
-
-        {/* 🌈 HOLOGRAM GRADIENT SPINNER (Trash Only) */}
-        {showTrash && (
-          <button
-            ref={hologramRef}
-            onClick={() => {
-              if (selectionMode) {
-                // If already in selection mode, turn it off and clear selections
-                setSelectionMode(false);
-                setIsBulkPopupOpen(false);
-                clearSelection();
-              } else {
-                // Enable selection mode and show popup
-                setSelectionMode(true);
-                setIsBulkPopupOpen(true);
-              }
-            }}
-            className="p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity"
-            title={selectionMode ? "Exit selection mode" : "Bulk recovery options"}
-          >
-            <EnergySphere />
-          </button>
-        )}
+            }
+          }}
+          className="p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity"
+          title={selectionMode ? "Exit selection mode" : (showTrash ? "Bulk recovery options" : "Bulk actions")}
+        >
+          <EnergySphere />
+        </button>
 
         {/* TAG BUTTONS */}
         {visibleTags.map(tag => {
@@ -287,7 +264,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
         onDeleteForever={() => {
           setShowDeleteConfirm(true);
         }}
-        anchorRef={hologramRef}
+        anchorRef={sphereRef}
       />
 
       <ConfirmDialog
@@ -353,7 +330,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
         onDeleteAll={() => {
           setShowMainDeleteConfirm(true);
         }}
-        anchorRef={mainSphereRef}
+        anchorRef={sphereRef}
       />
 
       <ConfirmDialog
