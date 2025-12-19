@@ -3,6 +3,7 @@ import { embedText } from "./embed";
 import { cosineSimilarity } from "./similarity";
 import { isFileTag, getFileTagDisplayName, Note } from "../types";
 import { getPersonalizedResponse } from "./personalizedResponses";
+import { QUILLON_USER_MANUAL } from "./quillonManual";
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
 
@@ -367,6 +368,10 @@ You are now powered by Smart RAG 2.0.
 ${globalTagContext}
 
 ${systemPromptExtras}
+
+*** APP KNOWLEDGE BASE (HOW TO USE QUILLON) ***
+${QUILLON_USER_MANUAL}
+*** END KNOWLEDGE BASE ***
 
 Relevant Notes (Top Matches):
 ${context}

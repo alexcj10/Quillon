@@ -108,25 +108,22 @@ export function getPersonalizedResponse(question: string): string | null {
         ]);
     }
 
-    // ========== DEFINITION - WHAT IS QUILLON? (Product) ==========
-    // Strict anchor to avoid capturing "What is Quillon Next Feature note?"
-    // Now only matches "What is Quillon?", "Tell me about Quillon", etc.
-    if (/^(what (is|does) quillon|tell me about quillon|quillon features)[?!.\s]*$/i.test(cleanQ) && !/who|built|created|dev|made/i.test(lowerQ)) {
+
+    // ========== ABOUT QUILLON (Branding & Definition) ==========
+    if (/^(what (is|does) quillon|tell me about quillon|quillon features|what is this (app|tool))/i.test(cleanQ) && !/who|built|created|dev|made/i.test(lowerQ)) {
         return randomResponse([
-            "Quillon is an **intelligent note-taking application** designed to help you capture and organize your thoughts effortlessly. 🚀\n\nIt features:\n• 🧠 **AI-Powered Search**\n• 📂 **Smart Folder Organization**\n• 🏷️ **Flexible Tagging**\n• 🔒 **Private Notes**",
-            "Think of Quillon as your **second brain**. 🧠 It's a modern note-taking app that uses AI to help you find connections between your ideas, organize with Blue/Green tags, and keep your data secure.",
-            "Quillon is a **powerful productivity tool** built for unparalleled organization. ⚡ It combines a beautiful editor with a smart AI assistant (me!) to manage your folders, tags, and tasks.",
-            "Quillon is more than just a note app—it's a **Knowledge Management System**. 📚 It lets you structure notes with Folders (Blue) and Tags (Green/Grey) while I help you retrieve anything instantly.",
-            "It's a **next-generation note app** focused on privacy and intelligence. 🛡️ Quillon stores your notes locally/securely and helps you search them using advanced AI logic.",
-            "Quillon is the app we are using right now! 📝 It's designed for speed and clarity, offering features like **Dark Mode**, **Rich Text Editing**, and **AI Chat** to interact with your notes.",
-            "Quillon is a **smart workspace** for your ideas. 💡 It helps you categorize thoughts into Blue Folders and find them later with my 'Beast Mode' search engine.",
-            "It's an **AI-infused notebook**. 🤖 Quillon understands your note structure (Folders vs Tags) and lets you ask questions about your content instead of just searching for keywords.",
-            "Quillon is a **personal knowledge base**. 🗂️ It features specific organizational tiers:\n• **Blue Folders** for main categories\n• **Green Tags** for sub-categories\n• **Grey Tags** for quick labels",
-            "Quillon is a **secure, AI-driven editor**. ✍️ It's built to help you write faster and find information instantly using semantic search and fuzzy matching."
+            "Quillon is a **simple and lightweight** note-taking app designed for **speed and efficiency**. ⚡\nIt uses **Smart RAG** to help you search intelligently and **Intelligent Tags** to keep everything organized.",
+            "Think of Quillon as the ultimate efficiency tool. 🚀 It's designed to be **lightweight and fast**, helping you capture ideas instantly.\nPlus, it features **Intelligent Tags** (Blue/Green/Grey) and **Smart AI Search**.",
+            "Quillon is built for **speed**. 🏎️ It's a clean, simple workspace that gets out of your way.\nUnder the hood, it uses **Smart RAG** technology to understand your notes and **Intelligent Tags** to structure them.",
+            "It's a **Simple & Lightweight** editor with a brain! 🧠\nQuillon combines a minimal interface with **Intelligent Tagging** and **Smart RAG** AI, so you can find anything instantly without the clutter.",
+            "Quillon is all about **Efficiency**. ⚡\nNo bloat, just speed. It uses **Intelligent Tags** to categorize your thoughts and **Smart RAG** to answer your questions accurately.",
+            "Designed for **Speed**, powered by **Intelligence**. 🛡️\nQuillon is a lightweight app that features **Smart RAG** for deep search and **Intelligent Tags** for flexible organization.",
+            "Quillon: **Simple, Fast, Smart.** 💡\nIt's a lightweight app that helps you write faster. It features **Intelligent Tags** (like Blue Folders) and **Smart RAG** to connect your ideas."
         ]);
     }
 
     // ========== IDENTITY - CREATOR/DEVELOPER LOGIC ==========
+    // (Keeping broad "Who made you" type questions for personality, but removing specific product feature explanations)
 
     // 1. SPECIFIC PROFILE/LINKS (GitHub/Dev)
     if (/(github|git|profile|portfolio|work|projects|dev id)/i.test(lowerQ) && /alex|creator|dev|him/i.test(lowerQ)) {
@@ -149,7 +146,6 @@ export function getPersonalizedResponse(question: string): string | null {
     }
 
     // 3. DEEP INTERESTS (What does he like?)
-    // Triggered ONLY if asked about interests, likes, hobbies, or "tell me about him"
     if (/(what (does )?he like|his (interests|hobbies|passion)|tell me (more )?about (him|alex))/i.test(lowerQ)) {
         return randomResponse([
             "He loves building software and exploring the frontiers of **Cryptocurrency** and **Blockchain** technology.",
@@ -186,7 +182,6 @@ export function getPersonalizedResponse(question: string): string | null {
     }
 
     // 5. WHO MADE YOU? (Surface level question about the AI)
-    // Should refer to Quillon (the platform/team) primarily
     if (/who (made|created|built|developed|designed|coded|programmed) (you|pownin)/i.test(lowerQ)) {
         return randomResponse([
             "I was developed by **Quillon**, an intelligent note-taking platform.",
@@ -215,195 +210,6 @@ export function getPersonalizedResponse(question: string): string | null {
             "I'm here to boost your productivity! 🚀 I handle the organization so you can focus on writing.",
             "Think of me as a spotlight for your notes. 🔦 I illuminate the information you need, when you need it.",
             "My role is simple: To be the best assistant for your notes. 🏆"
-        ]);
-    }
-
-    // ========== CAPABILITIES/FEATURES (With Hidden Tips) ==========
-    if (/what (can you do|are your (capabilities|features|skills|abilities))|how (can you help|do you work)|tell me (about yourself|what you can do)|show me your (features|capabilities)/i.test(lowerQ)) {
-        return randomResponse([
-            "I can help you:\n• 🔍 **Search** through your notes instantly\n• 📁 **Find notes** by folders (Blue tags)\n• 🏷️ **Locate notes** by tags (Green/Grey)\n• 📝 **Answer questions** about your note content",
-            "My capabilities include:\n• **Semantic Search** (finding meanings, not just keywords)\n• **Graph Linking** (connecting related notes)\n• **Context Memory** (understanding follow-up questions)",
-            "I can do a lot! 🦾\n• Ask me: \"What did I write about X?\"\n• Ask me: \"Show me my blue folders\"\n• Ask me: \"Summarize my notes on Y\"",
-            "I'm a full-featured AI assistant. 🌟 I can read your notes, understand your folders, and help you find exactly what you're looking for using 'Beast Mode' search.",
-            "Think of me as a super-powered search bar. 🔎 You can ask me natural questions like \"Where is my recipe?\" or \"What are my goals?\" and I'll find the answer in your notes.",
-            "I specialize in **Retrieval Augmented Generation (RAG)**. 🧠 Meaning: I read your notes and generate intelligent answers based on them.",
-            "I can help you organize. 📂 Ask me to list your tags, find notes without tags, or summarize a specific folder.",
-            "My skills are focused on **Knowledge Management**. 📚 I help you structure, retrieve, and synthesize information from your note collection.",
-            "I can analyze your notes! 🧐 Ask me to find connections between different notes or summarize a long document.",
-            "I'm your personal scholar. 🎓 I read everything you write and keep it ready for you to recall instantly.",
-            "**Did you know?** You can create special 'Blue Folders' just by typing `file` before your tag name! (e.g., `fileIdeas`). 🤫",
-            "**Hidden Feature:** I can differentiate between a 'Folder' (Blue) and a 'Sub-category' (Green). Ask me to list your Folders!"
-        ]);
-    }
-
-    // ========== HELP/GUIDANCE & TUTORIALS (UPDATED ACCURACY) ==========
-
-    // CONVERSATION REPAIR: CATCH SHORT "EDIT/DELETE" FOLLOW-UPS
-    // Catch cases where user says "just edit" or "how to delete" without context, 
-    // relying on the rewrite loop OR just catching common "tag" intents.
-    if (
-        /(just|only|what about|show me|for|and|about) (edit|editing|delete|deleting|remove|removing)/i.test(lowerQ) ||
-        /^(edit|delete|rename) (only|just|too|also|as well)?$/i.test(cleanQ)
-    ) {
-        // Assume they mean TAGS if they are using these specific command-like words in this context
-        // (Safe bet because 'editing a note' is usually "how to edit note")
-        return randomResponse([
-            "For **Editing**: ✏️\nUse the command: `@blue-MyFolder/edit-NewName` in the 'All Tags' menu.",
-            "To **Edit** a tag: Go to 'All Tags', type `@`, and select the tag you want to rename.",
-            "Focusing on **Editing**? 🛠️\nSimply type `@` in the All Tags search bar, pick your tag, and append `/edit-NewName`.",
-            "If you just want to **Delete**: 🗑️\nUse the syntax `@green-Tag/delete` in the All Tags menu."
-        ]);
-    }
-
-    // 1. SPECIFIC EDITING QUESTION
-    // Regex allows words in between action and target (e.g. "edit Alex's blue tag")
-    if (/(how|can i|give|show|command|way to).*(edit|change|rename).*(tag|folder|blue|green|gray|grey)/i.test(lowerQ)) {
-        return randomResponse([
-            "To **Edit** a tag: ✏️\n1. Open 'All Tags'.\n2. Type `@` in the search bar.\n3. Use the syntax: `@[color]-[OldName]/edit-[NewName]`.\n*(e.g., `@blue-Work/edit-Office`)*",
-            "Want to rename? 🛠️\nGo to 'All Tags', type `@`, and use: `@[color]-[Name]/edit-[NewName]`.",
-            "Editing tags is hidden! 🤫\nType `@` in the 'All Tags' menu, then use the command: `@[color]-[Tag]/edit-[NewName]`.",
-            "Rename Command: 💻\n`@[Color]-[Name]/edit-[NewName]` inside the All Tags menu."
-        ]);
-    }
-
-    // 2. SPECIFIC DELETING QUESTION
-    if (/(how|can i|give|show|command|way to).*(delete|remove).*(tag|folder|blue|green|gray|grey)/i.test(lowerQ)) {
-        return randomResponse([
-            "To **Delete** a tag: 🗑️\n1. Open 'All Tags'.\n2. Type `@`.\n3. Use the syntax: `@[color]-[TagName]/delete`.\n*(e.g., `@green-Project/delete` or `@blue-Work/delete`)*",
-            "Want to delete a specific tag? ✂️\nGo to 'All Tags', type `@`, and enter: `@[Color]-[Name]/delete`.",
-            "Delete Command: 🚫\n`@[type]-[Tag]/delete` inside the All Tags menu (after typing `@`).",
-            "Be careful! To delete a tag permanently, use `@[Color]-[Name]/delete` in the All Tags command menu."
-        ]);
-    }
-
-    // 3. GENERAL/MIXED TAG COMMANDS
-    if (/tag command|@ command|advanced tag/i.test(lowerQ)) {
-        return randomResponse([
-            "To **Edit or Delete Tags** (Power User Mode): ⚡\n1. Open the 'All Tags' menu.\n2. Type `@` to see the command menu.\n3. Syntax: `@[color]-[Name]/edit-[New]` or `@[color]-[Name]/delete`.",
-            "You can manage tags via commands! 💻\n• Go to 'All Tags' and type `@`.\n• To Edit: `@[Color]-[Name]/edit-[NewName]`\n• To Delete: `@[Color]-[Name]/delete`",
-            "**Hidden Feature:** Type `@` in the All Tags search bar! 🤫\nIt unlocks the command interface. Use `@[color]-[name]/...` to manage your tags."
-        ]);
-    }
-
-    // TAG TYPES (Blue, Green, Grey)
-    if (/(blue|green|gray|grey) (tag|folder|color)/i.test(lowerQ)) {
-        return randomResponse([
-            "There are 3 types of tags in Quillon:\n• 🔵 **Blue Tags**: These are **Folders**. Create them by typing `file` + `Name` (e.g., `fileWork`) in the tag box.\n• 🟢 **Green Tags**: These are **Sub-categories**! They appear when a note has both a Blue tag AND another tag.\n• ⚪ **Grey Tags**: These are standard **Labels** for quick categorization.",
-            "Here is the color code:\n• 🔵 **Blue** = **Main Folder** (Starts with `file...`)\n• 🟢 **Green** = **Category** (Linked to a folder)\n• ⚪ **Grey** = **Loose Tag** (No specific folder)",
-            "Confused by colors? 🎨\n• **Blue** means it's a File/Folder structure.\n• **Green** means it's a specific topic *inside* that folder.\n• **Grey** is just a regular tag.",
-            "**Pro Tip:** To create a **Blue Folder Tag**, you MUST start your tag name with `file` (e.g., `fileProject`). Quillon will automatically turn it Blue! 🪄"
-        ]);
-    }
-
-    // BLUE FOLDER CREATION
-    if (/how (do|to) (create|make|add) (a )?(folder|blue tag)|file tag/i.test(lowerQ)) {
-        return randomResponse([
-            "To create a **Blue Tag (Folder)**:\n1. Open a note.\n2. In the tag box, type `file` followed by your folder name.\n3. Example: `fileWork` or `fileRecipes`.\n4. Press Enter. It will turn **Blue**! 🔵",
-            "Folders are created using the `file` prefix! 📂\nSimply type `fileMyFolder` in the tag input, and Quillon transforms it into a Blue Folder Tag.",
-            "Want a Blue Folder? Just type `file` + `Name` in the tag area (e.g., `fileIdeas`). ✨ It's a hidden power user feature!",
-            "**Secret Trick:** Typing `file` at the start of any tag makes it a **Folder** (Blue). Try `filePersonal`!"
-        ]);
-    }
-
-    // BULK ACTIONS (Selection Mode)
-    if (/how (do|to) (bulk|select) (delete|remove|recover|restore)/i.test(lowerQ)) {
-        return randomResponse([
-            "To perform **Bulk Actions**:\n1. Go to the **Trash** tab (sidebar).\n2. Look for the **Hologram Spinner** (Pink/Blue circle) in the filter bar. 🌈\n3. Click it to enter **Selection Mode**.\n4. Select your notes and choose 'Delete Forever' or 'Recover'.",
-            "**Bulk Delete/Recover** is hidden in the Trash! 🗑️\n• Click the **Gradient Circle** (Hologram) in the tag bar.\n• Select multiple notes.\n• Use the popup menu to Restore or Delete them all at once.",
-            "Find the **Hologram Button** 🌈 in the Trash view! It enables multi-select mode for bulk formatting.",
-            "You can manage multiple notes in the **Trash**: Click the colorful **Spinner Icon** to start selecting notes! ✅"
-        ]);
-    }
-
-    // GENERAL HELP
-    if (/^(help|help me|i need help|how to use|how do i use|guide|tutorial|instructions|hidden features|tips)[\s!?.]*$/i.test(cleanQ)) {
-        return randomResponse([
-            "I'm here to help! 🙋‍♂️ Here are some **Pro Tips**:\n• **Folders**: Type `fileName` to make a Blue tag.\n• **Bulk**: Use the Hologram button in Trash.\n• **Search**: Ask me anything naturally!",
-            "Unlock Quillon's power! 🔓\n• **Blue Tags**: Start tag with `file` (e.g. `fileWork`).\n• **Green Tags**: Add other tags to a note with a Blue tag.\n• **Bulk Delete**: Look for the gradient spinner in Trash.",
-            "Here is your **Quick Guide**: 📝\n1. **Folders**: Use `file` prefix in tags.\n2. **Organize**: Use Green tags for sub-topics.\n3. **Manage**: Use the Hologram icon in Trash for bulk actions.",
-            "**Hidden Features:**\n• `file` prefix = Blue Folder\n• Gradient Icon (Trash) = Bulk Mode\n• Asking me 'Who built Quillon?' = Alex CJ 😉"
-        ]);
-    }
-
-    // Feature-Specific Delete/Recover
-    if (/how (do|to) (delete|remove|trash) (a )?note/i.test(lowerQ)) {
-        return randomResponse([
-            "To delete a note: Select the note you want to remove, then click the **Trash Can icon** 🗑️ in the toolbar.",
-            "Deleting is easy! Open the note, and hit the **Delete button** 🗑️ at the top right.",
-            "Simply select the note and click the **Trash icon**. You can recover it from the Trash folder later if needed!",
-            "Select the note -> Click Delete �️. It goes to the Trash bin first, so it's safe."
-        ]);
-    }
-
-    if (/how (do|to) (recover|restore|undo) (a )?note/i.test(lowerQ)) {
-        return randomResponse([
-            "Go to the **Trash** tab (in the sidebar), select your note, and click **Restore** ♻️.",
-            "Made a mistake? Check the **Trash** folder! You can find deleted notes there and restore them.",
-            "Deleted notes stay in **Trash**. Go there 🗑️ and click the Restore button to bring it back.",
-            "Visit the **Trash bin**, find your note, and hit **Recover** ♻️ to bring it back to life."
-        ]);
-    }
-
-    // ========== PRIVACY & SECURITY ==========
-    if (/(is it|am i) (safe|secure|private)|do you (steal|read|keep|store) (my )?(data|notes)|privacy policy/i.test(lowerQ)) {
-        return randomResponse([
-            "Your notes are **100% private**. 🔒 They are stored locally on your device. I simply read them when you ask me to.",
-            "Security is our priority. 🛡️ Quillon processes your notes securely. We don't sell your data.",
-            "I'm a private assistant. 🤐 Your notes stay on your machine. I only access them to answer your specific questions.",
-            "Rest assured, your data is yours. 🧘‍♂️ Quillon is a privacy-first application.",
-            "I don't spy on you! 🕵️‍♂️🚫 Your notes are encrypted and stored locally via IndexedDB.",
-            "Your secrets are safe with me. 🤐 I operate entirely within this browser instance.",
-            "We believe in data ownership. 🤝 You own your notes, not us.",
-            "No cloud spying here. ☁️🚫 Quillon is designed for local-first privacy.",
-            "I only read what you tell me to search. 📂 Your privacy is guaranteed.",
-            "You are safe here. 🟢 Quillon uses industry-standard security practices."
-        ]);
-    }
-
-    // ========== PLATFORM INFO ==========
-    if (/(mobile|android|ios|iphone|tablet) (app|version)|desktop (app|version)|is it (free|paid)|how much/i.test(lowerQ)) {
-        return randomResponse([
-            "Quillon is a **Progressive Web App (PWA)**! 📱 You can install it on any device (iOS, Android, Desktop) via your browser settings.",
-            "Quillon works everywhere! 🌐 Just open this URL on your phone or tablet to access your notes on the go.",
-            "It's completely **FREE**! 💸 Alex CJ built this to help the community. Enjoy full features at no cost.",
-            "No download needed! 🚀 Quillon runs in your browser. You can 'Add to Home Screen' for a native app feel.",
-            "Quillon is free and open-source. 🐧 You can use it on Windows, Mac, Linux, Android, or iOS.",
-            "You're using the best version right now! ✨ It adapts to any screen size, mobile or desktop.",
-            "Price? It's **$0**. 🎁 Quillon is a gift from Alex CJ to the world.",
-            "Installation is easy: Click your browser menu and select **'Install App'** or 'Add to Home Screen'. 📲",
-            "Cross-platform power! ⚡ Access Quillon from any modern browser.",
-            "We believe in free knowledge tools. 📚 Quillon is free to use forever."
-        ]);
-    }
-
-    // ========== AI/TECHNOLOGY QUESTIONS ==========
-    if (/are you (real|an ai|artificial|a bot|a robot|human|alive)|are you (really )?smart|how smart are you/i.test(lowerQ)) {
-        return randomResponse([
-            "I'm an AI assistant! 🤖 Not human, but I'm pretty good at understanding and finding your notes!",
-            "Yep, I'm artificial intelligence! 🧠 Specifically designed to help you manage notes efficiently.",
-            "I'm a bot, but a helpful one! 😊 My specialty is making sense of your notes and finding what you need.",
-            "I'm AI-powered! ⚡ Think of me as your digital note librarian who never forgets anything.",
-            "I am code and data, living in your browser. 🌐 But I'm here to help like a real assistant.",
-            "I'm a virtual entity. 👻 But my help is very real!",
-            "I'm 100% Artificial Intelligence. 💾 No biological parts here, just efficient algorithms.",
-            "I'm as smart as the notes you give me! 📚 The more you write, the more I know.",
-            "I'm a machine learning model. 🤖 My \"brain\" is a complex network of vectors and probabilities.",
-            "I'm synthetic life! 🧬 Okay, not really. I'm just a really advanced script. But I try my best!"
-        ]);
-    }
-
-    if (/what (language|model|technology|tech|ai) (do you use|are you|powers you)|how (do you work|are you built)/i.test(lowerQ)) {
-        return randomResponse([
-            "I'm powered by advanced AI technology! 🚀 I use Llama 3.3 for reasoning and Vector Search for finding notes.",
-            "My brain runs on **LLM technology**. 🧠 I use semantic embeddings to understand the *meaning* of your notes, not just the words.",
-            "I'm built with **React, TypeScript, and AI**. ⚡ A modern stack for a modern assistant.",
-            "I use a **Hybrid Search** engine. 🦁 It combines keyword matching with vector similarity to give you 'Beast Mode' results.",
-            "I run on the **Groq API** for super-fast responses. ⚡ Speed is my middle name.",
-            "I leverage **Cosine Similarity** to match your questions to your notes. 📐 It's math, but it feels like magic.",
-            "I'm powered by **Javascript** and **Neural Networks**. 🌐 The best of web dev meets the best of AI.",
-            "My architecture allows me to 'read' your notes in real-time. ⏱️ No training required!",
-            "I use a **Vector Database** approach to index your content instantly. 🗂️",
-            "I'm a **RAG (Retrieval Augmented Generation)** system. 🔄 I retrieve your notes and generate answers from them."
         ]);
     }
 

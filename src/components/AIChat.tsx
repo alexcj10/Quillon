@@ -169,7 +169,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="absolute inset-0 overflow-y-auto p-2 sm:p-3 bg-white dark:bg-gray-900"
+                                className="absolute inset-0 overflow-y-auto ai-chat-history p-2 sm:p-3 bg-white dark:bg-gray-900"
                             >
                                 {history.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center h-full text-gray-400">
@@ -400,31 +400,37 @@ export default function AIChat({ onClose }: AIChatProps) {
                     animation: slide-up 0.3s ease-out;
                 }
 
-                /* Custom Scrollbar Styling */
-                .ai-chat-messages::-webkit-scrollbar {
-                    width: 6px;
+                /* Custom Scrollbar Styling (Apple-like) */
+                .ai-chat-messages::-webkit-scrollbar,
+                .ai-chat-history::-webkit-scrollbar {
+                    width: 5px; /* Thinner */
                 }
                 
-                .ai-chat-messages::-webkit-scrollbar-track {
-                    background: transparent;
+                .ai-chat-messages::-webkit-scrollbar-track,
+                .ai-chat-history::-webkit-scrollbar-track {
+                    background: transparent; /* Fix white background in dark mode */
                 }
                 
-                .ai-chat-messages::-webkit-scrollbar-thumb {
+                .ai-chat-messages::-webkit-scrollbar-thumb,
+                .ai-chat-history::-webkit-scrollbar-thumb {
                     background: rgba(156, 163, 175, 0.4);
-                    border-radius: 10px;
+                    border-radius: 20px; /* Rounder */
                 }
                 
-                .ai-chat-messages::-webkit-scrollbar-thumb:hover {
+                .ai-chat-messages::-webkit-scrollbar-thumb:hover,
+                .ai-chat-history::-webkit-scrollbar-thumb:hover {
                     background: rgba(156, 163, 175, 0.6);
                 }
 
                 /* Dark mode scrollbar */
-                .dark .ai-chat-messages::-webkit-scrollbar-thumb {
-                    background: rgba(75, 85, 99, 0.5);
+                .dark .ai-chat-messages::-webkit-scrollbar-thumb,
+                .dark .ai-chat-history::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.15); /* More subtle white */
                 }
                 
-                .dark .ai-chat-messages::-webkit-scrollbar-thumb:hover {
-                    background: rgba(75, 85, 99, 0.7);
+                .dark .ai-chat-messages::-webkit-scrollbar-thumb:hover,
+                .dark .ai-chat-history::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255, 255, 255, 0.3);
                 }
             `}</style>
         </>
