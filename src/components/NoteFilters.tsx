@@ -137,7 +137,10 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
         </div>
 
         <button
-          onClick={() => setShowStarredOnly(!showStarredOnly)}
+          onClick={() => {
+            clearSelection();
+            setShowStarredOnly(!showStarredOnly);
+          }}
           className={`p-3 rounded-lg transition-colors flex items-center gap-2 ${showStarredOnly
             ? 'bg-yellow-500 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
@@ -148,7 +151,10 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
         </button>
 
         <button
-          onClick={() => setIsTagModalOpen(true)}
+          onClick={() => {
+            clearSelection();
+            setIsTagModalOpen(true);
+          }}
           className="p-3 rounded-lg transition-colors flex items-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         >
           <Tag className="h-5 w-5" />

@@ -41,6 +41,7 @@ function NoteList() {
   };
 
   const handlePrivateClick = () => {
+    clearSelection();
     if (showPrivateNotes) {
       lockPrivateSpace();
     } else if (!privateSpaceExists || !isPrivateSpaceUnlocked) {
