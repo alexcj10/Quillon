@@ -4,6 +4,7 @@ import { useNotes } from '../context/NoteContext';
 import { isFileTag, getFileTagDisplayName, Note } from '../types';
 import { TagModal } from './TagModal';
 import { BulkRecoveryPopup } from './BulkRecoveryPopup';
+import { BulkActionsPopup } from './BulkActionsPopup';
 import { ConfirmDialog } from './ConfirmDialog';
 import { EnergySphere } from './EnergySphere';
 
@@ -24,23 +25,35 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
     selectAllNotes,
     bulkRestoreFromTrash,
     bulkDeleteForever,
+    bulkMoveToTrash,
     selectedNoteIds,
   } = useNotes();
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isBulkPopupOpen, setIsBulkPopupOpen] = useState(false);
+  const [isMainBulkPopupOpen, setIsMainBulkPopupOpen] = useState(false);
   const [showRecoveryConfirm, setShowRecoveryConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showMainDeleteConfirm, setShowMainDeleteConfirm] = useState(false);
   const hologramRef = useRef<HTMLButtonElement>(null);
+  const mainSphereRef = useRef<HTMLButtonElement>(null);
 
-  // Close popup and clear selection when leaving trash view
+  // Close popups and clear selection whenever view changes (Trash <-> Main)
   useEffect(() => {
-    if (!showTrash) {
+    setIsBulkPopupOpen(false);
+    setIsMainBulkPopupOpen(false);
+    setSelectionMode(false);
+    clearSelection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showTrash]);
+
+  // Auto-close popups when selection mode is deactivated globally
+  useEffect(() => {
+    if (!selectionMode) {
       setIsBulkPopupOpen(false);
-      setSelectionMode(false);
-      clearSelection();
+      setIsMainBulkPopupOpen(false);
     }
-  }, [showTrash, setSelectionMode, clearSelection]);
+  }, [selectionMode]);
 
   const visibleNotes = useMemo(() => notes.filter(note =>
     note.isPrivate === showPrivateNotes &&
@@ -147,6 +160,29 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
 
       {/* TAG FILTER BAR */}
       <div className="flex flex-wrap gap-2 items-center overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+
+        {/* 🌸 ENERGY SPHERE (Main View Only) */}
+        {!showTrash && (
+          <button
+            ref={mainSphereRef}
+            onClick={() => {
+              if (selectionMode) {
+                // If already in selection mode, turn it off and clear selections
+                setSelectionMode(false);
+                setIsMainBulkPopupOpen(false);
+                clearSelection();
+              } else {
+                // Enable selection mode and show popup
+                setSelectionMode(true);
+                setIsMainBulkPopupOpen(true);
+              }
+            }}
+            className="p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity"
+            title={selectionMode ? "Exit selection mode" : "Bulk actions"}
+          >
+            <EnergySphere />
+          </button>
+        )}
 
         {/* 🌈 HOLOGRAM GRADIENT SPINNER (Trash Only) */}
         {showTrash && (
@@ -294,6 +330,51 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
           </>
         }
         confirmLabel="Delete Forever"
+      />
+
+      <BulkActionsPopup
+        isOpen={isMainBulkPopupOpen}
+        onClose={() => {
+          setIsMainBulkPopupOpen(false);
+        }}
+        selectedCount={selectedNoteIds.size}
+        onSelectAll={() => {
+          // Check if all filtered notes are already selected
+          const allSelected = filteredNoteIds.every(id => selectedNoteIds.has(id));
+
+          if (allSelected) {
+            // If all are selected, deselect all (but keep selection mode active)
+            selectAllNotes([]);  // Pass empty array to deselect all
+          } else {
+            // Otherwise, select all
+            selectAllNotes(filteredNoteIds);
+          }
+        }}
+        onDeleteAll={() => {
+          setShowMainDeleteConfirm(true);
+        }}
+        anchorRef={mainSphereRef}
+      />
+
+      <ConfirmDialog
+        isOpen={showMainDeleteConfirm}
+        type="delete"
+        onCancel={() => setShowMainDeleteConfirm(false)}
+        onConfirm={() => {
+          bulkMoveToTrash();
+          setShowMainDeleteConfirm(false);
+          setIsMainBulkPopupOpen(false);
+        }}
+        title={`Delete ${selectedNoteIds.size} Note${selectedNoteIds.size === 1 ? '' : 's'}?`}
+        description={
+          <>
+            {selectedNoteIds.size === 1
+              ? 'This note will be moved to trash and can be restored later.'
+              : `These ${selectedNoteIds.size} notes will be moved to trash and can be restored later.`
+            }
+          </>
+        }
+        confirmLabel="Delete"
       />
     </div>
   );

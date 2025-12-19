@@ -92,8 +92,8 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
         : 'border border-[rgba(0,0,0,0.50)] dark:border-[rgba(255,255,255,0.50)]'
         }`}>
 
-        {/* Checkbox for selection mode (trash only) */}
-        {selectionMode && showTrash && (
+        {/* Checkbox for selection mode */}
+        {selectionMode && (
           <div className="absolute top-1.5 left-1.5 z-10">
             <button
               onClick={(e) => {

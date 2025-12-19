@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { NoteProvider } from './context/NoteContext';
 import { useNotes } from './context/NoteContext';
 import { NoteCard } from './components/NoteCard';
 import { NoteEditor } from './components/NoteEditor';
 import { NoteFilters } from './components/NoteFilters';
 import { PrivateSpaceDialog } from './components/PrivateSpaceDialog';
-import { DownloadNotification } from './components/DownloadNotification';
 import { Plus, Moon, Sun, Lock, Trash2 } from 'lucide-react';
 import AIChat from './components/AIChat';
 import { isFileTag, Note } from './types';
@@ -27,7 +26,8 @@ function NoteList() {
     isDarkMode,
     toggleDarkMode,
     addNote,
-    updateNote
+    updateNote,
+    clearSelection,
   } = useNotes();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -148,7 +148,10 @@ function NoteList() {
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
             <button
-              onClick={() => setShowAIChat(true)}
+              onClick={() => {
+                clearSelection();
+                setShowAIChat(true);
+              }}
               className="w-10 h-10 rounded-xl flex items-center justify-center hover:opacity-80 transition-opacity"
               title="Ask Pownin"
             >
@@ -156,6 +159,7 @@ function NoteList() {
             </button>
             <button
               onClick={() => {
+                clearSelection();
                 setEditingNote(undefined);
                 setIsEditing(true);
               }}

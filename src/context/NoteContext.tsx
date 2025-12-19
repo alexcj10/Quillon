@@ -430,6 +430,21 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     clearSelection();
   };
 
+  const bulkMoveToTrash = () => {
+    const idsToMove = Array.from(selectedNoteIds);
+    setNotes(prev => prev.map(note =>
+      idsToMove.includes(note.id)
+        ? {
+          ...note,
+          isDeleted: true,
+          deletedAt: new Date().toISOString(),
+          isPinned: false,
+        }
+        : note
+    ));
+    clearSelection();
+  };
+
   return (
     <NoteContext.Provider value={{
       notes,
@@ -476,6 +491,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       clearSelection,
       bulkRestoreFromTrash,
       bulkDeleteForever,
+      bulkMoveToTrash,
     }}>
       {children}
     </NoteContext.Provider>

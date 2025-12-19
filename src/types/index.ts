@@ -104,6 +104,7 @@ export interface NoteContextType {
   clearSelection: () => void;
   bulkRestoreFromTrash: () => void;
   bulkDeleteForever: () => void;
+  bulkMoveToTrash: () => void;
 }
 
 export interface Message {
