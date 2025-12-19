@@ -111,17 +111,5 @@
   .animate-scaleIn {
     animation: scaleIn 0.2s ease-out;
   }
-  .hologram-spinner {
-  animation: holoSpin 1s linear infinite;
-}
-
-@keyframes holoSpin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 
 }

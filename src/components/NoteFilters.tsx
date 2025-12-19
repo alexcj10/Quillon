@@ -5,6 +5,7 @@ import { isFileTag, getFileTagDisplayName, Note } from '../types';
 import { TagModal } from './TagModal';
 import { BulkRecoveryPopup } from './BulkRecoveryPopup';
 import { ConfirmDialog } from './ConfirmDialog';
+import { EnergySphere } from './EnergySphere';
 
 export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const {
@@ -166,36 +167,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
             className="p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity"
             title={selectionMode ? "Exit selection mode" : "Bulk recovery options"}
           >
-            <svg
-              className="hologram-spinner"
-              width="22"
-              height="22"
-              viewBox="0 0 50 50"
-              style={{
-                display: "inline-block",
-                verticalAlign: "middle"
-              }}
-            >
-              <defs>
-                <linearGradient id="holoGradient">
-                  <stop offset="0%" stopColor="#FF7AB8" />
-                  <stop offset="50%" stopColor="#FF4DA6" />
-                  <stop offset="100%" stopColor="#FF1E8E" />
-                </linearGradient>
-              </defs>
-
-              <circle
-                cx="25"
-                cy="25"
-                r="20"
-                stroke="url(#holoGradient)"
-                strokeWidth="4"
-                fill="none"
-                strokeLinecap="round"
-                strokeDasharray="110"
-                strokeDashoffset="40"
-              />
-            </svg>
+            <EnergySphere />
           </button>
         )}
 
