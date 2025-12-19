@@ -48,7 +48,10 @@ export async function ragQuery(
                            2. If complex (e.g. "Compare X and Y"), output ["X", "Y"] in queries.
                            3. If simple, Just output ["query"].`
                         },
-                        ...history.slice(-3),
+                        ...history.slice(0, -1).slice(-3).map(m => ({
+                            role: m.role === 'ai' ? 'assistant' : 'user',
+                            content: m.content
+                        })),
                         { role: "user", content: normalizedQuestion }
                     ],
                     response_format: { type: "json_object" }
@@ -349,6 +352,11 @@ Global Tag Structure:
 Notes labeled [Linked Context] were automatically retrieved because they are mentioned in the Direct Match notes. 
 Use them to provide a more complete answer, following the connections between notes.`;
 
+    const historyMessages = history.slice(0, -1).slice(-6).map(msg => ({
+        role: msg.role === 'ai' ? 'assistant' : 'user',
+        content: msg.content
+    }));
+
     const body = {
         model: "llama-3.3-70b-versatile",
         messages: [
@@ -370,8 +378,12 @@ Instructions:
    - **IF** the user is just chatting, asking for a joke, or asking a question unrelated to the notes, **IGNORE THE NOTES** and answer from your general knowledge. DO NOT mention "I don't see that in your notes" for casual queries.
    - **IF** the query is ambiguous (e.g., "What is it?"), assume it refers to the most relevant note context.
 3. **Tone**: Be casual, friendly, and concise. Talk like a helpful teammate, not a robot.
-4. **Formatting**: Use Markdown for readability.`
+4. **Formatting**: Use Markdown for readability.
+5. **Current Date & Time**: It is currently ${new Date().toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}.
+6. **Handling Personal Questions**: If asked about time/date, just state it. DO NOT say "I don't have real-time access" or "I've been instructed". Act like you have a clock.
+7. **Handling Follow-ups**: If the user asks "Really?" or expresses doubt, DO NOT apologize or say "I am an AI". Instead, confidently re-affirm your answer or check your context again. Trust your previous knowledge.`
             },
+            ...historyMessages,
             { role: "user", content: finalQuestion }
         ]
     };
