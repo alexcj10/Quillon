@@ -286,7 +286,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                                             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                         >
                                             <div
-                                                className={`max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-2.5 text-[15px] leading-relaxed shadow-sm ${msg.role === 'user'
+                                                className={`max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-2.5 text-[15px] leading-relaxed shadow-sm break-words ${msg.role === 'user'
                                                     ? 'bg-purple-600 text-white rounded-br-none'
                                                     : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-bl-none'
                                                     }`}
@@ -305,7 +305,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                                                             h2: ({ node, ...props }) => <h2 className="text-base font-bold mt-3 mb-2" {...props} />,
                                                             h3: ({ node, ...props }) => <h3 className="text-sm font-bold mt-2 mb-1" {...props} />,
                                                             blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-purple-500/30 pl-3 italic my-3 text-gray-500 dark:text-gray-400" {...props} />,
-                                                            a: ({ node, ...props }) => <a className="text-purple-600 dark:text-purple-400 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
+                                                            a: ({ node, ...props }) => <a className="text-purple-600 dark:text-purple-400 hover:underline break-all" target="_blank" rel="noopener noreferrer" {...props} />,
                                                             code: ({ node, inline, className, children, ...props }: any) => {
                                                                 const match = /language-(\w+)/.exec(className || '');
                                                                 return !inline && match ? (

@@ -138,7 +138,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
 
         <div className="flex-1 min-h-0 overflow-hidden mb-3">
           {isContentVisible ? (
-            <p className="text-gray-600 dark:text-gray-200 text-sm line-clamp-4">
+            <p className="text-gray-600 dark:text-gray-200 text-sm line-clamp-4 break-words">
               {note.content}
             </p>
           ) : (
