@@ -125,18 +125,18 @@ export function NodesWidget() {
                             onSubmit={handleSubmit}
                             className="p-3 md:p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900"
                         >
-                            <div className="relative flex items-center bg-gray-50 dark:bg-gray-800/50 p-1.5 pr-2 rounded-xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
+                            <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
                                 <input
                                     ref={inputRef}
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     placeholder="Add a new node..."
-                                    className="w-full bg-transparent border-none rounded-none pl-3 pr-10 py-2 text-[15px] focus:ring-0 text-gray-900 dark:text-white placeholder:text-gray-400"
+                                    className="flex-1 bg-transparent border-none rounded-none pl-2 py-2 text-[15px] focus:ring-0 text-gray-900 dark:text-white placeholder:text-gray-400 min-w-0"
                                 />
                                 <button
                                     type="submit"
                                     disabled={!inputValue.trim()}
-                                    className="absolute right-2 p-1.5 rounded-lg bg-blue-600 text-white disabled:opacity-50 disabled:bg-gray-300 dark:disabled:bg-gray-700 transition-all hover:bg-blue-700 hover:scale-105 active:scale-95 shadow-sm"
+                                    className="flex-shrink-0 p-1.5 rounded-lg bg-blue-600 text-white disabled:opacity-50 disabled:bg-gray-300 dark:disabled:bg-gray-700 transition-all hover:bg-blue-700 hover:scale-105 active:scale-95 shadow-sm"
                                 >
                                     <Plus className="w-4 h-4" />
                                 </button>
