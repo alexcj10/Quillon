@@ -134,6 +134,12 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onFocus={() => {
+              // Close bulk popups and exit selection mode when user focuses search bar
+              setIsBulkPopupOpen(false);
+              setIsMainBulkPopupOpen(false);
+              clearSelection(); // This also calls setSelectionMode(false)
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 const term = searchTerm.trim();
