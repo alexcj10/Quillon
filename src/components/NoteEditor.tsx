@@ -62,7 +62,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     const currentScroll = scrollParent?.scrollTop;
 
     el.style.height = '0px';
-    el.style.height = `${Math.min(el.scrollHeight + 10, 1800)}px`;
+    el.style.height = `${el.scrollHeight}px`;
 
     // Restore scroll position if we have a parent
     if (scrollParent && typeof currentScroll === 'number') {
@@ -233,7 +233,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Start writing your note..."
-            className="w-full resize-none bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px]"
+            className="w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px]"
           />
         </div>
 
