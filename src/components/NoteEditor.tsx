@@ -227,15 +227,37 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pt-4 pb-2 no-scrollbar">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pt-4 pb-2 note-editor-scrollbar">
           <textarea
             ref={contentRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Start writing your note..."
-            className="w-full resize-none bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] no-scrollbar"
+            className="w-full resize-none bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px]"
           />
         </div>
+
+        <style>{`
+            .note-editor-scrollbar::-webkit-scrollbar {
+                width: 6px;
+            }
+            .note-editor-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .note-editor-scrollbar::-webkit-scrollbar-thumb {
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: 10px;
+            }
+            .note-editor-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: rgba(0, 0, 0, 0.2);
+            }
+            .dark .note-editor-scrollbar::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.1);
+            }
+            .dark .note-editor-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+        `}</style>
 
         {/* BOTTOM TOOLBAR */}
         <div className="px-5 pb-4 pt-4 border-t border-black/5 dark:border-white/10 backdrop-blur-sm">
