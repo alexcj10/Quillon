@@ -17,9 +17,7 @@ export function DraggableNodeItem({ node, toggleNode, deleteNode, togglePin }: D
             value={node}
             dragListener={false} // Important: Disable default drag on whole item
             dragControls={dragControls}
-            className="relative touch-none" // touch-none might still be needed for the handle but not the whole item? Actually for scrolling we want auto. 
-        // Reorder.Item usually adds touch-action: none. We might need to override.
-        // But since dragListener is false, the element SHOULD allow scrolling.
+            className="relative touch-pan-y select-none" // touch-pan-y allows vertical scrolling!
         >
             <NodeItemCard
                 node={node}
