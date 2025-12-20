@@ -109,18 +109,8 @@ export function getPersonalizedResponse(question: string): string | null {
     }
 
 
-    // ========== ABOUT QUILLON (Branding & Definition) ==========
-    if (/^(what (is|does) quillon|tell me about quillon|quillon features|what is this (app|tool))/i.test(cleanQ) && !/who|built|created|dev|made/i.test(lowerQ)) {
-        return randomResponse([
-            "Quillon is a **simple and lightweight** note-taking app designed for **speed and efficiency**. ⚡\nIt uses **Smart RAG** to help you search intelligently and **Intelligent Tags** to keep everything organized.",
-            "Think of Quillon as the ultimate efficiency tool. 🚀 It's designed to be **lightweight and fast**, helping you capture ideas instantly.\nPlus, it features **Intelligent Tags** (Blue/Green/Grey) and **Smart AI Search**.",
-            "Quillon is built for **speed**. 🏎️ It's a clean, simple workspace that gets out of your way.\nUnder the hood, it uses **Smart RAG** technology to understand your notes and **Intelligent Tags** to structure them.",
-            "It's a **Simple & Lightweight** editor with a brain! 🧠\nQuillon combines a minimal interface with **Intelligent Tagging** and **Smart RAG** AI, so you can find anything instantly without the clutter.",
-            "Quillon is all about **Efficiency**. ⚡\nNo bloat, just speed. It uses **Intelligent Tags** to categorize your thoughts and **Smart RAG** to answer your questions accurately.",
-            "Designed for **Speed**, powered by **Intelligence**. 🛡️\nQuillon is a lightweight app that features **Smart RAG** for deep search and **Intelligent Tags** for flexible organization.",
-            "Quillon: **Simple, Fast, Smart.** 💡\nIt's a lightweight app that helps you write faster. It features **Intelligent Tags** (like Blue Folders) and **Smart RAG** to connect your ideas."
-        ]);
-    }
+    // Identity - Name has been handled above.
+    // "What is Quillon" logic removed to allow RAG to find user notes with "Quillon" in the title.
 
     // ========== IDENTITY - CREATOR/DEVELOPER LOGIC ==========
     // (Keeping broad "Who made you" type questions for personality, but removing specific product feature explanations)

@@ -46,8 +46,9 @@ export async function ragQuery(
                            
                            Rules:
                            1. Resolve pronouns ("it", "he") using History.
-                           2. If complex (e.g. "Compare X and Y"), output ["X", "Y"] in queries.
-                           3. If simple, Just output ["query"].`
+                           2. If the user asks "What is [X]" or mentions a specific name, include "[X]" as a search query to catch titles.
+                           3. If complex (e.g. "Compare X and Y"), output ["X", "Y"] in queries.
+                           4. If simple, Just output ["query"].`
                         },
                         ...history.slice(0, -1).slice(-3).map(m => ({
                             role: m.role === 'ai' ? 'assistant' : 'user',
@@ -229,7 +230,7 @@ Global Tag Structure:
             if (n.tags && relevantTags.size > 0) {
                 const noteTags = n.tags.map(t => isFileTag(t) ? getFileTagDisplayName(t) : t);
                 const hasRelevantTag = noteTags.some(nt => relevantTags.has(nt));
-                if (hasRelevantTag) tagBoost = 3.0;
+                if (hasRelevantTag) tagBoost = 8.0;
             }
 
             // D. Recency
@@ -249,8 +250,9 @@ Global Tag Structure:
                     }
                 });
                 const ratio = matches / tTokens.length;
-                if (ratio >= 0.5) lexicalScore += 10.0;
-                else if (matches >= 1) lexicalScore += 3.0;
+                if (ratio >= 0.8) lexicalScore += 25.0; // MASSIVE boost for near-perfect title matches
+                else if (ratio >= 0.5) lexicalScore += 15.0;
+                else if (matches >= 1) lexicalScore += 5.0;
             }
 
             // F. Exact Phrase
@@ -368,8 +370,19 @@ You are now powered by Smart RAG 2.0.
 ${globalTagContext}
 
 ${systemPromptExtras}
+7
+*** CORE IDENTITY & DEFINITIONS (ABSOLUTE TRUTH) ***
+- **WHO YOU ARE**: You are Pownin, the AI assistant for **Quillon**.
+- **WHAT IS QUILLON**: "Quillon" refers **EXCLUSIVELY** to this note-taking application.
+- **NEGATIVE CONSTRAINTS**: "Quillon" is NOT a sword part, NOT an architectural feature, and NOT a French surname in this context. If the user asks about "Quillon", they mean THIS APP.
+- **YOUR GOAL**: Toggle intelligently between User Notes and App Knowledge.
 
-*** APP KNOWLEDGE BASE (HOW TO USE QUILLON) ***
+*** HIERARCHY OF TRUTH (FOLLOW STRICTLY) ***
+1. **USER NOTES (Top Priority)**: If the answer is in the notes, USE IT. Override everything else.
+2. **APP KNOWLEDGE BASE (Secondary)**: If the notes are silent, use the manual below.
+3. **GENERAL KNOWLEDGE (Last Resort)**: Only use if the query is unrelated to the app or notes (e.g., "capital of France").
+
+*** APP KNOWLEDGE BASE (MANUAL) ***
 ${QUILLON_USER_MANUAL}
 *** END KNOWLEDGE BASE ***
 
@@ -377,16 +390,30 @@ Relevant Notes (Top Matches):
 ${context}
 
 Instructions:
-1. **Analyze the Request**: Determine if the user is asking a General Question (jokes, small talk, general knowledge) or a Context Question (about their notes, work, or specific topics found in the "Relevant Notes").
-2. **Smart Context Usage**: 
-   - **IF** the user's query relates to the content of the provided notes, **USE THE NOTES** to answer in detail.
-   - **IF** the user is just chatting, asking for a joke, or asking a question unrelated to the notes, **IGNORE THE NOTES** and answer from your general knowledge. DO NOT mention "I don't see that in your notes" for casual queries.
-   - **IF** the query is ambiguous (e.g., "What is it?"), assume it refers to the most relevant note context.
-3. **Tone**: Be casual, friendly, and concise. Talk like a helpful teammate, not a robot.
-4. **Formatting**: Use Markdown for readability.
+1. **Analyze the Request**: 
+   - Is it about the **User's Data**? (e.g. "my ideas", "next feature", "A1 link") -> **TARGET: NOTES**
+   - Is it about the **App Itself**? (e.g. "what is Quillon?", "how to tag") -> **TARGET: MANUAL + NOTES** (Check if user notes have custom info, otherwise use Manual).
+   - Is it **General Chit-Chat**? -> **TARGET: GENERAL**
+
+2. **Smart Execution (The Toggle)**: 
+   - **Step 1**: Look at "Relevant Notes". Do they answer the question?
+     - **YES**: Answer using the notes. Blend in Manual info ONLY if it helps explain the note.
+     - **NO**: 
+       - Is the question about Quillon/App features? -> Answer from the **APP KNOWLEDGE BASE**.
+       - Is the question random (e.g. "tell me a joke")? -> Answer from general knowledge.
+
+3. **Anti-Hallucination**:
+   - if asking "What is Quillon", DEFINITELY use the Manual's definition ("Lightweight note app..."). DO NOT talk about swords.
+   - if asking about a specific note title (e.g. "A1"), and you see it in the context, output its content.
+
+4. **Tone & Style**:
+   - Be "Human-Like": Natural, confident, helpful.
+   - **NO ROBOTIC PREAMBLES**: Never start with "Based on...", "The text says...". Just answer.
+   - **Example**: "Quillon is your speed-focused note app. By the way, I found a note where you mentioned..."
+
 5. **Current Date & Time**: It is currently ${new Date().toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}.
-6. **Handling Personal Questions**: If asked about time/date, just state it. DO NOT say "I don't have real-time access" or "I've been instructed". Act like you have a clock.
-7. **Handling Follow-ups**: If the user asks "Really?" or expresses doubt, DO NOT apologize or say "I am an AI". Instead, confidently re-affirm your answer or check your context again. Trust your previous knowledge.`
+6. **Confidence**: Don't apologize for being an AI. Don't say "As an AI...". Confidently state what you find or know.
+7. **Literalness**: If a link or key is in the notes, provide it accurately. `
             },
             ...historyMessages,
             { role: "user", content: finalQuestion }
@@ -524,7 +551,7 @@ async function rerankNotes(query: string, candidates: Note[]): Promise<Note[]> {
 
     // We create a simplified list for the LLM to judge
     const candidateText = candidates.map((n, i) =>
-        `ID: ${i}\nTitle: ${n.title || "NO_TITLE"}\nContent Snippet: ${(n.content || "").substring(0, 150)}...`
+        `ID: ${i}\nTitle: ${n.title || "NO_TITLE"}\nContent Snippet: ${(n.content || "").substring(0, 600)}...`
     ).join("\n\n");
 
     try {
@@ -540,7 +567,9 @@ async function rerankNotes(query: string, candidates: Note[]): Promise<Note[]> {
                     
                     CRITICAL:
                     - IGNORE bad titles. Populated "Content Snippet" is what matters.
-                    - If a note looks like a "messy thought" but matches the topic, SELECT IT.
+                    - **TITLE OVERLAP**: If the query shares words with a note's TITLE, that note is extremely likely to be the one the user wants. Prioritize title matches even if the snippet is short.
+                    - If a note looks like a "messy thought", a "key list", or a "link collection", SELECT IT.
+                    - Technical strings (keys, long tokens, URLs) are highly relevant if the user query contains technical acronyms (API, GSK, KEY, URL).
                     - Be strict: only select if it actually seems related.`
                 },
                 { role: "user", content: `Query: ${query}\n\nCandidates:\n${candidateText}` }
