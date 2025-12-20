@@ -111,17 +111,22 @@ export async function ragQuery(
     }
 
     const allNotes = getNotes();
-    // SECURITY: Filter out Private notes UNLESS explicitly allowed by the caller
-    const notes = allNotes.filter(n => !n.isPrivate || (n.isPrivate && options.includePrivate));
-    // REMOVED early return: if (!notes || notes.length === 0) return "No notes found."; 
-    // We proceed even with 0 notes so we can use the Manual and Memory.
-
+    // SECURITY & SEPARATION:
+    // User requested "Totally Separate" modes.
+    // - Public Mode: See ONLY Public Notes.
+    // - Private Mode: See ONLY Private Notes.
+    const notes = allNotes.filter(n => options.includePrivate ? n.isPrivate : !n.isPrivate);
     // 1. Calculate Global Tag Structure
+    // Fix: STRICT SEPARATION for Stats as well.
+    // We filter active notes based on the SAME logic as the RAG context (Public only OR Private only).
+    // We also exclude TRASH.
+    const activeNotes = allNotes.filter(n => !n.isDeleted && (options.includePrivate ? n.isPrivate : !n.isPrivate));
+
     const blueFolders = new Set<string>();
     const greenTags = new Set<string>();
     const greyTags = new Set<string>();
 
-    notes.forEach(note => {
+    activeNotes.forEach(note => {
         const hasFileTag = note.tags.some(t => isFileTag(t));
         note.tags.forEach(t => {
             if (isFileTag(t)) {
@@ -135,8 +140,8 @@ export async function ragQuery(
     });
 
     const globalTagContext = `
-Global Tag Structure & Vault Stats:
-- **Folders (Blue)**: ${Array.from(blueFolders).map(f => `${f} (${notes.filter(n => n.tags.includes(`file${f}`)).length})`).join(", ") || "None"}
+Global Tag Structure & Vault Stats (Current Mode: ${options.includePrivate ? "PRIVATE ONLY" : "PUBLIC ONLY"}):
+- **Folders (Blue)**: ${Array.from(blueFolders).map(f => `${f} (${activeNotes.filter(n => n.tags.includes(`file${f}`)).length})`).join(", ") || "None"}
 - **Folder Tags (Green)**: ${Array.from(greenTags).join(", ") || "None"}
 - **Standalone Tags (Grey)**: ${Array.from(greyTags).join(", ") || "None"}
 `;
