@@ -125,7 +125,7 @@ export function NodesWidget() {
                             onSubmit={handleSubmit}
                             className="p-3 md:p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900"
                         >
-                            <div className="relative flex items-center bg-gray-50 dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
+                            <div className="relative flex items-center bg-gray-50 dark:bg-gray-800/50 p-1.5 pr-2 rounded-xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
                                 <input
                                     ref={inputRef}
                                     value={inputValue}
