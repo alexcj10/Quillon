@@ -15,16 +15,16 @@ export function DraggableNodeItem({ node, toggleNode, deleteNode, togglePin }: D
     return (
         <Reorder.Item
             value={node}
-            dragListener={false} // Important: Disable default drag on whole item
+            dragListener={false} // Disable default drag on whole item so scrolling works
             dragControls={dragControls}
-            className="relative touch-pan-y select-none" // touch-pan-y allows vertical scrolling!
+            className="relative touch-pan-y select-none" // touch-pan-y: Allow Vertical Scroll!
         >
             <NodeItemCard
                 node={node}
                 toggleNode={toggleNode}
                 deleteNode={deleteNode}
                 togglePin={togglePin}
-                dragControls={dragControls} // Pass controls to Card to attach to Grip
+                dragControls={dragControls}
             />
         </Reorder.Item>
     );
