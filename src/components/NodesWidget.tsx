@@ -155,21 +155,29 @@ export function NodesWidget() {
                             onSubmit={handleSubmit}
                             className="p-3 md:p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900"
                         >
-                            <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
-                                <input
-                                    ref={inputRef}
-                                    value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
-                                    placeholder="Add a new node..."
-                                    className="flex-1 bg-transparent border-none rounded-none pl-2 py-2 text-[15px] focus:ring-0 text-gray-900 dark:text-white placeholder:text-gray-400 min-w-0"
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!inputValue.trim()}
-                                    className="flex-shrink-0 p-1.5 rounded-lg bg-blue-600 text-white disabled:opacity-50 disabled:bg-gray-300 dark:disabled:bg-gray-700 transition-all hover:bg-blue-700 hover:scale-105 active:scale-95 shadow-sm"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                </button>
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
+                                    <input
+                                        ref={inputRef}
+                                        value={inputValue}
+                                        onChange={(e) => setInputValue(e.target.value)}
+                                        maxLength={100}
+                                        placeholder="Add a new node..."
+                                        className="flex-1 bg-transparent border-none rounded-none pl-2 py-2 text-[15px] focus:ring-0 text-gray-900 dark:text-white placeholder:text-gray-400 min-w-0"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={!inputValue.trim()}
+                                        className="flex-shrink-0 p-1.5 rounded-lg bg-blue-600 text-white disabled:opacity-50 disabled:bg-gray-300 dark:disabled:bg-gray-700 transition-all hover:bg-blue-700 hover:scale-105 active:scale-95 shadow-sm"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                {inputValue.length > 0 && (
+                                    <div className={`text-xs text-right px-2 transition-colors ${inputValue.length >= 100 ? 'text-red-500' : 'text-gray-400 dark:text-gray-500'}`}>
+                                        {inputValue.length}/100
+                                    </div>
+                                )}
                             </div>
                         </form>
                     </motion.div>
