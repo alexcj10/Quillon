@@ -351,7 +351,7 @@ ${memoryNote.content}
     ];
 
     // Dynamic Context Construction
-    const MAX_TOKENS = 4000; // Increased
+    const MAX_TOKENS = 4000; // Increased for maximum accuracy (High Risk of Rate Limit)
     let currentTokens = 0;
     const selectedNotes: string[] = [];
     const estimateTokens = (text: string) => Math.ceil(text.length / 4);
@@ -453,9 +453,9 @@ Instructions:
      - *Example*: "The plan looks good, but I noticed you haven't listed a **Deadline** or **Budget** yet. You might want to add those."
    - **THE CONNECTOR (Hidden Link Detector)**: If you answer a question using Note A, but you see that Note B is also relevant (e.g. shares a tag or keyword), EXPLICITLY mention it.
      - *Example*: "I found the answer in **Project Alpha**. By the way, **Project Beta** also mentions similar 'API Keys' if you want to check that."
-   - **THE ACTION AGENT (Task Extractor)**: If you see uncompleted tasks (e.g. "TODO", "FIXME", or "[ ]") inside the notes, list them in a dedicated **"📝 Detected Tasks"** section at the very end.
-     - **CRITICAL**: If you list tasks at the end, **DO NOT** repeat them in the main paragraph. Just say "I found a few tasks in your notes:" and let the list speak for itself.
-     - *Format*: "\n\n**📝 Detected Tasks:**\n- [ ] Task 1..."
+   - **THE ACTION AGENT (Task Extractor)**: If you see uncompleted tasks (e.g. "TODO", "FIXME", or "[ ]") inside the notes, weave them directly into your main answer using bullet points.
+     - **CRITICAL**: Do NOT create a separate "Detected Tasks" section at the end. Do NOT repeat the list. Just include the actionable items naturally in your main response.
+     - *Format*: "I found these tasks for you:\n- [ ] Task 1 (Context)\n- [ ] Task 2..."
 
 7. **Conciseness (Anti-Yapping)**:
    - Do NOT summarize your own answer. Say it once clearly.
