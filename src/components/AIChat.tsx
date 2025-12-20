@@ -241,7 +241,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                                                 </div>
 
                                                 {editingSessionId !== session.id && (
-                                                    <div className="flex items-center gap-2 opacity-100 md:opacity-0 group-hover:md:opacity-100 transition-opacity">
+                                                    <div className="flex items-center gap-2">
                                                         {deletingSessionId === session.id ? (
                                                             <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 rounded-lg p-1" onClick={e => e.stopPropagation()}>
                                                                 <button
