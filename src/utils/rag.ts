@@ -351,7 +351,7 @@ ${memoryNote.content}
     ];
 
     // Dynamic Context Construction
-    const MAX_TOKENS = 4000; // Increased for maximum accuracy (High Risk of Rate Limit)
+    const MAX_TOKENS = 2500; // REDUCED for Safety with 70b model
     let currentTokens = 0;
     const selectedNotes: string[] = [];
     const estimateTokens = (text: string) => Math.ceil(text.length / 4);
