@@ -44,7 +44,7 @@ export function NodesWidget() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: "100%" }}
                         transition={{ duration: 0.3, ease: "easeOut" }}
-                        className="fixed z-50 flex flex-col overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl border border-white/20 dark:border-white/10 transition-all duration-300 ease-out
+                        className="fixed z-50 flex flex-col overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl border border-gray-200 dark:border-white/10 transition-all duration-300 ease-out
               bottom-6 left-6 right-6 w-auto h-[70vh] rounded-[2rem]
               sm:left-auto sm:right-6 sm:w-[450px] sm:h-[65vh] sm:rounded-2xl
               lg:h-[80vh]
