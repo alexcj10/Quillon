@@ -48,7 +48,8 @@ export function NodeItemCard({
     deleteNode,
     togglePin,
     isPinned = false,
-    dragControls
+    dragControls,
+    layout = false
 }: {
     node: NodeItem;
     toggleNode: (id: string) => void;
@@ -56,13 +57,14 @@ export function NodeItemCard({
     togglePin: (id: string) => void;
     isPinned?: boolean;
     dragControls?: DragControls;
+    layout?: boolean;
 }) {
     const dateData = getSmartDate(node.text);
     const hasDragHandle = !!dragControls && !node.completed && !isPinned;
 
     return (
         <motion.div
-            layout
+            layout={layout}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`group relative flex items-start gap-2 py-3 pr-3 rounded-xl transition-all duration-200 border
