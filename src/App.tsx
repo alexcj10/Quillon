@@ -9,6 +9,8 @@ import { Plus, Moon, Sun, Lock, Trash2 } from 'lucide-react';
 import AIChat from './components/AIChat';
 import { isFileTag, Note } from './types';
 import powninLogo from './assets/pownin.png';
+import { NodesProvider } from './context/NodesContext';
+import { NodesWidget } from './components/NodesWidget';
 
 function NoteList() {
   const {
@@ -231,6 +233,7 @@ function NoteList() {
           <AIChat onClose={() => setShowAIChat(false)} />
         )}
       </div>
+      <NodesWidget />
     </div>
   );
 }
@@ -238,7 +241,9 @@ function NoteList() {
 function App() {
   return (
     <NoteProvider>
-      <NoteList />
+      <NodesProvider>
+        <NoteList />
+      </NodesProvider>
     </NoteProvider>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
+import { useNodesWidget } from '../context/NodesContext';
 import { isFileTag, getFileTagDisplayName, Note } from '../types';
 import { TagModal } from './TagModal';
 import { BulkRecoveryPopup } from './BulkRecoveryPopup';
@@ -28,6 +29,8 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
     bulkMoveToTrash,
     selectedNoteIds,
   } = useNotes();
+
+  const { setIsOpen, addNode } = useNodesWidget();
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isBulkPopupOpen, setIsBulkPopupOpen] = useState(false);
@@ -131,7 +134,24 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search notes..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const term = searchTerm.trim();
+                if (term.toLowerCase() === '@nodes') {
+                  setIsOpen(true);
+                  setSearchTerm('');
+                } else if (term.toLowerCase().startsWith('@nodes ')) {
+                  const content = term.slice(7).trim();
+                  if (content) {
+                    addNode(content);
+                    // Optional: Open widget to show confirmation
+                    setIsOpen(true);
+                    setSearchTerm('');
+                  }
+                }
+              }
+            }}
+            placeholder="Search notes... (Type @nodes to manage nodes)"
             className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base"
           />
         </div>

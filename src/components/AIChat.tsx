@@ -136,8 +136,8 @@ export default function AIChat({ onClose }: AIChatProps) {
                 
                 /* Tablet/Desktop: Reduced width (User Request) */
                 sm:left-auto sm:right-6 sm:bottom-6 sm:rounded-2xl
-                sm:w-[450px] sm:h-[75vh]
-                md:h-[80vh]
+                sm:w-[450px] sm:h-[65vh]
+                lg:h-[80vh]
                 
                 animate-slide-up"
             >
