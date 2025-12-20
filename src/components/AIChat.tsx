@@ -227,41 +227,41 @@ export default function AIChat({ onClose }: AIChatProps) {
                                                 </div>
 
                                                 {editingSessionId !== session.id && (
-                                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div className="flex items-center gap-2 opacity-100 md:opacity-0 group-hover:md:opacity-100 transition-opacity">
                                                         {deletingSessionId === session.id ? (
-                                                            <div className="flex items-center gap-1 bg-red-50 dark:bg-red-900/20 rounded-lg p-0.5" onClick={e => e.stopPropagation()}>
+                                                            <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 rounded-lg p-1" onClick={e => e.stopPropagation()}>
                                                                 <button
                                                                     onClick={(e) => confirmDelete(e, session.id)}
-                                                                    className="p-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 rounded"
+                                                                    className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors"
                                                                     title="Confirm"
                                                                 >
-                                                                    <Check className="w-3.5 h-3.5" />
+                                                                    <Check className="w-4 h-4" />
                                                                 </button>
                                                                 <button
                                                                     onClick={cancelDelete}
-                                                                    className="p-1 text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 rounded"
+                                                                    className="p-2 text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
                                                                     title="Cancel"
                                                                 >
-                                                                    <X className="w-3.5 h-3.5" />
+                                                                    <X className="w-4 h-4" />
                                                                 </button>
                                                             </div>
                                                         ) : (
-                                                            <>
+                                                            <div className="flex items-center gap-1 md:gap-0">
                                                                 <button
                                                                     onClick={(e) => startEditing(e, session.id, session.title)}
-                                                                    className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:text-purple-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                                                    className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:text-purple-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
                                                                     title="Rename"
                                                                 >
-                                                                    <Edit2 className="w-3.5 h-3.5" />
+                                                                    <Edit2 className="w-4 h-4" />
                                                                 </button>
                                                                 <button
                                                                     onClick={(e) => handleDeleteClick(e, session.id)}
-                                                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
                                                                     title="Delete"
                                                                 >
-                                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                                    <Trash2 className="w-4 h-4" />
                                                                 </button>
-                                                            </>
+                                                            </div>
                                                         )}
                                                     </div>
                                                 )}
@@ -358,7 +358,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                                             onChange={e => setQ(e.target.value)}
                                             onKeyDown={handleKeyDown}
                                             placeholder="Ask about your notes..."
-                                            className="flex-1 bg-transparent border-none focus:ring-0 resize-none max-h-24 md:max-h-32 text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 p-2"
+                                            className="ai-chat-textarea flex-1 bg-transparent border-none focus:ring-0 resize-none max-h-24 md:max-h-32 text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 p-2"
                                             rows={1}
                                         />
                                         <button
@@ -402,34 +402,40 @@ export default function AIChat({ onClose }: AIChatProps) {
 
                 /* Custom Scrollbar Styling (Apple-like) */
                 .ai-chat-messages::-webkit-scrollbar,
-                .ai-chat-history::-webkit-scrollbar {
+                .ai-chat-history::-webkit-scrollbar,
+                .ai-chat-textarea::-webkit-scrollbar {
                     width: 5px; /* Thinner */
                 }
                 
                 .ai-chat-messages::-webkit-scrollbar-track,
-                .ai-chat-history::-webkit-scrollbar-track {
+                .ai-chat-history::-webkit-scrollbar-track,
+                .ai-chat-textarea::-webkit-scrollbar-track {
                     background: transparent; /* Fix white background in dark mode */
                 }
                 
                 .ai-chat-messages::-webkit-scrollbar-thumb,
-                .ai-chat-history::-webkit-scrollbar-thumb {
+                .ai-chat-history::-webkit-scrollbar-thumb,
+                .ai-chat-textarea::-webkit-scrollbar-thumb {
                     background: rgba(156, 163, 175, 0.4);
                     border-radius: 20px; /* Rounder */
                 }
                 
                 .ai-chat-messages::-webkit-scrollbar-thumb:hover,
-                .ai-chat-history::-webkit-scrollbar-thumb:hover {
+                .ai-chat-history::-webkit-scrollbar-thumb:hover,
+                .ai-chat-textarea::-webkit-scrollbar-thumb:hover {
                     background: rgba(156, 163, 175, 0.6);
                 }
 
                 /* Dark mode scrollbar */
                 .dark .ai-chat-messages::-webkit-scrollbar-thumb,
-                .dark .ai-chat-history::-webkit-scrollbar-thumb {
+                .dark .ai-chat-history::-webkit-scrollbar-thumb,
+                .dark .ai-chat-textarea::-webkit-scrollbar-thumb {
                     background: rgba(255, 255, 255, 0.15); /* More subtle white */
                 }
                 
                 .dark .ai-chat-messages::-webkit-scrollbar-thumb:hover,
-                .dark .ai-chat-history::-webkit-scrollbar-thumb:hover {
+                .dark .ai-chat-history::-webkit-scrollbar-thumb:hover,
+                .dark .ai-chat-textarea::-webkit-scrollbar-thumb:hover {
                     background: rgba(255, 255, 255, 0.3);
                 }
             `}</style>
