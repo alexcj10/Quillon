@@ -17,7 +17,8 @@ export function DraggableNodeItem({ node, toggleNode, deleteNode, togglePin }: D
             value={node}
             dragListener={false} // Disable default drag on whole item so scrolling works
             dragControls={dragControls}
-            className="relative touch-pan-y select-none" // touch-pan-y: Allow Vertical Scroll!
+            className="relative select-none"
+            style={{ touchAction: 'pan-y' }} // Force override Framer Motion's default touch-none
         >
             <NodeItemCard
                 node={node}
