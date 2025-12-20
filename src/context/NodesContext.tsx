@@ -5,6 +5,7 @@ export interface NodeItem {
     text: string;
     completed: boolean;
     createdAt: number;
+    isPinned?: boolean;
 }
 
 interface NodesContextType {
@@ -12,6 +13,8 @@ interface NodesContextType {
     addNode: (text: string) => void;
     toggleNode: (id: string) => void;
     deleteNode: (id: string) => void;
+    togglePin: (id: string) => void;
+    reorderNodes: (nodes: NodeItem[]) => void;
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
 }
@@ -35,6 +38,7 @@ export function NodesProvider({ children }: { children: React.ReactNode }) {
             text,
             completed: false,
             createdAt: Date.now(),
+            isPinned: false,
         };
         setNodes(prev => [newNode, ...prev]);
     };
@@ -49,8 +53,27 @@ export function NodesProvider({ children }: { children: React.ReactNode }) {
         setNodes(prev => prev.filter(n => n.id !== id));
     };
 
+    const togglePin = (id: string) => {
+        setNodes(prev => prev.map(n =>
+            n.id === id ? { ...n, isPinned: !n.isPinned } : n
+        ));
+    };
+
+    const reorderNodes = (newNodes: NodeItem[]) => {
+        setNodes(newNodes);
+    };
+
     return (
-        <NodesContext.Provider value={{ nodes, addNode, toggleNode, deleteNode, isOpen, setIsOpen }}>
+        <NodesContext.Provider value={{
+            nodes,
+            addNode,
+            toggleNode,
+            deleteNode,
+            togglePin,
+            reorderNodes,
+            isOpen,
+            setIsOpen
+        }}>
             {children}
         </NodesContext.Provider>
     );

@@ -1,13 +1,26 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNodesWidget } from '../context/NodesContext';
-import { X, CheckSquare, Square, Trash2, Workflow, Plus } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { X, Workflow, Plus, Pin } from 'lucide-react';
+import { AnimatePresence, motion, Reorder } from 'framer-motion';
+import { NodeItemCard } from './NodeItemCard';
 
 export function NodesWidget() {
-    const { nodes, isOpen, setIsOpen, addNode, toggleNode, deleteNode } = useNodesWidget();
+    const { nodes, isOpen, setIsOpen, addNode, toggleNode, deleteNode, togglePin, reorderNodes } = useNodesWidget();
     const [inputValue, setInputValue] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Derived state for renders
+    const pinnedNodes = nodes.filter(n => n.isPinned && !n.completed);
+    const unpinnedNodes = nodes.filter(n => !n.isPinned && !n.completed);
+    const completedNodes = nodes.filter(n => n.completed);
+
+    const handleReorder = (newUnpinnedOrder: typeof nodes) => {
+        // We need to reconstruct the full list to save it back to context
+        // Order: Pinned Items (top) + New Unpinned Order + Completed (bottom)
+        const newFullList = [...pinnedNodes, ...newUnpinnedOrder, ...completedNodes];
+        reorderNodes(newFullList);
+    };
 
     useEffect(() => {
         if (isOpen && inputRef.current) {
@@ -20,7 +33,6 @@ export function NodesWidget() {
         if (inputValue.trim()) {
             addNode(inputValue.trim());
             setInputValue('');
-            // Scroll to top to see new item
             if (scrollRef.current) scrollRef.current.scrollTop = 0;
         }
     };
@@ -61,7 +73,7 @@ export function NodesWidget() {
                             </div>
                             <button
                                 onClick={() => setIsOpen(false)}
-                                className="p-1.5 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -80,43 +92,59 @@ export function NodesWidget() {
                                     <p className="text-sm">No nodes yet. Add one!</p>
                                 </div>
                             ) : (
-                                nodes.map((node) => (
-                                    <motion.div
-                                        key={node.id}
-                                        layout
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className={`group flex items-start gap-3 p-3 rounded-xl transition-all duration-200 border border-transparent
-                      ${node.completed
-                                                ? 'bg-gray-50/50 dark:bg-white/5 opacity-60'
-                                                : 'bg-white dark:bg-gray-800 shadow-sm hover:border-gray-200 dark:hover:border-gray-700'
-                                            }`}
-                                    >
-                                        <button
-                                            onClick={() => toggleNode(node.id)}
-                                            className={`mt-0.5 flex-shrink-0 transition-colors ${node.completed ? 'text-blue-500' : 'text-gray-400 hover:text-blue-500'
-                                                }`}
-                                        >
-                                            {node.completed ? (
-                                                <CheckSquare className="w-5 h-5" />
-                                            ) : (
-                                                <Square className="w-5 h-5" />
-                                            )}
-                                        </button>
-                                        <span
-                                            className={`flex-1 text-sm leading-relaxed break-words ${node.completed ? 'line-through text-gray-500' : 'text-gray-800 dark:text-gray-200'
-                                                }`}
-                                        >
-                                            {node.text}
-                                        </span>
-                                        <button
-                                            onClick={() => deleteNode(node.id)}
-                                            className="opacity-0 group-hover:opacity-100 p-1 text-red-400 hover:text-red-500 transition-all transform hover:scale-110"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </motion.div>
-                                ))
+                                <div className="space-y-4">
+                                    {/* Pinned Section */}
+                                    {pinnedNodes.length > 0 && (
+                                        <div className="space-y-2">
+                                            <div className="px-1 text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                                                <Pin className="w-3 h-3" /> Pinned
+                                            </div>
+                                            {pinnedNodes.map(node => (
+                                                <NodeItemCard
+                                                    key={node.id}
+                                                    node={node}
+                                                    toggleNode={toggleNode}
+                                                    deleteNode={deleteNode}
+                                                    togglePin={togglePin}
+                                                    isPinned={true}
+                                                />
+                                            ))}
+                                            <div className="h-px bg-gray-200 dark:bg-white/5 mx-2" />
+                                        </div>
+                                    )}
+
+                                    {/* Reorderable List */}
+                                    <Reorder.Group axis="y" values={unpinnedNodes} onReorder={handleReorder} className="space-y-2">
+                                        {unpinnedNodes.map(node => (
+                                            <Reorder.Item key={node.id} value={node} className="cursor-grab active:cursor-grabbing touch-none select-none">
+                                                <NodeItemCard
+                                                    node={node}
+                                                    toggleNode={toggleNode}
+                                                    deleteNode={deleteNode}
+                                                    togglePin={togglePin}
+                                                />
+                                            </Reorder.Item>
+                                        ))}
+                                    </Reorder.Group>
+
+                                    {/* Completed Section */}
+                                    {completedNodes.length > 0 && (
+                                        <>
+                                            {unpinnedNodes.length > 0 && <div className="h-px bg-gray-200 dark:bg-white/5 mx-2 my-2" />}
+                                            <div className="opacity-60 space-y-2">
+                                                {completedNodes.map(node => (
+                                                    <NodeItemCard
+                                                        key={node.id}
+                                                        node={node}
+                                                        toggleNode={toggleNode}
+                                                        deleteNode={deleteNode}
+                                                        togglePin={togglePin}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             )}
                         </div>
 
