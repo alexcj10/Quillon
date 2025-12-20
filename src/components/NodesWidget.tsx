@@ -3,6 +3,7 @@ import { useNodesWidget } from '../context/NodesContext';
 import { X, Workflow, Plus, Pin } from 'lucide-react';
 import { AnimatePresence, motion, Reorder } from 'framer-motion';
 import { NodeItemCard } from './NodeItemCard';
+import { DraggableNodeItem } from './DraggableNodeItem';
 
 export function NodesWidget() {
     const { nodes, isOpen, setIsOpen, addNode, toggleNode, deleteNode, togglePin, reorderNodes } = useNodesWidget();
@@ -116,14 +117,13 @@ export function NodesWidget() {
                                     {/* Reorderable List */}
                                     <Reorder.Group axis="y" values={unpinnedNodes} onReorder={handleReorder} className="space-y-2">
                                         {unpinnedNodes.map(node => (
-                                            <Reorder.Item key={node.id} value={node} className="cursor-grab active:cursor-grabbing touch-none select-none">
-                                                <NodeItemCard
-                                                    node={node}
-                                                    toggleNode={toggleNode}
-                                                    deleteNode={deleteNode}
-                                                    togglePin={togglePin}
-                                                />
-                                            </Reorder.Item>
+                                            <DraggableNodeItem
+                                                key={node.id}
+                                                node={node}
+                                                toggleNode={toggleNode}
+                                                deleteNode={deleteNode}
+                                                togglePin={togglePin}
+                                            />
                                         ))}
                                     </Reorder.Group>
 

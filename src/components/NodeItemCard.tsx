@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { CheckSquare, Square, Trash2, Pin, PinOff, Calendar } from 'lucide-react';
+import { motion, DragControls } from 'framer-motion';
+import { CheckSquare, Square, Trash2, Pin, PinOff, GripVertical, Calendar } from 'lucide-react';
 import { NodeItem } from '../context/NodesContext';
 
 const getSmartDate = (text: string) => {
@@ -10,13 +10,12 @@ const getSmartDate = (text: string) => {
         return { label: 'Urgent', color: 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30' };
     }
 
-    // � Recurring
+    // 🔄 Recurring
     if (lower.match(/\b(daily|weekly|monthly|yearly|every\s(day|week|month|year))\b/)) {
         return { label: 'Recurring', color: 'text-cyan-600 bg-cyan-100 dark:text-cyan-400 dark:bg-cyan-900/30' };
     }
 
-    // �🟢 Today synonyms (Expanded)
-    // Matches "today", "tonight", "morning", "afternoon", "evening"
+    // 🟢 Today synonyms (Expanded)
     if (lower.match(/\b(today|tonight|morning|noon|afternoon|evening|night)\b/) || lower.includes('this ')) {
         return { label: 'Today', color: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30' };
     }
@@ -34,7 +33,6 @@ const getSmartDate = (text: string) => {
     }
 
     // 🟠 Time / Relative Time / Later
-    // Matches: "at 5", "at 5pm", "by 5", "in 10 mins", "in 2 hours", "later"
     if (lower.match(/\b(at|by)\s\d{1,2}(?::\d{2})?(?:am|pm)?\b/) ||
         lower.match(/\bin\s\d+\s(min|hour|hr|sec)s?\b/) ||
         lower.includes('later')) {
@@ -49,22 +47,26 @@ export function NodeItemCard({
     toggleNode,
     deleteNode,
     togglePin,
-    isPinned = false
+    isPinned = false,
+    dragControls
 }: {
     node: NodeItem;
     toggleNode: (id: string) => void;
     deleteNode: (id: string) => void;
     togglePin: (id: string) => void;
     isPinned?: boolean;
+    dragControls?: DragControls;
 }) {
     const dateData = getSmartDate(node.text);
+    const hasDragHandle = !!dragControls && !node.completed && !isPinned;
 
     return (
         <motion.div
             layout
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`group relative flex items-start gap-3 p-3 rounded-xl transition-all duration-200 border
+            className={`group relative flex items-start gap-2 py-3 pr-3 rounded-xl transition-all duration-200 border
+                ${hasDragHandle ? 'pl-8' : 'pl-3'} 
                 ${node.completed
                     ? 'bg-gray-50/50 dark:bg-white/5 opacity-60 border-transparent'
                     : isPinned
@@ -72,6 +74,17 @@ export function NodeItemCard({
                         : 'bg-white dark:bg-gray-800 shadow-sm border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700'
                 }`}
         >
+            {/* Explicit Drag Handle */}
+            {hasDragHandle && (
+                <div
+                    onPointerDown={(e) => dragControls.start(e)}
+                    className="absolute left-1 top-3 p-1 cursor-grab active:cursor-grabbing text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 transition-colors touch-none select-none z-20"
+                    style={{ touchAction: 'none' }}
+                >
+                    <GripVertical className="w-4 h-4" />
+                </div>
+            )}
+
             <button
                 onClick={() => toggleNode(node.id)}
                 className={`mt-0.5 flex-shrink-0 transition-colors z-10 
@@ -80,7 +93,7 @@ export function NodeItemCard({
                 {node.completed ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
             </button>
 
-            <div className="flex-1 min-w-0">
+            <div className={`flex-1 min-w-0 ${hasDragHandle ? '' : ''}`}>
                 <span className={`text-sm leading-relaxed break-words block
                     ${node.completed ? 'line-through text-gray-500' : 'text-gray-800 dark:text-gray-200'}`}>
                     {node.text}
