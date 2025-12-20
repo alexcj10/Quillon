@@ -36,6 +36,19 @@ export default function AIChat({ onClose }: AIChatProps) {
     const [editTitle, setEditTitle] = useState('');
     const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
 
+    // Rate Limit State
+    const [cooldown, setCooldown] = useState(0);
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (cooldown > 0) {
+            timer = setInterval(() => {
+                setCooldown(prev => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [cooldown]);
+
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -48,9 +61,10 @@ export default function AIChat({ onClose }: AIChatProps) {
     }, [messages, showHistory]);
 
     async function send() {
-        if (!q.trim() || isLoading) return;
+        if (!q.trim() || isLoading || cooldown > 0) return;
         const text = q;
         setQ("");
+        setCooldown(30); // 30s Cooldown to prevent Rate Limits
         await sendMessage(text);
     }
 
@@ -363,13 +377,18 @@ export default function AIChat({ onClose }: AIChatProps) {
                                         />
                                         <button
                                             onClick={send}
-                                            disabled={!q.trim() || isLoading}
-                                            className={`p-2 rounded-lg transition-all ${q.trim() && !isLoading
+                                            disabled={!q.trim() || isLoading || cooldown > 0}
+                                            className={`p-2 rounded-lg transition-all flex items-center justify-center min-w-[36px] ${q.trim() && !isLoading && cooldown === 0
                                                 ? 'bg-purple-600 text-white shadow-md hover:bg-purple-700 hover:scale-105 active:scale-95'
                                                 : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                                                 }`}
+                                            title={cooldown > 0 ? `Wait ${cooldown}s` : "Send"}
                                         >
-                                            <Send className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                            {cooldown > 0 ? (
+                                                <span className="text-[10px] font-bold font-mono">{cooldown}s</span>
+                                            ) : (
+                                                <Send className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                            )}
                                         </button>
                                     </div>
                                     <div className="text-center mt-2">
