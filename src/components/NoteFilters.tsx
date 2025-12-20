@@ -140,7 +140,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 if (term.toLowerCase() === '@nodes') {
                   setIsOpen(true);
                   setSearchTerm('');
-                } else if (term.toLowerCase().startsWith('@nodes ')) {
+                } else if (term.toLowerCase().startsWith('@nodes-')) {
                   const content = term.slice(7).trim();
                   if (content) {
                     addNode(content);
