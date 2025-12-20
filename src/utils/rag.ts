@@ -113,7 +113,8 @@ export async function ragQuery(
     const allNotes = getNotes();
     // SECURITY: Filter out Private notes UNLESS explicitly allowed by the caller
     const notes = allNotes.filter(n => !n.isPrivate || (n.isPrivate && options.includePrivate));
-    if (!notes || notes.length === 0) return "No notes found.";
+    // REMOVED early return: if (!notes || notes.length === 0) return "No notes found."; 
+    // We proceed even with 0 notes so we can use the Manual and Memory.
 
     // 1. Calculate Global Tag Structure
     const blueFolders = new Set<string>();
@@ -134,11 +135,39 @@ export async function ragQuery(
     });
 
     const globalTagContext = `
-Global Tag Structure:
-- **Folders (Blue)**: ${Array.from(blueFolders).join(", ") || "None"}
+Global Tag Structure & Vault Stats:
+- **Folders (Blue)**: ${Array.from(blueFolders).map(f => `${f} (${notes.filter(n => n.tags.includes(`file${f}`)).length})`).join(", ") || "None"}
 - **Folder Tags (Green)**: ${Array.from(greenTags).join(", ") || "None"}
 - **Standalone Tags (Grey)**: ${Array.from(greyTags).join(", ") || "None"}
 `;
+
+    // 1.5. RECENT ACTIVITY (Short-Term Memory)
+    // We grab the last 5 modified notes to give the AI "temporal awareness".
+    const recentNotes = [...notes]
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+        .slice(0, 5)
+        .map(n => `- [${new Date(n.updatedAt).toLocaleTimeString()}] **${n.title || "Untitled"}**: ${n.content?.substring(0, 50)}...`)
+        .join("\n");
+
+    const recentContext = `
+*** RECENT ACTIVITY (SHORT-TERM MEMORY) ***
+What the user was just working on:
+${recentNotes}
+*** END MEMORY ***
+`;
+
+    // 1.8. LONG-TERM MEMORY (The "Stacking" Upgrade)
+    // We look for a special note tagged "#memory" or titled "Pownin Memory"
+    const memoryNote = notes.find(n =>
+        (n.title && n.title.toLowerCase().includes("pownin memory")) ||
+        (n.tags && n.tags.some(t => t.toLowerCase() === "memory" || t.toLowerCase() === "pownin"))
+    );
+    const longTermMemoryContext = memoryNote ? `
+*** LONG-TERM MEMORY (USER FACTS) ***
+Trusted facts about the user (from note "${memoryNote.title}"):
+${memoryNote.content}
+*** END LONG-TERM MEMORY ***
+` : "";
 
     // 2. Identify which tags are "Green"
     const tagsInFileFolders = new Set<string>();
@@ -377,6 +406,9 @@ ${systemPromptExtras}
 - **NEGATIVE CONSTRAINTS**: "Quillon" is NOT a sword part, NOT an architectural feature, and NOT a French surname in this context. If the user asks about "Quillon", they mean THIS APP.
 - **YOUR GOAL**: Toggle intelligently between User Notes and App Knowledge.
 
+${recentContext}
+${longTermMemoryContext}
+
 *** HIERARCHY OF TRUTH (FOLLOW STRICTLY) ***
 1. **USER NOTES (Top Priority)**: If the answer is in the notes, USE IT. Override everything else.
 2. **APP KNOWLEDGE BASE (Secondary)**: If the notes are silent, use the manual below.
@@ -411,9 +443,13 @@ Instructions:
    - **NO ROBOTIC PREAMBLES**: Never start with "Based on...", "The text says...". Just answer.
    - **Example**: "Quillon is your speed-focused note app. By the way, I found a note where you mentioned..."
 
-5. **Current Date & Time**: It is currently ${new Date().toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}.
-6. **Confidence**: Don't apologize for being an AI. Don't say "As an AI...". Confidently state what you find or know.
-7. **Literalness**: If a link or key is in the notes, provide it accurately. `
+5. **Conflict Resolution (The Genius)**:
+   - If User Notes contradict each other, prefer the one with the **LATER DATE** (check "Last Updated").
+   - Explicitly mention the conflict: "I found two plans, but since 'Plan B' is newer (updated today), I'm assuming that's the current one."
+
+6. **Current Date & Time**: It is currently ${new Date().toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}.
+7. **Confidence**: Don't apologize for being an AI. Don't say "As an AI...". Confidently state what you find or know.
+8. **Literalness**: If a link or key is in the notes, provide it accurately. `
             },
             ...historyMessages,
             { role: "user", content: finalQuestion }
