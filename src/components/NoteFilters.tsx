@@ -151,7 +151,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 }
               }
             }}
-            placeholder="Search notes... (Type @nodes to manage nodes)"
+            placeholder="Search... (@nodes)"
             className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base"
           />
         </div>
