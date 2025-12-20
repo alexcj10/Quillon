@@ -350,14 +350,36 @@ ${memoryNote.content}
         });
     });
 
-    const finalNotesToProcess = [
+    let finalNotesToProcess = [
         ...tier1Notes.map(r => ({ n: r.n, type: 'Direct Match' })),
         ...Array.from(linkedNotes.values()).map(n => ({ n, type: 'Linked Context' }))
     ];
 
+    // --- SMART PAGINATION (The "Turn Page" Mechanic) ---
+    // If the user asks for "more", "rest", or "next", we filter out notes we JUST talked about.
+    const isPaginationRequest = /\b(more|rest|continue|next|others|other)\b/i.test(normalizedQuestion);
+    let filteredCount = 0;
+
+    if (isPaginationRequest && history.length > 0) {
+        const lastMsg = history[history.length - 1];
+        if (lastMsg.role === 'ai') {
+            const lastContent = lastMsg.content.toLowerCase();
+            const initialCount = finalNotesToProcess.length;
+
+            finalNotesToProcess = finalNotesToProcess.filter(item => {
+                const title = (item.n.title || "").toLowerCase();
+                // If the Title was explicitly mentioned in the last answer, assume it's "Seen".
+                // We keep it ONLY if it wasn't seen.
+                return !(title.length > 2 && lastContent.includes(title));
+            });
+            filteredCount = initialCount - finalNotesToProcess.length;
+        }
+    }
+
     // Dynamic Context Construction
-    const MAX_TOKENS = 2500; // REDUCED for Safety with 70b model
+    const MAX_TOKENS = 4000; // REDUCED for Safety with 70b model
     let currentTokens = 0;
+    let isTruncated = false;
     const selectedNotes: string[] = [];
     const estimateTokens = (text: string) => Math.ceil(text.length / 4);
 
@@ -372,6 +394,7 @@ ${memoryNote.content}
         const noteTokens = estimateTokens(noteEntry);
 
         if (currentTokens + noteTokens > MAX_TOKENS) {
+            isTruncated = true;
             if (selectedNotes.length === 0) {
                 const allowedChars = MAX_TOKENS * 4;
                 selectedNotes.push(noteEntry.substring(0, allowedChars) + "\n... (truncated)");
@@ -387,7 +410,17 @@ ${memoryNote.content}
 
     const systemPromptExtras = `
 Notes labeled [Linked Context] were automatically retrieved because they are mentioned in the Direct Match notes. 
-Use them to provide a more complete answer, following the connections between notes.`;
+Use them to provide a more complete answer, following the connections between notes.
+${isTruncated ? `
+*** TRUNCATION WARNING ***
+The search results were too large and have been cut off to fit the model's memory. 
+CRITICAL: You MUST add this exact disclaimer at the very end of your response (after any task checks):
+"\n\n> ⚠️ **Note**: *I found a lot of information, but some notes were skipped to keep the answer short. If you need more details, try asking a more specific question.*"` : ""}
+${filteredCount > 0 ? `
+*** PAGINATION ACTIVE ***
+User asked for "More/Rest". I have REMOVED ${filteredCount} notes that were likely already discussed.
+The notes below are "Page 2" (Fresh Results). Focus on answering with THESE new notes.` : ""}
+`;
 
     const historyMessages = history.slice(0, -1).slice(-6).map(msg => ({
         role: msg.role === 'ai' ? 'assistant' : 'user',
