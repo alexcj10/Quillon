@@ -108,6 +108,7 @@ export function NodesWidget() {
                                                     deleteNode={deleteNode}
                                                     togglePin={togglePin}
                                                     isPinned={true}
+                                                    layout={true}
                                                 />
                                             ))}
                                             <div className="h-px bg-gray-200 dark:bg-white/5 mx-2" />
@@ -139,6 +140,7 @@ export function NodesWidget() {
                                                         toggleNode={toggleNode}
                                                         deleteNode={deleteNode}
                                                         togglePin={togglePin}
+                                                        layout={true}
                                                     />
                                                 ))}
                                             </div>

@@ -140,12 +140,26 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 if (term.toLowerCase() === '@nodes') {
                   setIsOpen(true);
                   setSearchTerm('');
-                } else if (term.toLowerCase().startsWith('@nodes-')) {
-                  const content = term.slice(7).trim();
+                } else if (term.toLowerCase().startsWith('7@nodes-')) {
+                  // 7@nodes- creates PRIVATE node (7 = length of "private")
+                  const content = term.slice(8).trim(); // Remove "7@nodes-"
                   if (content) {
-                    addNode(content);
-                    // Optional: Open widget to show confirmation
-                    setIsOpen(true);
+                    addNode(content, true); // Explicitly private
+                    // Only show popup if we're in private workspace
+                    if (showPrivateNotes) {
+                      setIsOpen(true);
+                    }
+                    setSearchTerm('');
+                  }
+                } else if (term.toLowerCase().startsWith('@nodes-')) {
+                  // @nodes- creates PUBLIC node (always)
+                  const content = term.slice(7).trim(); // Remove "@nodes-"
+                  if (content) {
+                    addNode(content, false); // Explicitly public
+                    // Only show popup if we're in public workspace
+                    if (!showPrivateNotes) {
+                      setIsOpen(true);
+                    }
                     setSearchTerm('');
                   }
                 }
