@@ -105,8 +105,8 @@ function NoteList() {
         return new Date(b.deletedAt!).getTime() - new Date(a.deletedAt!).getTime();
       }
 
-      // Otherwise sort by creation date (oldest first)
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      // Otherwise sort by creation date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
   return (
