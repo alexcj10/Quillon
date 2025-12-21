@@ -62,8 +62,9 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
 
   const visibleNotes = useMemo(() => notes.filter(note =>
     note.isPrivate === showPrivateNotes &&
-    (note.isDeleted || false) === (showTrash || false)
-  ), [notes, showPrivateNotes, showTrash]);
+    (note.isDeleted || false) === (showTrash || false) &&
+    (note.isHidden || false) === showHidden
+  ), [notes, showPrivateNotes, showTrash, showHidden]);
 
   const allTags = useMemo(() => Array.from(new Set(visibleNotes.flatMap(note => note.tags.filter(tag => tag !== '@hide')))), [visibleNotes]);
 

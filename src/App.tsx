@@ -57,14 +57,9 @@ function NoteList() {
 
   const filteredNotes = notes
     .filter(note => {
-      // Filter by hidden status
-      if (showHidden !== !!note.isHidden) return false;
-      // Don't show hidden notes in trash or normal view
-      if (!showHidden && note.isHidden) return false;
-      // Don't show deleted or normal notes in hidden view
-      if (showHidden && (note.isDeleted || !note.isHidden)) return false;
-
-      if (showTrash !== !!note.isDeleted) return false;
+      // Filter by hidden status, trash status, and private space independently
+      if (!!note.isHidden !== showHidden) return false;
+      if (!!note.isDeleted !== showTrash) return false;
       if (note.isPrivate !== showPrivateNotes) return false;
       if (showStarredOnly && !note.isFavorite) return false;
 
