@@ -121,6 +121,11 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
           updatedNote.isHidden = updates.tags.includes('@hide');
         }
 
+        // Data Consistency: Un-pin from Starred view if un-favorited
+        if (updates.isFavorite === false) {
+          updatedNote.isPinnedInFavorite = false;
+        }
+
         if (
           updates.title !== undefined ||
           updates.content !== undefined ||
@@ -490,6 +495,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
           isDeleted: true,
           deletedAt: new Date().toISOString(),
           isPinned: false,
+          isPinnedInFavorite: false,
         }
         : note
     ));
