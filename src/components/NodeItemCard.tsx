@@ -72,8 +72,8 @@ export function NodeItemCard({
                 ${node.completed
                     ? 'bg-gray-50/50 dark:bg-white/5 opacity-60 border-transparent'
                     : isPinned
-                        ? 'bg-blue-50/20 dark:bg-gray-800 shadow-sm border-blue-200 dark:border-blue-900/50 ring-1 ring-blue-50/50 dark:ring-blue-900/20'
-                        : 'bg-white dark:bg-gray-800 shadow-sm border-gray-200/60 dark:border-gray-800 hover:border-blue-300/30 dark:hover:border-gray-700'
+                        ? 'bg-blue-50 dark:bg-gray-800 shadow-sm border-blue-200 dark:border-blue-900/50 ring-1 ring-blue-100 dark:ring-blue-900/20'
+                        : 'bg-white dark:bg-gray-800 shadow-sm border-gray-200/60 dark:border-gray-800 hover:border-blue-300/30 dark:hover:border-blue-500/30'
                 }`}
         >
             {/* Explicit Drag Handle */}
