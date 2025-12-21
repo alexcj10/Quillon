@@ -263,17 +263,17 @@ export default function AIChat({ onClose }: AIChatProps) {
                                                             <div className="flex items-center gap-1 md:gap-0">
                                                                 <button
                                                                     onClick={(e) => startEditing(e, session.id, session.title)}
-                                                                    className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:text-purple-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                                                    className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:text-purple-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
                                                                     title="Rename"
                                                                 >
-                                                                    <Edit2 className="w-4 h-4" />
+                                                                    <Edit2 className="w-3.5 h-3.5" />
                                                                 </button>
                                                                 <button
                                                                     onClick={(e) => handleDeleteClick(e, session.id)}
-                                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
                                                                     title="Delete"
                                                                 >
-                                                                    <Trash2 className="w-4 h-4" />
+                                                                    <Trash2 className="w-3.5 h-3.5" />
                                                                 </button>
                                                             </div>
                                                         )}
