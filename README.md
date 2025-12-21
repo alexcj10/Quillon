@@ -29,9 +29,8 @@ The heart of Quillon is **Pownin**, an Advanced AI powered by a 5-stage retrieva
 
 ### 🏷️ Intelligent Tagging System
 Forget manual color codes. Quillon organizes tags automatically:
-- **Blue Tags (Folders)**: Tags starting with **file** (e.g., `fileProject`) become main folder **Project**.
-
-**Note:** It's case-sensitive, meaning `project` and `Project` are two different folders.
+- **Blue Tags (Folders)**: Tags starting with **`file`** (e.g., `fileProject`) become a main folder named **Project**.
+  > **Note:** This is **case-sensitive** — `project` and `Project` are treated as two different folders.
 - **Green Tags (Context)**: Tags that live inside a Blue Folder automatically become "Context Tags".
 - **Grey Tags**: Standard tags for loose categorization.
 *No commands needed. Just tag it, and Quillon sorts it.*
@@ -217,6 +216,7 @@ This project is licensed under the **Quillon Exclusive License**. See **[LICENSE
 ---
 
 📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!** 🎯  
+
 
 
 
