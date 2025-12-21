@@ -5,7 +5,7 @@
 <img width="1920" height="1080" alt="790shots_so" src="https://github.com/user-attachments/assets/25d764ff-8c78-4cb5-99c6-176986f5baf3" />
 
 
-🚀 **Quillon** is a modern, lightweight, and intuitive note-taking application built with **Vite, React, and TypeScript**. Designed for speed and efficiency, it uses **Smart RAG** and **Intelligent Tags** to **capture, manage, and structure your notes effortlessly**.
+🚀 **Quillon** is a modern, lightweight, and intuitive note-taking application built with **Vite, React, and TypeScript**. Designed for speed and efficiency, it uses **Smart RAG**, **Commands** and **Intelligent Tags** to **capture, manage, and structure your notes effortlessly**.
 
 🔗 **[Live Demo](https://quillon.netlify.app/)** | 🌟 **[Star on GitHub](https://github.com/alexcj10/Quillon)**  
 <p align="center">
@@ -215,3 +215,4 @@ This project is licensed under the **Quillon Exclusive License**. See **[LICENSE
 ---
 
 📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!** 🎯  
+
