@@ -34,9 +34,61 @@ Forget manual color codes. Quillon organizes tags automatically:
 - **Grey Tags**: Standard tags for loose categorization.
 *No commands needed. Just tag it, and Quillon sorts it.*
 
+### ⚙️ Advanced Tag Management
+Powerful tag editing and deletion via the **All Tags** button or **+more** icon:
+- **Access**: Click "All Tags" button or "+X more" when you have many tags
+- **Edit Tag Names**:
+  - Type `@` to see tag type options (blue/green/grey)
+  - Select tag type, then click on any tag to auto-populate
+  - Add `/edit-[newname]` to rename: `@blue-oldname/edit-newname`
+  - Press Enter to confirm
+- **Delete Tags**:
+  - Type `@[type]-[tagname]/delete` (e.g., `@grey-work/delete`)
+  - In **Main View**: Deletes tag and moves all associated notes to trash
+  - In **Trash View**: Permanently deletes tag and all associated notes
+  - Press Enter to confirm
+- **Smart Validation**: Real-time feedback on command validity and tag availability
+
+### 🌐 Nodes – Quick Task Management
+**Nodes** is Quillon's built-in task management system for capturing quick to-dos and reminders:
+- **Access via Search**: Type `@nodes` in the search bar (works in both public and private spaces) to open the Nodes widget
+- **Quick Node Creation**:
+  - `@nodes-Meeting with Sam tomorrow` – Creates a **public** node
+  - `7@nodes-Meeting with John` – Creates a **private** node
+- **Smart Behavior**:
+  - **Public node** (`@nodes-[task]`) sent while in **public space** → Popup opens
+  - **Public node** (`@nodes-[task]`) sent while in **private space** → Saved to public (no popup)
+  - **Private node** (`7@nodes-[task]`) sent while in **private space** → Popup opens
+  - **Private node** (`7@nodes-[task]`) sent while in **public space** → Saved to private (no popup)
+- **Features**:
+  - Pin important nodes to keep them at the top
+  - Drag and drop to reorder tasks
+  - Mark nodes as complete
+  - Separate sections for pinned, active, and completed nodes
+
+### 🗑️ Smart Trash & Bulk Actions
+Efficient note management with powerful bulk operations:
+- **Energy Sphere Icon**: A beautiful animated orb that serves as your bulk actions hub
+- **In Main View**:
+  - Click the Energy Sphere to enter selection mode
+  - Select multiple notes for bulk deletion
+  - Bulk delete moves notes to trash (recoverable)
+- **In Trash View**:
+  - Click the Energy Sphere for recovery options
+  - Bulk restore notes back to your workspace
+  - Permanently delete notes forever
+- **Auto-Cleanup**: Notes automatically deleted after 30 days in trash
+
 ### 📝 Refined Note Editor
 - **Distraction-Free**: Full-screen, edge-to-edge editing experience.
 - **Responsive**: Perfectly optimized for Desktop, Tablet, and Mobile.
+- **Whitespace Preservation**: All formatting and spacing is preserved exactly as you type.
+
+### 🔒 Dual Workspace System
+- **Public Space**: Your main workspace for general notes
+- **Private Space**: Password-protected space for sensitive information
+- **Seamless Switching**: Toggle between spaces with a single click
+- **Independent Organization**: Each space has its own tags, starred notes, and trash
 
 ---
 
@@ -46,6 +98,8 @@ Forget manual color codes. Quillon organizes tags automatically:
 |-----------|------------|
 | **Frontend** | Vite, React, TypeScript |
 | **AI / RAG** | **Pownin Core** (Custom 5-Stage RAG Pipeline), Llama-3, Groq SDK |
+| **3D Graphics** | Three.js (for Energy Sphere animation) |
+| **Animations** | Framer Motion |
 | **Styling**  | CSS Modules, Tailwind |
 | **Deployment** | Netlify |
 
@@ -84,7 +138,31 @@ npm run dev
 🧠 **Ask Pownin** – Chat with your notes using the "Smart RAG" AI assistant.  
 🔒 **Private & Favorite Notes** – Secure sensitive notes and highlight important ones.  
 🌂 **Smart Tags** – Automatic blue/green/grey hierarchy for effortless structure.  
+✅ **Nodes (Tasks)** – Quick task management accessible via `@nodes` command.  
+🗑️ **Smart Trash** – Bulk delete, recover, or permanently remove notes with animated Energy Sphere.  
 🌟 **Adaptive UI** – Seamless experience across devices with a responsive design.  
+
+---
+
+## 🎯 Quick Command Reference
+
+### Nodes Commands
+| Command | Description | Space |
+|---------|-------------|-------|
+| `@nodes` | Open Nodes widget | Both |
+| `@nodes-[task]` | Create public node | Both |
+| `7@nodes-[task]` | Create private node | Both |
+
+### Tag Management Commands
+Access via **All Tags** button or **+more** icon:
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `@` | Show tag type selector | `@` |
+| `@[type]-[name]/edit-[new]` | Rename a tag | `@blue-work/edit-projects` |
+| `@[type]-[name]/delete` | Delete tag & associated notes | `@grey-archive/delete` |
+
+**Tag Types**: `blue` (folders), `green` (context), `grey` (standard)
 
 ---
 
@@ -119,4 +197,4 @@ This project is licensed under the **Quillon Exclusive License**. See **[LICENSE
 
 ---
 
-📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexcj10/Quillon), and let’s build something amazing together!** 🎯  
+📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!** 🎯  
