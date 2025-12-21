@@ -22,6 +22,7 @@ export interface Note {
   tags: string[];
   color: string;
   isPinned: boolean;
+  isPinnedInFavorite?: boolean;
   isFavorite: boolean;
   isPrivate: boolean;
   isDeleted?: boolean;

@@ -22,6 +22,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
     restoreFromTrash,
     permanentlyDelete,
     showTrash,
+    showStarredOnly,
     selectionMode,
     selectedNoteIds,
     toggleNoteSelection,
@@ -121,10 +122,16 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
           {!showTrash && (
             <div className="flex gap-2 ml-2">
               <button
-                onClick={() => updateNote(note.id, { isPinned: !note.isPinned })}
+                onClick={() => {
+                  if (showStarredOnly) {
+                    updateNote(note.id, { isPinnedInFavorite: !note.isPinnedInFavorite });
+                  } else {
+                    updateNote(note.id, { isPinned: !note.isPinned });
+                  }
+                }}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white p-1"
               >
-                <Pin className={`h-4 w-4 ${note.isPinned ? 'fill-current' : ''}`} />
+                <Pin className={`h-4 w-4 ${(showStarredOnly ? note.isPinnedInFavorite : note.isPinned) ? 'fill-current' : ''}`} />
               </button>
               <button
                 onClick={() => updateNote(note.id, { isFavorite: !note.isFavorite })}

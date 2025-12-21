@@ -102,8 +102,11 @@ function NoteList() {
       return matchesSearch && matchesNormalTags;
     })
     .sort((a, b) => {
-      // First sort by pinned status
-      if (a.isPinned !== b.isPinned) return b.isPinned ? 1 : -1;
+      // First sort by pinned status (context-aware)
+      const isPinnedA = showStarredOnly ? !!a.isPinnedInFavorite : !!a.isPinned;
+      const isPinnedB = showStarredOnly ? !!b.isPinnedInFavorite : !!b.isPinned;
+
+      if (isPinnedA !== isPinnedB) return isPinnedB ? 1 : -1;
 
       // If in trash, sort by deletion date
       if (showTrash) {

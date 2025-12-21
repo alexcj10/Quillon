@@ -83,6 +83,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       ...note,
       id: crypto.randomUUID(),
       isHidden: note.tags.includes('@hide'),
+      isPinnedInFavorite: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       embedding: embedText(`${note.title} ${note.content} ${tagText}`)
@@ -115,13 +116,9 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
           updatedAt: new Date().toISOString(),
         };
 
-        // Auto-hide note if @hide tag is added
-        if (updates.tags?.includes('@hide')) {
-          updatedNote.isHidden = true;
-        }
-        // Auto-unhide note if @hide tag is removed
-        if (note.tags.includes('@hide') && !updates.tags?.includes('@hide')) {
-          updatedNote.isHidden = false;
+        // Auto-update isHidden only if tags are explicitly being changed
+        if (updates.tags !== undefined) {
+          updatedNote.isHidden = updates.tags.includes('@hide');
         }
 
         if (
@@ -149,6 +146,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
           isDeleted: true,
           deletedAt: new Date().toISOString(),
           isPinned: false,
+          isPinnedInFavorite: false,
         }
         : note
     ));
