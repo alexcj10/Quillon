@@ -82,6 +82,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     const newNote: Note = {
       ...note,
       id: crypto.randomUUID(),
+      isHidden: note.tags.includes('@hide'),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       embedding: embedText(`${note.title} ${note.content} ${tagText}`)

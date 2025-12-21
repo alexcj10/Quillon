@@ -22,7 +22,6 @@ function NoteList() {
     showTrash,
     setShowTrash,
     showHidden,
-    setShowHidden,
     setShowPrivateNotes,
     privateSpaceExists,
     isPrivateSpaceUnlocked,
@@ -212,16 +211,23 @@ function NoteList() {
               if (editingNote) {
                 updateNote(editingNote.id, { ...note, updatedAt: new Date().toISOString() });
               } else {
+                // Smart hidden note creation: if viewing hidden notes, auto-add @hide and set isHidden
+                const isCreatingHidden = showHidden;
+                const finalTags = isCreatingHidden && !note.tags?.includes('@hide')
+                  ? ['@hide']
+                  : (note.tags || []);
+
                 // Ensure required fields have default values for new notes
                 const newNote = {
                   ...note,
-                  color: note.color || '', // Default to empty string if no color
+                  color: note.color || '',
                   title: note.title || 'Untitled',
                   content: note.content || '',
-                  tags: note.tags || [],
+                  tags: finalTags,
                   isPinned: note.isPinned || false,
                   isFavorite: note.isFavorite || false,
-                  isPrivate: note.isPrivate || false
+                  isPrivate: note.isPrivate || false,
+                  isHidden: isCreatingHidden || note.tags?.includes('@hide') || false
                 };
                 addNote(newNote);
               }
