@@ -84,6 +84,15 @@ Efficient note management with powerful bulk operations:
 - **Responsive**: Perfectly optimized for Desktop, Tablet, and Mobile.
 - **Whitespace Preservation**: All formatting and spacing is preserved exactly as you type.
 
+### 👁️ Hide/Show Notes
+A specialized command-based system to keep your workspace clutter-free:
+- **Hide Notes**: Add the `@hide` tag to any note to hide it from your workspace.
+- **Visual Identity**: Hidden notes feature a unique **Amber/Gold** tag with an `EyeOff` icon.
+- **Smart Navigation**:
+    - Type `@show` in the search bar to enter the "Hidden Notes" view.
+    - Type `@show-return` to exit and return to your main workspace.
+- **Exclusive Privacy**: The `@hide` tag is restricted—notes must have all other tags removed before they can be hidden, ensuring a clean and purposeful hidden state.
+
 ### 🔒 Dual Workspace System
 - **Public Space**: Your main workspace for general notes
 - **Private Space**: Password-protected space for sensitive information
@@ -162,7 +171,15 @@ Access via **All Tags** button or **+more** icon:
 | `@[type]-[name]/edit-[new]` | Rename a tag | `@blue-work/edit-projects` |
 | `@[type]-[name]/delete` | Delete tag & associated notes | `@grey-archive/delete` |
 
+### Hide/Show Commands
+| Command | Description | Example |
+|---------|-------------|---------|
+| `@show` | Enter Hidden Notes view | `@show` |
+| `@show-return` | Exit Hidden Notes view | `@show-return` |
+
 **Tag Types**: `blue` (folders), `green` (context), `grey` (standard)
+> [!TIP]
+> Use the `@hide` tag on individual notes to move them to the hidden view. Remove all other tags first!
 
 ---
 
