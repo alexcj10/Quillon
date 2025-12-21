@@ -70,9 +70,9 @@ export function NodeItemCard({
             className={`group relative flex items-start gap-2 py-3 pr-3 rounded-xl transition-all duration-200 border
                 ${hasDragHandle ? 'pl-8' : 'pl-3'} 
                 ${node.completed
-                    ? 'bg-gray-50/50 dark:bg-white/5 opacity-60 border-transparent'
+                    ? 'bg-emerald-50/40 dark:bg-emerald-950/20 opacity-60 border-transparent'
                     : isPinned
-                        ? 'bg-blue-50 dark:bg-blue-950/20 shadow-sm border-blue-200 dark:border-blue-900/50 ring-1 ring-blue-100 dark:ring-blue-900/20'
+                        ? 'bg-blue-50 dark:bg-blue-950/30 shadow-sm border-blue-200 dark:border-blue-900/50 ring-1 ring-blue-100 dark:ring-blue-900/20'
                         : 'bg-white dark:bg-gray-800 shadow-sm border-gray-200/60 dark:border-gray-800 hover:border-blue-300/30 dark:hover:border-blue-500/30'
                 }`}
         >
@@ -90,7 +90,7 @@ export function NodeItemCard({
             <button
                 onClick={() => toggleNode(node.id)}
                 className={`mt-0.5 flex-shrink-0 transition-colors z-10 
-                    ${node.completed ? 'text-blue-500' : 'text-gray-400 hover:text-blue-500'}`}
+                    ${node.completed ? 'text-emerald-500' : 'text-gray-400 hover:text-blue-500'}`}
             >
                 {node.completed ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
             </button>
