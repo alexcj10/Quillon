@@ -9,6 +9,7 @@ import {
   Check,
   Palette,
   MoreHorizontal,
+  EyeOff,
 } from 'lucide-react';
 import { Note } from '../types';
 import { NOTE_COLORS } from '../constants/colors';
@@ -154,6 +155,14 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
     const err = validateFileTag(newTag);
     if (err) return setTagError(err);
+
+    // @hide tag validation
+    if (newTag === '@hide' && tags.length > 0) {
+      return setTagError('Clear all tags to enable hiding for this note.');
+    }
+    if (newTag !== '@hide' && tags.includes('@hide')) {
+      return setTagError('Other tags are not allowed on hidden notes. Remove @hide first.');
+    }
 
     if (!tags.includes(newTag)) {
       setTags([...tags, newTag]);
@@ -308,17 +317,24 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
               {/* Tags */}
               <div className="flex-1 min-w-0">
                 <div className="h-10 px-2 rounded-lg bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 flex items-center gap-2 overflow-x-auto no-scrollbar w-full max-w-full flex-nowrap">
-                  {tags.map((t) => (
-                    <span
-                      key={t}
-                      className="px-2 py-0.5 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-transparent text-sm text-gray-700 dark:text-gray-200 flex items-center gap-1 shadow-sm dark:shadow-none flex-shrink-0 whitespace-nowrap"
-                    >
-                      {t}
-                      <button onClick={() => setTags(tags.filter((x) => x !== t))}>
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
+                  {tags.map((t) => {
+                    const isHideTag = t === '@hide';
+                    const hideClasses = "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50";
+                    const normalClasses = "bg-white dark:bg-gray-700 border border-gray-200 dark:border-transparent text-sm text-gray-700 dark:text-gray-200";
+
+                    return (
+                      <span
+                        key={t}
+                        className={`px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm dark:shadow-none flex-shrink-0 whitespace-nowrap ${isHideTag ? hideClasses : normalClasses}`}
+                      >
+                        {isHideTag && <EyeOff className="w-3.5 h-3.5" />}
+                        {t}
+                        <button onClick={() => setTags(tags.filter((x) => x !== t))}>
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    );
+                  })}
 
                   <input
                     value={tagInput}

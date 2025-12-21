@@ -21,6 +21,8 @@ function NoteList() {
     showPrivateNotes,
     showTrash,
     setShowTrash,
+    showHidden,
+    setShowHidden,
     setShowPrivateNotes,
     privateSpaceExists,
     isPrivateSpaceUnlocked,
@@ -55,6 +57,13 @@ function NoteList() {
 
   const filteredNotes = notes
     .filter(note => {
+      // Filter by hidden status
+      if (showHidden !== !!note.isHidden) return false;
+      // Don't show hidden notes in trash or normal view
+      if (!showHidden && note.isHidden) return false;
+      // Don't show deleted or normal notes in hidden view
+      if (showHidden && (note.isDeleted || !note.isHidden)) return false;
+
       if (showTrash !== !!note.isDeleted) return false;
       if (note.isPrivate !== showPrivateNotes) return false;
       if (showStarredOnly && !note.isFavorite) return false;
@@ -174,6 +183,8 @@ function NoteList() {
           </div>
         </div>
 
+
+
         {<NoteFilters displayedNotes={filteredNotes} />}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -189,9 +200,11 @@ function NoteList() {
               <p className="text-gray-500 dark:text-gray-400">
                 {showTrash
                   ? 'Trash is empty'
-                  : showPrivateNotes
-                    ? 'No private notes found'
-                    : 'No notes found'}
+                  : showHidden
+                    ? 'No hidden notes found'
+                    : showPrivateNotes
+                      ? 'No private notes found'
+                      : 'No notes found'}
               </p>
             </div>
           )}

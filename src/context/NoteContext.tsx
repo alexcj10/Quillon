@@ -20,6 +20,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   const [showStarredOnly, setShowStarredOnly] = useState(false);
   const [showPrivateNotes, setShowPrivateNotes] = useState(false);
   const [showTrash, setShowTrash] = useState(false);
+  const [showHidden, setShowHidden] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
@@ -91,11 +92,36 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   const updateNote = (id: string, updates: Partial<Note>) => {
     setNotes(prev => prev.map(note => {
       if (note.id === id) {
+        // Validate @hide tag restrictions
+        if (updates.tags) {
+          const hasHideTag = updates.tags.includes('@hide');
+          const otherTags = updates.tags.filter(tag => tag !== '@hide');
+
+          // If trying to add @hide with other tags, throw error
+          if (hasHideTag && otherTags.length > 0) {
+            throw new Error('HIDE_TAG_ERROR: Remove all tags before hiding this note');
+          }
+
+          // If trying to add other tags when @hide exists, throw error
+          if (!hasHideTag && note.tags.includes('@hide') && otherTags.length > 0) {
+            throw new Error('HIDE_TAG_ERROR: Remove @hide tag before adding other tags');
+          }
+        }
+
         const updatedNote = {
           ...note,
           ...updates,
           updatedAt: new Date().toISOString(),
         };
+
+        // Auto-hide note if @hide tag is added
+        if (updates.tags?.includes('@hide')) {
+          updatedNote.isHidden = true;
+        }
+        // Auto-unhide note if @hide tag is removed
+        if (note.tags.includes('@hide') && !updates.tags?.includes('@hide')) {
+          updatedNote.isHidden = false;
+        }
 
         if (
           updates.title !== undefined ||
@@ -144,6 +170,32 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteNote = moveToTrash;
+
+  const hideNote = (id: string) => {
+    setNotes(prev => prev.map(note =>
+      note.id === id
+        ? {
+          ...note,
+          isHidden: true,
+          tags: ['@hide'], // Set only @hide tag
+          updatedAt: new Date().toISOString(),
+        }
+        : note
+    ));
+  };
+
+  const unhideNote = (id: string) => {
+    setNotes(prev => prev.map(note =>
+      note.id === id
+        ? {
+          ...note,
+          isHidden: false,
+          tags: note.tags.filter(tag => tag !== '@hide'), // Remove @hide tag
+          updatedAt: new Date().toISOString(),
+        }
+        : note
+    ));
+  };
 
   const setupPrivateSpace = (password: string) => {
     setPrivateSpacePassword(password);
@@ -464,6 +516,10 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       setShowPrivateNotes,
       showTrash,
       setShowTrash,
+      showHidden,
+      setShowHidden,
+      hideNote,
+      unhideNote,
       privateSpaceExists: !!privateSpacePassword,
       isPrivateSpaceUnlocked,
       setupPrivateSpace,

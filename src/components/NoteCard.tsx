@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Note, isFileTag, getFileTagDisplayName } from '../types';
-import { Pin, Star, Trash2, Edit, Copy, Check, Lock, RotateCcw, XCircle, Eye, Download, ChevronDown, Share2, Folder } from 'lucide-react';
+import { Pin, Star, Trash2, Edit, Copy, Check, Lock, RotateCcw, XCircle, Eye, Download, ChevronDown, Share2, Folder, EyeOff } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { NoteViewer } from './NoteViewer';
 import { downloadNote } from '../utils/downloadUtils';
@@ -153,21 +153,25 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
           {note.tags.length > 0 && (
             <div className="mb-2">
               <div className="flex flex-wrap gap-1">
-                {note.tags.slice(0, 3).map(tag => {
+                {note.tags.map(tag => {
                   const isFile = isFileTag(tag);
+                  const isHideTag = tag === '@hide';
                   const noteHasFileTag = note.tags.some(t => isFileTag(t));
-                  const isInsideFolderTag = !isFile && noteHasFileTag;
+                  const isInsideFolderTag = !isFile && !isHideTag && noteHasFileTag;
 
                   const baseClasses = "inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full";
                   const fileClasses = "bg-blue-100/50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200";
                   const folderTagClasses = "bg-green-100/50 dark:bg-green-900/50 text-green-700 dark:text-green-200";
+                  const hideTagClasses = "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50";
                   const normalClasses = "bg-gray-200/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200";
 
-                  const classes = `${baseClasses} ${isFile
-                    ? fileClasses
-                    : isInsideFolderTag
-                      ? folderTagClasses
-                      : normalClasses
+                  const classes = `${baseClasses} ${isHideTag
+                    ? hideTagClasses
+                    : isFile
+                      ? fileClasses
+                      : isInsideFolderTag
+                        ? folderTagClasses
+                        : normalClasses
                     }`;
 
                   return (
@@ -176,10 +180,11 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                       className={classes}
                     >
                       {isFile && <Folder className="h-3 w-3" />}
+                      {isHideTag && <EyeOff className="h-3 w-3" />}
                       {isFile ? getFileTagDisplayName(tag) : tag.length > 15 ? `${tag.substring(0, 15)}...` : tag}
                     </span>
                   );
-                })}
+                }).slice(0, 3)}
               </div>
             </div>
           )}

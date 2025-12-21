@@ -20,6 +20,9 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
     setShowStarredOnly,
     showPrivateNotes,
     showTrash,
+    setShowTrash,
+    showHidden,
+    setShowHidden,
     selectionMode,
     setSelectionMode,
     clearSelection,
@@ -62,7 +65,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
     (note.isDeleted || false) === (showTrash || false)
   ), [notes, showPrivateNotes, showTrash]);
 
-  const allTags = useMemo(() => Array.from(new Set(visibleNotes.flatMap(note => note.tags))), [visibleNotes]);
+  const allTags = useMemo(() => Array.from(new Set(visibleNotes.flatMap(note => note.tags.filter(tag => tag !== '@hide')))), [visibleNotes]);
 
   const tagsInFileFolders = useMemo(() => new Set(
     visibleNotes
@@ -145,6 +148,19 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 const term = searchTerm.trim();
                 if (term.toLowerCase() === '@nodes') {
                   setIsOpen(true);
+                  setSearchTerm('');
+                } else if (term.toLowerCase() === '@show') {
+                  // Only enter hidden view if NOT already in it
+                  if (!showHidden) {
+                    setShowHidden(true);
+                    setShowTrash(false);
+                  }
+                  setSearchTerm('');
+                } else if (term.toLowerCase() === '@show-return') {
+                  // Only exit hidden view if currently IN it
+                  if (showHidden) {
+                    setShowHidden(false);
+                  }
                   setSearchTerm('');
                 } else if (term.toLowerCase().startsWith('7@nodes-')) {
                   // 7@nodes- creates PRIVATE node (7 = length of "private")

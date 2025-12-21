@@ -26,6 +26,7 @@ export interface Note {
   isPrivate: boolean;
   isDeleted?: boolean;
   deletedAt?: string;
+  isHidden?: boolean;
   createdAt: string;
   updatedAt: string;
   viewCount?: number;
@@ -77,6 +78,10 @@ export interface NoteContextType {
   setShowPrivateNotes: (show: boolean) => void;
   showTrash: boolean;
   setShowTrash: (show: boolean) => void;
+  showHidden: boolean;
+  setShowHidden: (show: boolean) => void;
+  hideNote: (id: string) => void;
+  unhideNote: (id: string) => void;
   privateSpaceExists: boolean;
   isPrivateSpaceUnlocked: boolean;
   setupPrivateSpace: (password: string) => void;
