@@ -414,8 +414,9 @@ Use them to provide a more complete answer, following the connections between no
 ${isTruncated ? `
 *** TRUNCATION WARNING ***
 The search results were too large and have been cut off to fit the model's memory. 
-CRITICAL: You MUST add this exact disclaimer at the very end of your response (after any task checks):
-"\n\n> ⚠️ **Note**: *I found a lot of information, but some notes were skipped to keep the answer short. If you need more details, try asking a more specific question.*"` : ""}
+INSTRUCTION: IF (and ONLY IF) the missing context prevents you from giving a complete answer to a complex question, append this note at the end:
+"\n\n> ⚠️ **Note**: *I found a lot of information, but some notes were skipped to keep the answer short. If you need more details, try asking a more specific question.*"
+If the user's question is simple (like a greeting) or fully answered by the visible context, DO NOT include this note.` : ""}
 ${filteredCount > 0 ? `
 *** PAGINATION ACTIVE ***
 User asked for "More/Rest". I have REMOVED ${filteredCount} notes that were likely already discussed.

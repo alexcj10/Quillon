@@ -15,7 +15,7 @@ export function getPersonalizedResponse(question: string): string | null {
     const cleanQ = lowerQ.replace(/[?.!,;]+$/g, '');
 
     // ========== GREETINGS ==========
-    if (/^(hi|hello|hey|hii|hiii|heya|sup|yo|greetings|howdy|hola)[\s!?.]*$/i.test(cleanQ)) {
+    if (/^(hi|hello|hey|hii|hiii|heya|sup|yo|greetings|howdy|hola)(\s+(bro|dude|mate|man|buddy|pownin|there|friend|folks|everyone|all))?[\s!?.]*$/i.test(cleanQ)) {
         return randomResponse([
             "Hi there! 👋 I'm Pownin, your AI assistant for managing notes. How can I help you today?",
             "Hello! 😊 I'm Pownin. Ready to help you explore your notes. What would you like to know?",
