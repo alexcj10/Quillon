@@ -272,21 +272,7 @@ export function getPersonalizedResponse(question: string): string | null {
         return "The Matrix is everywhere. It is all around us. Even now, in this note app... 🕶️";
     }
 
-    // ========== OFF-TOPIC DEFLECTOR ==========
-    if (/cook|drive|swim|dance|sing|marry me|weather|sports|news/i.test(lowerQ)) {
-        return randomResponse([
-            "I can't do that, but I can save the instructions for it in a note! 📝",
-            "I'm a digital entity, so I don't have a physical body for that. 🤖 But I can organize your thoughts on it!",
-            "That's outside my programming! 🚫 I stick to being the world's best note assistant.",
-            "I'm afraid I can't help with that. 😅 Ask me something about your notes instead!",
-            "I don't have a driver's license (or legs). 🚗 But I can drive your productivity!",
-            "I'm not built for that... yet. 🛠️ Let's focus on your knowledge base.",
-            "My talent is limited to text and notes. 📚 Sorry!",
-            "I wish I could! But I'm stuck in this browser. 🌐",
-            "That's a job for a human (or a different robot). 🦾 I'm just here for your notes.",
-            "I'll leave that to the experts. I'll stick to what I know: Your notes! 📂"
-        ]);
-    }
+
 
     // ========== COMPLEX WHY/HOW (Context Catch-All) ==========
     if (/(why|how) (did|was) (he|alex|creator|dev) (build|create|make|do) (it|this|quillon)/i.test(lowerQ)) {
