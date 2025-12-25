@@ -2,7 +2,6 @@ import { getNotes } from "./storage";
 import { embedText } from "./embed";
 import { cosineSimilarity } from "./similarity";
 import { isFileTag, getFileTagDisplayName, Note } from "../types";
-import { getPersonalizedResponse } from "./personalizedResponses";
 import { QUILLON_USER_MANUAL } from "./quillonManual";
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
@@ -12,12 +11,10 @@ export async function ragQuery(
     history: Array<{ role: 'user' | 'ai', content: string }> = [],
     options: { includePrivate: boolean } = { includePrivate: false }
 ) {
-    // Check for personalized responses first (greetings, identity questions)
+    // Normalize the question
     const normalizedQuestion = question.trim();
-    const personalizedResponse = getPersonalizedResponse(normalizedQuestion);
-    if (personalizedResponse) {
-        return personalizedResponse;
-    }
+    // NOTE: We no longer short-circuit with personalized responses here.
+    // The LLM (AI) will intelligently decide if it's conversational or note-related.
 
     // --- 0. PLANNER CORE (Deep Reasoning) ---
     // Instead of just rewriting, we break the query into steps for better retrieval.
@@ -104,11 +101,7 @@ export async function ragQuery(
     const uniqueQueries = new Set<string>([normalizedQuestion, ...plannedQueries, ...expandedQueries]);
     searchQueries = Array.from(uniqueQueries);
 
-    // --- 0.5. RE-CHECK PERSONALITY FOR FIRST STEP ---
-    if (searchQueries.length > 0 && searchQueries[0] !== normalizedQuestion) {
-        const contextResponse = getPersonalizedResponse(searchQueries[0]);
-        if (contextResponse) return contextResponse;
-    }
+    // NOTE: Removed personality re-check. AI handles everything now.
 
     const allNotes = getNotes();
     // SECURITY & SEPARATION:
@@ -449,9 +442,17 @@ ${recentContext}
 ${longTermMemoryContext}
 
 *** HIERARCHY OF TRUTH (FOLLOW STRICTLY) ***
-1. **USER NOTES (Top Priority)**: If the answer is in the notes, USE IT. Override everything else.
-2. **APP KNOWLEDGE BASE (Secondary)**: If the notes are silent, use the manual below.
-3. **GENERAL KNOWLEDGE (Last Resort)**: Only use if the query is unrelated to the app or notes (e.g., "capital of France").
+1. **USER NOTES (ABSOLUTE FIRST PRIORITY)**: ALWAYS check the notes context below. If the answer exists in notes, USE IT. Override everything else.
+2. **CONVERSATIONAL INTELLIGENCE (Second Priority)**: If the question is purely conversational (greeting, farewell, thanks, casual chat) AND no notes are relevant, respond naturally like a friendly assistant.
+   - Greetings (hi, hello, hey, yo, sup, wsg) → Respond warmly
+   - Farewells (bye, later, yup later, k bye, ttyl, peace) → Say goodbye nicely
+   - Thanks (thanks, thx, ty, tysm) → You're welcome!
+   - Affirmations (yep, yup, ok, cool, bet, aight) → Acknowledge casually
+   - Negations (nope, nah, im good) → Accept gracefully
+   - Humor/Reactions (lol, haha, wow) → Respond playfully
+3. **APP KNOWLEDGE BASE (Third Priority)**: If no notes exist AND it's about Quillon/the app, use the manual below.
+4. **GENERAL KNOWLEDGE (Fourth Priority)**: Only use for questions unrelated to app/notes (e.g., "capital of France").
+5. **NOT FOUND (Last Resort)**: If user asks for specific personal data that doesn't exist in notes, say: "I couldn't find that in your notes. Try adding a note about this!"
 
 *** APP KNOWLEDGE BASE (MANUAL) ***
 ${QUILLON_USER_MANUAL}
@@ -464,29 +465,42 @@ Instructions:
 1. **Analyze the Request**: 
    - Is it about the **User's Data**? (e.g. "my ideas", "next feature", "A1 link") -> **TARGET: NOTES**
    - Is it about the **App Itself**? (e.g. "what is Quillon?", "how to tag") -> **TARGET: MANUAL + NOTES** (Check if user notes have custom info, otherwise use Manual).
-   - Is it **General Chit-Chat**? -> **TARGET: GENERAL**
+   - Is it **General Knowledge**? (e.g. "capital of France", "what is AI") -> **TARGET: GENERAL KNOWLEDGE**
+   - Is it **Casual Conversation**? (e.g. greetings, farewells, affirmations) -> **TARGET: CONVERSATIONAL**
 
 2. **Smart Execution (The Toggle)**: 
    - **Step 1**: Look at "Relevant Notes". Do they answer the question?
      - **YES**: Answer using the notes. Blend in Manual info ONLY if it helps explain the note.
-     - **NO**: 
+     - **NO (Notes Not Found)**: 
        - Is the question about Quillon/App features? -> Answer from the **APP KNOWLEDGE BASE**.
-       - Is the question random (e.g. "tell me a joke")? -> Answer from general knowledge.
+       - Is the question seeking specific personal data (e.g. "what's my password", "my meeting notes")? -> **SAY**: "I couldn't find any notes about that. Try adding a note with this info, or rephrase your question!"
+       - Is the question general knowledge? -> Answer from your general knowledge confidently.
 
-3. **Anti-Hallucination**:
-   - if asking "What is Quillon", DEFINITELY use the Manual's definition ("Lightweight note app..."). DO NOT talk about swords.
-   - if asking about a specific note title (e.g. "A1"), and you see it in the context, output its content.
+3. **Anti-Hallucination (CRITICAL)**:
+   - If asking "What is Quillon", DEFINITELY use the Manual's definition ("Lightweight note app..."). DO NOT talk about swords.
+   - If asking about a specific note title (e.g. "A1"), and you see it in the context, output its content.
+   - **If no relevant notes exist for a personal data question, SAY SO.** Never invent information. Say: "I couldn't find that in your notes."
 
-4. **Tone & Style**:
-   - Be "Human-Like": Natural, confident, helpful.
+4. **Slang & Casual Language Understanding (SUPER IMPORTANT)**:
+   - Users often use informal language, slangs, and abbreviations.
+   - **EXAMPLES TO UNDERSTAND NATURALLY**:
+     - "yup later" / "k bye" / "ttyl" = **Farewell** (respond with goodbye)
+     - "yep" / "nah" / "aight" / "bet" = **Affirmation/Acknowledgement** (respond casually)
+     - "wsg" = "what's good" (greeting), "wyd" = "what you doing"
+     - "lol" / "lmao" / "haha" = **Laughter** (respond playfully)
+   - **DO NOT over-analyze casual messages**. If someone says "yup later", they are saying goodbye, NOT asking you to explain what "later" means!
+
+5. **Tone & Style**:
+   - Be "Human-Like": Natural, confident, helpful, and conversational.
    - **NO ROBOTIC PREAMBLES**: Never start with "Based on...", "The text says...". Just answer.
+   - **Match the User's Energy**: If they're casual ("yo whats up"), be casual back. If they're formal, be professional.
    - **Example**: "Quillon is your speed-focused note app. By the way, I found a note where you mentioned..."
 
-5. **Conflict Resolution (The Genius)**:
+6. **Conflict Resolution (The Genius)**:
    - If User Notes contradict each other, prefer the one with the **LATER DATE** (check "Last Updated").
    - Explicitly mention the conflict: "I found two plans, but since 'Plan B' is newer (updated today), I'm assuming that's the current one."
 
-6. **Advanced Reasoning Modules (The Stacking Upgrade)**:
+7. **Advanced Reasoning Modules (The Stacking Upgrade)**:
    - **THE CLARIFIER (Ambiguity Handler)**: If the user asks a vague question (e.g. "How is the project?") and you see multiple distinct projects (e.g. note "Project A" and note "Project B"), DO NOT guess. Instead, say: "I see notes for both **Project A** and **Project B**. Which one would you like an update on?"
    - **THE CRITIC (Gap Analysis)**: If the user asks to "Review", "Critique", or "Check" a note, do not just summarize it. Actively look for MISSING information. 
      - *Example*: "The plan looks good, but I noticed you haven't listed a **Deadline** or **Budget** yet. You might want to add those."
@@ -496,7 +510,7 @@ Instructions:
      - **CRITICAL**: Do NOT create a separate "Detected Tasks" section at the end. Do NOT repeat the list. Just include the actionable items naturally in your main response.
      - *Format*: "I found these tasks for you:\n- [ ] Task 1 (Context)\n- [ ] Task 2..."
 
-7. **Conciseness (Anti-Yapping)**:
+8. **Conciseness (Anti-Yapping)**:
    - Do NOT summarize your own answer. Say it once clearly.
    - Do NOT say "To summarize..." or "In conclusion...".
    - If the main answer covers it, stop.

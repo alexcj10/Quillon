@@ -76,8 +76,8 @@ export function getPersonalizedResponse(question: string): string | null {
         ]);
     }
 
-    // ========== FAREWELLS ==========
-    if (/^(bye|goodbye|see you|see ya|cya|later|catch you later|gotta go|gtg)[\s!?.]*$/i.test(cleanQ)) {
+    // ========== FAREWELLS (Extended with Slangs) ==========
+    if (/^(bye|goodbye|see you|see ya|cya|later|catch you later|gotta go|gtg|ttyl|peace|laterz|gn|good night|nighty night|brb|be right back|im out|i'm out|deuces|aight bye|k bye|yup later|yea later|yeah later|yep later|ok bye|okay bye)[\s!?.]*$/i.test(cleanQ)) {
         return randomResponse([
             "Goodbye! 👋 Come back anytime you need help with your notes!",
             "See you later! 😊 Your notes will be waiting for you!",
@@ -88,7 +88,9 @@ export function getPersonalizedResponse(question: string): string | null {
             "Adios! 🤖 Don't forget to write down your ideas!",
             "See ya! ⚡ I'm always just a click away.",
             "Bye for now! 📂 Stay productive!",
-            "Farewell! 👋 Safe travels in the real world."
+            "Peace out! ✌️ I'll be here when you need me.",
+            "Later! 🤙 Take care out there!",
+            "Talk soon! 💬 Your notes are safe with me."
         ]);
     }
 
@@ -348,19 +350,48 @@ export function getPersonalizedResponse(question: string): string | null {
         ]);
     }
 
-    // ========== CASUAL AFFIRMATIONS ==========
-    if (/^(ok|okay|cool|nice|great|awesome|perfect|sounds good|alright|got it|understood)[\s!?.]*$/i.test(cleanQ)) {
+    // ========== CASUAL AFFIRMATIONS (Extended with Slangs) ==========
+    if (/^(ok|okay|cool|nice|great|awesome|perfect|sounds good|alright|got it|understood|yep|yup|ya|yea|yeah|yh|uh huh|mhm|sure|bet|aight|ight|fs|for sure|true|facts|word|ikr|right|ofc|obviously)[\s!?.]*$/i.test(cleanQ)) {
         return randomResponse([
             "Great! 👍 What would you like to know about your notes?",
             "Awesome! ✨ How can I help you with your notes?",
             "Perfect! 😊 Ask me anything about your notes!",
             "Cool! 🚀 Ready when you are. What do you need?",
-            "Glad you think so! 🌟 Let's get to work.",
+            "Got it! 🌟 Let me know if you need anything.",
             "Alright! 🦾 What's next?",
-            "Sounds good to me. 🔉 Ready for your query.",
-            "Roger that. 👮‍♂️ Standing by.",
-            "Excellent. 💎 How can I assist?",
-            "Okay! 🟢 Systems ready."
+            "Sounds good! 🔉 I'm here when you need me.",
+            "Roger that! 👮‍♂️ Standing by for your next question.",
+            "Excellent! 💎 How can I assist?",
+            "Okay! 🟢 Systems ready.",
+            "Got you! 🤙 Need anything else?",
+            "Understood! ✅ What would you like to explore?"
+        ]);
+    }
+
+    // ========== CASUAL NEGATIONS ==========
+    if (/^(nope|nah|na|naw|naah|no thanks|no thx|not really|not rn|not now|im good|i'm good|all good)[\s!?.]*$/i.test(cleanQ)) {
+        return randomResponse([
+            "No worries! 😊 I'm here if you change your mind.",
+            "Alright! 👍 Let me know when you need something.",
+            "Got it! 🤙 Take your time.",
+            "All good! ✨ I'll be here whenever you're ready.",
+            "No problem! 🌟 Just ask when you need help.",
+            "Okay! 😊 I'll be standing by.",
+            "Understood! 👌 Feel free to ask me anything later.",
+            "Cool! 🚀 Ping me when you need assistance."
+        ]);
+    }
+
+    // ========== SHORT ACKNOWLEDGEMENTS / REACTIONS ==========
+    if (/^(k|kk|mk|hmm|hm|lol|lmao|haha|hehe|nice one|fair enough|true that|valid|literally|honestly|lowkey|highkey|oof|rip|welp|damn|dang|wow|whoa|oh|ooh|ahh|yoo|ayy|ayo)[\s!?.]*$/i.test(cleanQ)) {
+        return randomResponse([
+            "😄 Need anything from your notes?",
+            "Haha! 😊 Anything I can help with?",
+            "I'm here whenever you need me! 🤙",
+            "😎 Ready to search your notes when you are!",
+            "Gotcha! 👍 What would you like to explore?",
+            "😁 Let me know if you need help with anything!",
+            "Always here! ✨ Just ask away."
         ]);
     }
 
