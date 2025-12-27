@@ -501,7 +501,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                 {showTagSuggestions && filteredSuggestions.length > 0 && (
                   <div
                     ref={tagSuggestionsRef}
-                    className="absolute bottom-full left-0 mb-1 w-full max-w-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50"
+                    className="absolute bottom-full left-0 mb-1 w-full max-w-[250px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50"
                   >
                     <style>{`
                       .tag-suggestions-scrollbar::-webkit-scrollbar {
