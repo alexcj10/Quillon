@@ -642,14 +642,14 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
               <button
                 onClick={() => setIsPinned((v) => !v)}
-                className={`${iconBtn} ${isPinned ? '!bg-yellow-500 !text-white' : ''}`}
+                className={`${iconBtn} ${isPinned ? '!bg-pink-500 !text-white' : ''}`}
               >
                 <Pin className="w-5 h-5 stroke-current" />
               </button>
 
               <button
                 onClick={() => setIsFavorite((v) => !v)}
-                className={`${iconBtn} ${isFavorite ? '!bg-pink-500 !text-white' : ''}`}
+                className={`${iconBtn} ${isFavorite ? '!bg-yellow-500 !text-white' : ''}`}
               >
                 <Star className="w-5 h-5 stroke-current" />
               </button>
@@ -685,7 +685,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                   <button
                     onClick={() => setIsPinned((v) => !v)}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-sm font-medium ${isPinned
-                      ? '!bg-yellow-500 !text-white'
+                      ? '!bg-pink-500 !text-white'
                       : 'text-gray-700 dark:text-gray-200'
                       }`}
                   >
@@ -697,7 +697,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                   <button
                     onClick={() => setIsFavorite((v) => !v)}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-sm font-medium ${isFavorite
-                      ? '!bg-pink-500 !text-white'
+                      ? '!bg-yellow-500 !text-white'
                       : 'text-gray-700 dark:text-gray-200'
                       }`}
                   >
