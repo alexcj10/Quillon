@@ -101,7 +101,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   // Filter suggestions based on current input
   const filteredSuggestions = useMemo(() => {
-    if (!tagInput.toLowerCase().startsWith('file') || tagInput.length < 4) {
+    // Strict check: must start with lowercase 'file'
+    if (!tagInput.startsWith('file') || tagInput.length < 4) {
       return [];
     }
     const lowerInput = tagInput.toLowerCase();
@@ -228,8 +229,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     const err = validateFileTag(v);
     setTagError(err || '');
 
-    // Show/hide tag suggestions based on input
-    const shouldShowSuggestions = v.toLowerCase().startsWith('file') && v.length >= 4;
+    // Show/hide tag suggestions based on input - strict 'file' prefix
+    const shouldShowSuggestions = v.startsWith('file') && v.length >= 4;
     setShowTagSuggestions(shouldShowSuggestions);
     setSelectedSuggestionIndex(0); // Reset selection when input changes
   };
@@ -540,7 +541,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     onChange={handleTagInput}
                     onKeyDown={handleTagKey}
                     onFocus={() => {
-                      if (tagInput.toLowerCase().startsWith('file') && tagInput.length >= 4) {
+                      if (tagInput.startsWith('file') && tagInput.length >= 4) {
                         setShowTagSuggestions(true);
                       }
                     }}
