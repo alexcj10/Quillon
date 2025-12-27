@@ -106,10 +106,22 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
       return [];
     }
     const lowerInput = tagInput.toLowerCase();
-    return allFileTagSuggestions.filter(
+
+    // Base filter by name
+    let matches = allFileTagSuggestions.filter(
       (s) => s.tag.toLowerCase().startsWith(lowerInput) && !tags.includes(s.tag)
     );
-  }, [tagInput, allFileTagSuggestions, tags]);
+
+    // Context-Aware Filtering:
+    // If we already have file tags, restrict suggestions to the current space
+    // to prevent mixing Public/Private file tags accidentally.
+    const hasFileTags = tags.some(isFileTag);
+    if (hasFileTags) {
+      matches = matches.filter((s) => s.space === (isPrivate ? 'private' : 'public'));
+    }
+
+    return matches;
+  }, [tagInput, allFileTagSuggestions, tags, isPrivate]);
 
   // Prevent page scroll while editing
   useEffect(() => {
