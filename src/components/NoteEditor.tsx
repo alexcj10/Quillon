@@ -536,7 +536,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                             e.stopPropagation(); // Prevent modal close listener
                             handleSelectSuggestion(suggestion);
                           }}
-                          className={`w-full px-3 py-2 flex items-center gap-2 text-left text-sm transition-colors ${index === selectedSuggestionIndex
+                          className={`w-full min-w-0 overflow-hidden px-3 py-2 flex items-center gap-2 text-left text-sm transition-colors ${index === selectedSuggestionIndex
                             ? 'bg-blue-50 dark:bg-blue-900/30'
                             : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
                             }`}
