@@ -53,6 +53,19 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 
+  // Track the intended space (public/private) for each tag in this session
+  // This ensures that if a user selects a "Public" tag that has the same name as a "Private" tag,
+  // we remember they wanted the Public version.
+  const [fileTagSpaces, setFileTagSpaces] = useState<Record<string, 'public' | 'private'>>(() => {
+    const initial: Record<string, 'public' | 'private'> = {};
+    note?.tags?.forEach((t) => {
+      if (isFileTag(t)) {
+        initial[t] = note.isPrivate ? 'private' : 'public';
+      }
+    });
+    return initial;
+  });
+
   const contentRef = useRef<HTMLTextAreaElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const mobileMoreRef = useRef<HTMLDivElement | null>(null);
@@ -168,6 +181,23 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     return () => window.removeEventListener('mousedown', onClick);
   }, [showColorPicker]);
 
+  // Toggle privacy manually and sync all current tags to that state
+  const togglePrivacy = () => {
+    const newState = !isPrivate;
+    setIsPrivate(newState);
+
+    // If user manually toggles lock, assume all current file tags belong to that new state
+    setFileTagSpaces((prev) => {
+      const next = { ...prev };
+      tags.forEach((t) => {
+        if (isFileTag(t)) {
+          next[t] = newState ? 'private' : 'public';
+        }
+      });
+      return next;
+    });
+  };
+
   const saveNote = () => {
     onSave({
       title,
@@ -224,6 +254,15 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
     if (!tags.includes(newTag)) {
       setTags([...tags, newTag]);
+
+      // If adding manually, assume matches current privacy state
+      if (isFileTag(newTag)) {
+        setFileTagSpaces((prev) => ({
+          ...prev,
+          [newTag]: isPrivate ? 'private' : 'public',
+        }));
+      }
+
       setTagInput('');
       setTagError('');
       setShowTagSuggestions(false);
@@ -233,9 +272,6 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   // Handle selection of a suggested file tag
   const handleSelectSuggestion = (suggestion: TagSuggestion) => {
     const newTag = suggestion.tag;
-
-    // Validate before adding
-    if (tags.includes(newTag)) return;
 
     // @hide tag validation
     if (newTag === '@hide' && tags.length > 0) {
@@ -247,33 +283,56 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
       return;
     }
 
-    // Add the tag
-    setTags([...tags, newTag]);
+    // Update the intent map with the specific suggestion's space
+    const newSpaces = { ...fileTagSpaces, [newTag]: suggestion.space };
+    setFileTagSpaces(newSpaces);
+
+    // Add tag if needed
+    if (!tags.includes(newTag)) {
+      setTags([...tags, newTag]);
+    }
+
     setTagInput('');
     setTagError('');
     setShowTagSuggestions(false);
 
-    // Auto-select private space if the selected tag belongs to private space
-    if (suggestion.space === 'private' && !isPrivate) {
-      setIsPrivate(true);
+    // Smart Context Switching logic:
+    // If ANY current tag (including the new one) is marked 'private' in our session intent,
+    // the note must be private.
+    const allExpectedTags = tags.includes(newTag) ? tags : [...tags, newTag];
+
+    // Check if any file tag is intended to be private
+    const hasPrivateFileTags = allExpectedTags.some((t) =>
+      isFileTag(t) && newSpaces[t] === 'private'
+    );
+
+    if (hasPrivateFileTags) {
+      if (!isPrivate) setIsPrivate(true);
+    } else {
+      // If no file tags are private, we can be public
+      // BUT only switch to public if the user explicitly selected a Public tag or was already public
+      // If we are currently private, and we select a Public tag, and NO other tags are private, we switch to Public.
+      if (isPrivate && suggestion.space === 'public') {
+        setIsPrivate(false);
+      }
     }
   };
 
-  // Handle removing a tag - auto-deselect private if no private file tags remain
+  // Handle removing a tag
   const handleRemoveTag = (tagToRemove: string) => {
     const newTags = tags.filter((t) => t !== tagToRemove);
     setTags(newTags);
 
-    // Check if we need to auto-deselect private space
-    // Only do this if the removed tag was a private file tag
-    const removedTagWasPrivate = allFileTagSuggestions.some(
-      (s) => s.tag === tagToRemove && s.space === 'private'
-    );
+    // We don't remove from fileTagSpaces map so we remember intent if added back, 
+    // but calculating privacy relies on newTags.
 
-    if (removedTagWasPrivate && isPrivate) {
-      // Check if any remaining tags are private file tags
+    // Check if we should auto-unlock
+    // If the note is private, covering:
+    // 1. We removed the last "Private" intended tag.
+    // 2. Remaining tags are all "Public" intended.
+    if (isPrivate) {
       const hasRemainingPrivateFileTags = newTags.some((t) =>
-        allFileTagSuggestions.some((s) => s.tag === t && s.space === 'private')
+        isFileTag(t) && fileTagSpaces[t] === 'private'
       );
 
       if (!hasRemainingPrivateFileTags) {
@@ -583,7 +642,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
               </button>
 
               <button
-                onClick={() => setIsPrivate((v) => !v)}
+                onClick={togglePrivacy}
                 className={`${iconBtn} ${isPrivate ? '!bg-purple-600 !text-white' : ''}`}
               >
                 {isPrivate ? (
@@ -635,7 +694,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
                   {/* PRIVATE */}
                   <button
-                    onClick={() => setIsPrivate((v) => !v)}
+                    onClick={togglePrivacy}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-sm font-medium ${isPrivate
                       ? '!bg-purple-600 !text-white'
                       : 'text-gray-700 dark:text-gray-200'
