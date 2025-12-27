@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 
 import {
   X,
@@ -10,14 +10,24 @@ import {
   Palette,
   MoreHorizontal,
   EyeOff,
+  Globe,
+  Trash2,
 } from 'lucide-react';
-import { Note } from '../types';
+import { Note, isFileTag } from '../types';
 import { NOTE_COLORS } from '../constants/colors';
+import { useNotes } from '../context/NoteContext';
 
 interface NoteEditorProps {
   note?: Note;
   onSave: (note: Partial<Note>) => void;
   onClose: () => void;
+}
+
+// Interface for file tag suggestions with space/trash metadata
+interface TagSuggestion {
+  tag: string;
+  space: 'private' | 'public';
+  isInTrash: boolean;
 }
 
 const MAX_TAG_LENGTH = 50;
@@ -39,10 +49,53 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [isTitleFocused, setIsTitleFocused] = useState(false);
 
+  // Tag suggestion state
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
+
   const contentRef = useRef<HTMLTextAreaElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const mobileMoreRef = useRef<HTMLDivElement | null>(null);
   const colorPickerRef = useRef<HTMLDivElement | null>(null);
+  const tagSuggestionsRef = useRef<HTMLDivElement | null>(null);
+  const tagInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Get all notes to extract file tag history
+  const { notes: allNotes } = useNotes();
+
+  // Compute all file tags from user's notes with space/trash metadata
+  const allFileTagSuggestions = useMemo(() => {
+    const tagMap = new Map<string, TagSuggestion>();
+
+    allNotes.forEach((n) => {
+      n.tags.forEach((t) => {
+        if (isFileTag(t)) {
+          // Create a unique key for each tag+space+trash combination
+          const key = `${t}-${n.isPrivate ? 'private' : 'public'}-${n.isDeleted ? 'trash' : 'active'}`;
+          if (!tagMap.has(key)) {
+            tagMap.set(key, {
+              tag: t,
+              space: n.isPrivate ? 'private' : 'public',
+              isInTrash: !!n.isDeleted,
+            });
+          }
+        }
+      });
+    });
+
+    return Array.from(tagMap.values());
+  }, [allNotes]);
+
+  // Filter suggestions based on current input
+  const filteredSuggestions = useMemo(() => {
+    if (!tagInput.toLowerCase().startsWith('file') || tagInput.length < 4) {
+      return [];
+    }
+    const lowerInput = tagInput.toLowerCase();
+    return allFileTagSuggestions.filter(
+      (s) => s.tag.toLowerCase().startsWith(lowerInput) && !tags.includes(s.tag)
+    );
+  }, [tagInput, allFileTagSuggestions, tags]);
 
   // Prevent page scroll while editing
   useEffect(() => {
@@ -144,6 +197,11 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
     const err = validateFileTag(v);
     setTagError(err || '');
+
+    // Show/hide tag suggestions based on input
+    const shouldShowSuggestions = v.toLowerCase().startsWith('file') && v.length >= 4;
+    setShowTagSuggestions(shouldShowSuggestions);
+    setSelectedSuggestionIndex(0); // Reset selection when input changes
   };
 
   const addTag = (t: string) => {
@@ -168,15 +226,96 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
       setTags([...tags, newTag]);
       setTagInput('');
       setTagError('');
+      setShowTagSuggestions(false);
+    }
+  };
+
+  // Handle selection of a suggested file tag
+  const handleSelectSuggestion = (suggestion: TagSuggestion) => {
+    const newTag = suggestion.tag;
+
+    // Validate before adding
+    if (tags.includes(newTag)) return;
+
+    // @hide tag validation
+    if (newTag === '@hide' && tags.length > 0) {
+      setTagError('Clear all tags to enable hiding for this note.');
+      return;
+    }
+    if (newTag !== '@hide' && tags.includes('@hide')) {
+      setTagError('Other tags are not allowed on hidden notes. Remove @hide first.');
+      return;
+    }
+
+    // Add the tag
+    setTags([...tags, newTag]);
+    setTagInput('');
+    setTagError('');
+    setShowTagSuggestions(false);
+
+    // Auto-select private space if the selected tag belongs to private space
+    if (suggestion.space === 'private' && !isPrivate) {
+      setIsPrivate(true);
+    }
+  };
+
+  // Handle removing a tag - auto-deselect private if no private file tags remain
+  const handleRemoveTag = (tagToRemove: string) => {
+    const newTags = tags.filter((t) => t !== tagToRemove);
+    setTags(newTags);
+
+    // Check if we need to auto-deselect private space
+    // Only do this if the removed tag was a private file tag
+    const removedTagWasPrivate = allFileTagSuggestions.some(
+      (s) => s.tag === tagToRemove && s.space === 'private'
+    );
+
+    if (removedTagWasPrivate && isPrivate) {
+      // Check if any remaining tags are private file tags
+      const hasRemainingPrivateFileTags = newTags.some((t) =>
+        allFileTagSuggestions.some((s) => s.tag === t && s.space === 'private')
+      );
+
+      if (!hasRemainingPrivateFileTags) {
+        setIsPrivate(false);
+      }
     }
   };
 
   const handleTagKey = (e: React.KeyboardEvent) => {
+    // Handle keyboard navigation in suggestions
+    if (showTagSuggestions && filteredSuggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedSuggestionIndex((prev) =>
+          prev < filteredSuggestions.length - 1 ? prev + 1 : 0
+        );
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedSuggestionIndex((prev) =>
+          prev > 0 ? prev - 1 : filteredSuggestions.length - 1
+        );
+        return;
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSelectSuggestion(filteredSuggestions[selectedSuggestionIndex]);
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setShowTagSuggestions(false);
+        return;
+      }
+    }
+
     if (e.key === 'Enter') {
       e.preventDefault();
       addTag(tagInput);
     } else if (e.key === 'Backspace' && tagInput === '' && tags.length > 0) {
-      setTags(tags.slice(0, -1));
+      handleRemoveTag(tags[tags.length - 1]);
     }
   };
 
@@ -315,7 +454,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
               </div>
 
               {/* Tags */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 relative">
                 <div className="h-10 px-2 rounded-lg bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 flex items-center gap-2 overflow-x-auto no-scrollbar w-full max-w-full flex-nowrap">
                   {tags.map((t) => {
                     const isHideTag = t === '@hide';
@@ -329,7 +468,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       >
                         {isHideTag && <EyeOff className="w-3.5 h-3.5" />}
                         {t}
-                        <button onClick={() => setTags(tags.filter((x) => x !== t))}>
+                        <button onClick={() => handleRemoveTag(t)}>
                           <X className="w-3 h-3" />
                         </button>
                       </span>
@@ -337,15 +476,63 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                   })}
 
                   <input
+                    ref={tagInputRef}
                     value={tagInput}
                     onChange={handleTagInput}
                     onKeyDown={handleTagKey}
+                    onFocus={() => {
+                      if (tagInput.toLowerCase().startsWith('file') && tagInput.length >= 4) {
+                        setShowTagSuggestions(true);
+                      }
+                    }}
+                    onBlur={() => {
+                      // Delay hiding to allow click on suggestion
+                      setTimeout(() => setShowTagSuggestions(false), 150);
+                    }}
                     placeholder="Add tags (max 50)"
                     className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-500 min-w-[135px]"
                   />
                 </div>
                 {tagError && (
                   <div className="text-red-400 text-xs mt-1">{tagError}</div>
+                )}
+
+                {/* File tag suggestions popup */}
+                {showTagSuggestions && filteredSuggestions.length > 0 && (
+                  <div
+                    ref={tagSuggestionsRef}
+                    className="absolute bottom-full left-0 mb-1 w-full max-w-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50"
+                  >
+                    <div className="max-h-48 overflow-y-auto">
+                      {filteredSuggestions.map((suggestion, index) => (
+                        <button
+                          key={`${suggestion.tag}-${suggestion.space}-${suggestion.isInTrash}`}
+                          onClick={() => handleSelectSuggestion(suggestion)}
+                          className={`w-full px-3 py-2 flex items-center gap-2 text-left text-sm transition-colors ${index === selectedSuggestionIndex
+                            ? 'bg-blue-50 dark:bg-blue-900/30'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                            }`}
+                        >
+                          {/* Space icon */}
+                          {suggestion.space === 'private' ? (
+                            <Lock className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                          ) : (
+                            <Globe className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                          )}
+
+                          {/* Tag name */}
+                          <span className="flex-1 text-gray-900 dark:text-gray-100 truncate">
+                            {suggestion.tag}
+                          </span>
+
+                          {/* Trash indicator */}
+                          {suggestion.isInTrash && (
+                            <Trash2 className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
