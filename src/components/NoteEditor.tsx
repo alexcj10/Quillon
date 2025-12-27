@@ -503,7 +503,31 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     ref={tagSuggestionsRef}
                     className="absolute bottom-full left-0 mb-1 w-full max-w-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50"
                   >
-                    <div className="max-h-48 overflow-y-auto">
+                    <style>{`
+                      .tag-suggestions-scrollbar::-webkit-scrollbar {
+                        width: 6px;
+                      }
+                      .tag-suggestions-scrollbar::-webkit-scrollbar-track {
+                        background: transparent;
+                      }
+                      .tag-suggestions-scrollbar::-webkit-scrollbar-thumb {
+                        background-color: rgba(156, 163, 175, 0.5);
+                        border-radius: 10px;
+                      }
+                      .tag-suggestions-scrollbar::-webkit-scrollbar-thumb:hover {
+                        background-color: rgba(156, 163, 175, 0.8);
+                      }
+                      .dark .tag-suggestions-scrollbar::-webkit-scrollbar-track {
+                        background: rgb(31, 41, 55);
+                      }
+                      .dark .tag-suggestions-scrollbar::-webkit-scrollbar-thumb {
+                        background-color: rgba(156, 163, 175, 0.3);
+                      }
+                      .dark .tag-suggestions-scrollbar::-webkit-scrollbar-thumb:hover {
+                        background-color: rgba(156, 163, 175, 0.5);
+                      }
+                    `}</style>
+                    <div className="max-h-48 overflow-y-auto tag-suggestions-scrollbar">
                       {filteredSuggestions.map((suggestion, index) => (
                         <button
                           key={`${suggestion.tag}-${suggestion.space}-${suggestion.isInTrash}`}
