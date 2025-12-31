@@ -26,6 +26,9 @@ export function NodesWidget() {
     useEffect(() => {
         if (isOpen && inputRef.current) {
             setTimeout(() => inputRef.current?.focus(), 100);
+        } else if (!isOpen) {
+            // Clear input when widget is closed
+            setInputValue('');
         }
     }, [isOpen]);
 
