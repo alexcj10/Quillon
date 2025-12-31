@@ -166,7 +166,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 } else if (term.toLowerCase().startsWith('7@nodes-')) {
                   // 7@nodes- creates PRIVATE node (7 = length of "private")
                   const content = term.slice(8).trim(); // Remove "7@nodes-"
-                  if (content) {
+                  if (content && content.length <= 100) {
                     addNode(content, true); // Explicitly private
                     // Only show popup if we're in private workspace
                     if (showPrivateNotes) {
@@ -177,7 +177,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 } else if (term.toLowerCase().startsWith('@nodes-')) {
                   // @nodes- creates PUBLIC node (always)
                   const content = term.slice(7).trim(); // Remove "@nodes-"
-                  if (content) {
+                  if (content && content.length <= 100) {
                     addNode(content, false); // Explicitly public
                     // Only show popup if we're in public workspace
                     if (!showPrivateNotes) {
