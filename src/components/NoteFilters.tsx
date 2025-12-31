@@ -122,6 +122,19 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
     );
   };
 
+  // Calculate node content length for character counter
+  const getNodeContentLength = () => {
+    const term = searchTerm.trim();
+    if (term.toLowerCase().startsWith('7@nodes-')) {
+      return term.slice(8).trim().length;
+    } else if (term.toLowerCase().startsWith('@nodes-')) {
+      return term.slice(7).trim().length;
+    }
+    return null;
+  };
+
+  const nodeContentLength = getNodeContentLength();
+
   // Use displayed notes if provided, otherwise fall back to visible notes
   const notesToSelect = displayedNotes || visibleNotes;
   const filteredNoteIds = notesToSelect.map(note => note.id);
@@ -137,7 +150,23 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const term = newValue.trim();
+
+              // Check if typing a node creation command
+              let contentLength = 0;
+              if (term.toLowerCase().startsWith('7@nodes-')) {
+                contentLength = term.slice(8).trim().length;
+              } else if (term.toLowerCase().startsWith('@nodes-')) {
+                contentLength = term.slice(7).trim().length;
+              }
+
+              // Only allow input if not a node command OR if content is within limit
+              if (contentLength === 0 || contentLength <= 100) {
+                setSearchTerm(newValue);
+              }
+            }}
             onFocus={() => {
               // Close bulk popups and exit selection mode when user focuses search bar
               setIsBulkPopupOpen(false);
@@ -189,8 +218,16 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
               }
             }}
             placeholder="Search... (@nodes)"
-            className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base"
+            className={`w-full pl-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base ${nodeContentLength !== null ? 'pr-16' : 'pr-4'
+              }`}
           />
+          {/* Character Counter for Node Creation */}
+          {nodeContentLength !== null && (
+            <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-xs transition-colors pointer-events-none ${nodeContentLength >= 100 ? 'text-red-500 font-medium' : 'text-gray-400 dark:text-gray-500'
+              }`}>
+              {nodeContentLength}/100
+            </div>
+          )}
         </div>
 
         <button
