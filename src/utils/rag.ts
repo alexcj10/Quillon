@@ -16,9 +16,38 @@ export async function ragQuery(
     // NOTE: We no longer short-circuit with personalized responses here.
     // The LLM (AI) will intelligently decide if it's conversational or note-related.
 
+    // NOTE: Removed personality re-check. AI handles everything now.
+
+    const allNotes = getNotes();
+    // SECURITY & SEPARATION:
+    // User requested "Totally Separate" modes.
+    // - Public Mode: See ONLY Public Notes.
+    // - Private Mode: See ONLY Private Notes.
+    const notes = allNotes.filter(n => options.includePrivate ? n.isPrivate : !n.isPrivate);
+    // 1. Calculate Global Tag Structure and "State of Reality"
+    // Fix: STRICT SEPARATION for Stats as well.
+    // We filter active notes based on the SAME logic as the RAG context (Public only OR Private only).
+    // We also exclude TRASH.
+    const activeNotes = allNotes.filter(n => !n.isDeleted && (options.includePrivate ? n.isPrivate : !n.isPrivate));
+
+    // Dynamic Stats Calculation
+    const totalActiveNotes = activeNotes.length;
+    let lastVaultUpdate = "Never";
+    if (totalActiveNotes > 0) {
+        const timestamps = activeNotes.map(n => new Date(n.updatedAt).getTime());
+        const lastTs = Math.max(...timestamps);
+        lastVaultUpdate = new Date(lastTs).toLocaleString();
+    }
+
     // --- 0. PLANNER CORE (Deep Reasoning) ---
     // Instead of just rewriting, we break the query into steps for better retrieval.
     let searchQueries: string[] = [normalizedQuestion];
+
+    // CRITICAL FIX: SHORT-CIRCUIT FOR SMALL VAULTS
+    // If the user has very few notes (< 5), we DO NOT want to "hallucinate" hypothetical answers via the Planner.
+    // We also don't need expansion. We can just search raw.
+    // This prevents the AI from inventing "Meeting Notes" when only 1 note exists.
+    const USE_COMPLEX_RAG = totalActiveNotes >= 5;
 
     // --- 0.5 SMART EXPANDER (The "Translator") ---
     // We run this IN PARALLEL with the Planner if possible.
@@ -27,7 +56,7 @@ export async function ragQuery(
     // We'll init the Planner Promise
     let plannerPromise = Promise.resolve<string[]>([]);
 
-    if (history.length > 0 || normalizedQuestion.length > 10) {
+    if (USE_COMPLEX_RAG && (history.length > 0 || normalizedQuestion.length > 10)) {
         plannerPromise = (async () => {
             try {
                 const plannerBody = {
@@ -92,7 +121,7 @@ export async function ragQuery(
 
     // Run Expander Function (New Feature)
     // This handles "messy" queries like "tht note abt mtg" -> "meeting note"
-    const expanderPromise = expandQuery(normalizedQuestion);
+    const expanderPromise = USE_COMPLEX_RAG ? expandQuery(normalizedQuestion) : Promise.resolve([]);
 
     // Await both
     const [plannedQueries, expandedQueries] = await Promise.all([plannerPromise, expanderPromise]);
@@ -100,20 +129,6 @@ export async function ragQuery(
     // Merge all queries: Original + Planned + Expanded
     const uniqueQueries = new Set<string>([normalizedQuestion, ...plannedQueries, ...expandedQueries]);
     searchQueries = Array.from(uniqueQueries);
-
-    // NOTE: Removed personality re-check. AI handles everything now.
-
-    const allNotes = getNotes();
-    // SECURITY & SEPARATION:
-    // User requested "Totally Separate" modes.
-    // - Public Mode: See ONLY Public Notes.
-    // - Private Mode: See ONLY Private Notes.
-    const notes = allNotes.filter(n => options.includePrivate ? n.isPrivate : !n.isPrivate);
-    // 1. Calculate Global Tag Structure
-    // Fix: STRICT SEPARATION for Stats as well.
-    // We filter active notes based on the SAME logic as the RAG context (Public only OR Private only).
-    // We also exclude TRASH.
-    const activeNotes = allNotes.filter(n => !n.isDeleted && (options.includePrivate ? n.isPrivate : !n.isPrivate));
 
     const blueFolders = new Set<string>();
     const greenTags = new Set<string>();
@@ -133,7 +148,12 @@ export async function ragQuery(
     });
 
     const globalTagContext = `
-Global Tag Structure & Vault Stats (Current Mode: ${options.includePrivate ? "PRIVATE ONLY" : "PUBLIC ONLY"}):
+*** STATE OF REALITY (VAULT STATISTICS) ***
+- **Total Notes in Vault**: ${totalActiveNotes}
+- **Last Vault Update**: ${lastVaultUpdate}
+- **Current Mode**: ${options.includePrivate ? "PRIVATE ONLY (Hidden Notes Visible)" : "PUBLIC ONLY (Hidden Notes Invisible)"}
+
+*** GLOBAL TAG STRUCTURE ***
 - **Folders (Blue)**: ${Array.from(blueFolders).map(f => `${f} (${activeNotes.filter(n => n.tags.includes(`file${f}`)).length})`).join(", ") || "None"}
 - **Folder Tags (Green)**: ${Array.from(greenTags).join(", ") || "None"}
 - **Standalone Tags (Grey)**: ${Array.from(greyTags).join(", ") || "None"}
