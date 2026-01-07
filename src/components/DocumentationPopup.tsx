@@ -225,12 +225,14 @@ A command-based system to keep your workspace clutter-free.
               rounded-t-[24px] 
               h-[75vh] 
 
-              /* Tablet: Increased Height */
+              /* Tablet & Desktop: Centered, width-constrained */
+              md:relative md:w-[90%] md:max-w-4xl md:rounded-t-2xl md:rounded-b-none 
+              
+              /* Heights */
               md:h-[90vh]
-
-              /* Desktop: Restored to 80vh */
-              lg:relative lg:w-[90%] lg:max-w-3xl lg:rounded-t-2xl lg:rounded-b-none lg:h-[80vh]
+              lg:h-[80vh]
               lg:max-h-[800px]
+
               border-t border-b-0 border-gray-100 dark:border-gray-800
             `}
                     >
