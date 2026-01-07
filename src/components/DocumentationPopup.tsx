@@ -30,6 +30,18 @@ const DocumentationPopup = ({ isOpen, onClose }: DocumentationPopupProps) => {
         };
     }, [isOpen, onClose]);
 
+    // Lock body scroll when popup is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
+
 
     const documentationContent = `
 ## 🏷️ Intelligent Tagging System
