@@ -7,10 +7,13 @@ import { NoteFilters } from './components/NoteFilters';
 import { PrivateSpaceDialog } from './components/PrivateSpaceDialog';
 import { Plus, Moon, Sun, Lock, Trash2 } from 'lucide-react';
 import AIChat from './components/AIChat';
+import DocumentationPopup from './components/DocumentationPopup';
 import { isFileTag, Note } from './types';
 import powninLogo from './assets/pownin.png';
 import { NodesProvider } from './context/NodesContext';
 import { NodesWidget } from './components/NodesWidget';
+
+import helpIcon from './assets/help.png';
 
 function NoteList() {
   const {
@@ -37,6 +40,7 @@ function NoteList() {
   const [editingNote, setEditingNote] = useState<Note | undefined>(undefined);
   const [showPrivateSpaceDialog, setShowPrivateSpaceDialog] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
+  const [isDocsOpen, setIsDocsOpen] = useState(false);
 
   const handleEdit = (note: Note) => {
     setEditingNote(note);
@@ -119,7 +123,14 @@ function NoteList() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
-      <div className="max-w-[1500px] mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6">
+      <div className="max-w-[1500px] mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 relative">
+        <button
+          onClick={() => setIsDocsOpen(true)}
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 rounded-full hover:opacity-80 transition-opacity z-10"
+          title="Documentation"
+        >
+          <img src={helpIcon} alt="Help" className="w-full h-full object-cover rounded-full" />
+        </button>
         <div className="flex flex-col items-center gap-4 mb-6">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 dark:text-white tracking-tight">
             Quillon
@@ -251,6 +262,7 @@ function NoteList() {
         )}
       </div>
       <NodesWidget />
+      <DocumentationPopup isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} />
     </div>
   );
 }

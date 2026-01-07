@@ -21,7 +21,9 @@ export default {
       pattern: /bg-note-(pink|purple|blue|green|yellow|orange)-(light|dark)/,
     },
   ],
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
   safelist: [
     {
       pattern: /bg-note-.*-(light|dark)/,
