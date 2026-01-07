@@ -229,9 +229,8 @@ A command-based system to keep your workspace clutter-free.
               md:relative md:w-[90%] md:max-w-4xl md:rounded-t-2xl md:rounded-b-none 
               
               /* Heights */
-              md:h-[90vh]
-              lg:h-[80vh]
-              lg:max-h-[800px]
+              md:h-[80vh]
+              md:max-h-[800px]
 
               border-t border-b-0 border-gray-100 dark:border-gray-800
             `}
