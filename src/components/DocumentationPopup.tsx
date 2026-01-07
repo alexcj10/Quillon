@@ -237,10 +237,10 @@ A command-based system to keep your workspace clutter-free.
                         {/* Close Button Overlay */}
                         <button
                             onClick={onClose}
-                            className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-white/50 dark:bg-black/50 hover:bg-white dark:hover:bg-black transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white z-20 backdrop-blur-sm"
+                            className="absolute top-3 right-3 p-1.5 rounded-full bg-white/50 dark:bg-black/50 hover:bg-white dark:hover:bg-black transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white z-20 backdrop-blur-sm"
                             aria-label="Close documentation"
                         >
-                            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <X className="w-4 h-4" />
                         </button>
 
                         {/* Scrollable Content */}
