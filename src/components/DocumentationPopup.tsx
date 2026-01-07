@@ -230,7 +230,7 @@ A command-based system to keep your workspace clutter-free.
               
               /* Heights */
               md:h-[80vh]
-              md:max-h-[800px]
+              md:max-h-[1200px]
 
               border-t border-b-0 border-gray-100 dark:border-gray-800
             `}
