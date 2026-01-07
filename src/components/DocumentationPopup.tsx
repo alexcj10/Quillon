@@ -208,24 +208,27 @@ A command-based system to keep your workspace clutter-free.
               w-full bg-white dark:bg-gray-900 shadow-2xl
               flex flex-col
               
-              /* Mobile: Fixed at bottom, rounded top corners */
+              /* Mobile: Fixed at bottom, rounded top corners - Reduced Height */
               fixed bottom-0 left-0 right-0
               rounded-t-[24px] 
-              h-[85vh] 
+              h-[75vh] 
 
-              /* Desktop/Tablet: Bottom fixed, rounded top corners only */
-              sm:static sm:w-[90%] sm:max-w-3xl sm:rounded-t-2xl sm:rounded-b-none sm:h-[80vh]
-              sm:max-h-[800px]
-              border-t border-x border-b-0 border-gray-100 dark:border-gray-800
+              /* Tablet: Increased Height */
+              md:h-[90vh]
+
+              /* Desktop: Restored to 80vh */
+              lg:relative lg:w-[90%] lg:max-w-3xl lg:rounded-t-2xl lg:rounded-b-none lg:h-[80vh]
+              lg:max-h-[800px]
+              border-t border-b-0 border-gray-100 dark:border-gray-800
             `}
                     >
                         {/* Close Button Overlay */}
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 p-2 rounded-full bg-white/50 dark:bg-black/50 hover:bg-white dark:hover:bg-black transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white z-20 backdrop-blur-sm"
+                            className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-white/50 dark:bg-black/50 hover:bg-white dark:hover:bg-black transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white z-20 backdrop-blur-sm"
                             aria-label="Close documentation"
                         >
-                            <X className="w-5 h-5" />
+                            <X className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
 
                         {/* Scrollable Content */}
@@ -247,6 +250,7 @@ A command-based system to keep your workspace clutter-free.
                   prose-code:text-blue-600 dark:prose-code:text-blue-400 prose-code:bg-blue-50 dark:prose-code:bg-blue-900/20 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
                   prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50/50 dark:prose-blockquote:bg-blue-900/10 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:not-italic
                   prose-hr:my-8 prose-hr:border-gray-200 dark:prose-hr:border-gray-800
+                  [&>h2:first-of-type]:mt-0 [&>h2:first-of-type]:pt-0
                 ">
                                     <ReactMarkdown
                                         components={{
