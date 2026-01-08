@@ -10,6 +10,7 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { EnergySphere } from './EnergySphere';
 import { evaluateMathCommand, isMathCommand } from '../utils/mathCommandParser';
 import { MathResultPopup } from './MathResultPopup';
+import { useOutsideClick } from '../hooks/useOutsideClick';
 
 export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const {
@@ -47,6 +48,16 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
 
   // Math Calculator State
   const [mathResult, setMathResult] = useState<string | null>(null);
+  const [isMathPopupVisible, setIsMathPopupVisible] = useState(false);
+
+  const searchBarRef = useOutsideClick({
+    onOutsideClick: () => {
+      setSearchTerm('');
+      setMathResult(null);
+      setIsMathPopupVisible(false);
+    },
+    isOpen: isMathPopupVisible
+  });
 
   // Close popups and clear selection whenever view changes (Trash <-> Main)
   useEffect(() => {
@@ -150,7 +161,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
 
       {/* SEARCH + STARRED + ALL TAGS */}
       <div className="flex gap-2 items-center relative z-20">
-        <div className="relative flex-1">
+        <div ref={searchBarRef} className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <input
             type="text"
@@ -170,8 +181,10 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
               // Evaluate math command dynamically
               if (isMathCommand(term)) {
                 setMathResult(evaluateMathCommand(term));
+                setIsMathPopupVisible(true);
               } else {
                 setMathResult(null);
+                setIsMathPopupVisible(false);
               }
 
               // Only allow input if not a node command OR if content is within limit
@@ -180,6 +193,10 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
               }
             }}
             onFocus={() => {
+              // Show math popup if there is a result
+              if (mathResult) {
+                setIsMathPopupVisible(true);
+              }
               // Close bulk popups and exit selection mode when user focuses search bar
               setIsBulkPopupOpen(false);
               setIsMainBulkPopupOpen(false);
@@ -249,7 +266,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
           <MathResultPopup
             input={searchTerm}
             result={mathResult}
-            isVisible={!!mathResult}
+            isVisible={isMathPopupVisible}
           />
         </div>
 
