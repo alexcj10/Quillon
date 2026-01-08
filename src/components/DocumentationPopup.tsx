@@ -2,7 +2,6 @@ import { useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import helpIcon from '../assets/help.jpeg';
 import bannerIcon from '../assets/QP.png';
 
 interface DocumentationPopupProps {
@@ -161,6 +160,36 @@ Perform instant calculations anywhere in Quillon.
 - **Trig**: \`@c-sin(45 deg)\` → \`0.707...\`
 
 > Supports standard math operators (+, -, *, /) and common functions.
+
+---
+
+## 🌍 Instant Translation
+
+Translate any note into 100+ languages without leaving Quillon.
+
+### ⚡ Usage
+- **Command**: Type \`@t-[lang]\` anywhere in a note and press **Enter**
+- **Action**: Replaces the entire note content with the translated version
+
+### 📚 Supported Languages
+
+- **Spanish** (es) — \`@t-spanish\`
+- **French** (fr) — \`@t-french\`
+- **Hindi** (hi) — \`@t-hindi\`
+- **German** (de) — \`@t-german\`
+- **Japanese** (ja) — \`@t-japanese\`
+- **Chinese** (zh) — \`@t-chinese\`
+- **Russian** (ru) — \`@t-russian\`
+- **Arabic** (ar) — \`@t-arabic\`
+- **Italian** (it) — \`@t-italian\`
+- **Portuguese** (pt) — \`@t-portuguese\`
+- **Korean** (ko) — \`@t-korean\`
+- **Greek** (el) — \`@t-greek\`
+- **Thai** (th) — \`@t-thai\`
+- **Vietnamese** (vi) — \`@t-vietnamese\`
+- **Hebrew** (he) — \`@t-hebrew\`
+
+> **Note**: Full names work for common languages listed above. For all other languages, use the standard **ISO shortcut code** (e.g., \`@t-fi\` for Finnish, \`@t-ta\` for Tamil) to translate into any language in the world instantly.
 
 ---
 

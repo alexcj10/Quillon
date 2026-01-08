@@ -82,6 +82,24 @@ Quickly translate any note into 100+ languages without leaving Quillon:
 - **Visual Feedback**: Shows a loading indicator while the translation is in progress.
 - **Note-Specific**: Only translates the content of the current note you are editing.
 
+#### 📚 Supported Language Reference
+| **Spanish** | `es` | `@t-spanish` |
+| **French** | `fr` | `@t-french` |
+| **Hindi** | `hi` | `@t-hindi` |
+| **German** | `de` | `@t-german` |
+| **Japanese** | `ja` | `@t-japanese` |
+| **Chinese** | `zh` | `@t-chinese` |
+| **Russian** | `ru` | `@t-russian` |
+| **Arabic** | `ar` | `@t-arabic` |
+| **Portuguese** | `pt` | `@t-portuguese` |
+| **Italian** | `it` | `@t-italian` |
+| **Korean** | `ko` | `@t-korean` |
+| **Greek** | `el` | `@t-greek` |
+| **Thai** | `th` | `@t-thai` |
+
+> [!IMPORTANT]
+> Full names work for common languages. For all other countries, use the standard **ISO shortcut code** (e.g., `@t-ta` for Tamil, `@t-fi` for Finnish). Shortcuts work for **every country** supported by Google Translate.
+
 ### 🗑️ Smart Trash & Bulk Actions
 Efficient note management with powerful bulk operations:
 - **Energy Sphere Icon**: A beautiful animated orb that serves as your bulk actions hub
