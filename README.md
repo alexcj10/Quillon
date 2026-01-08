@@ -66,6 +66,14 @@ Powerful tag editing and deletion via the **All Tags** button or **+more** icon:
   - Drag and drop to reorder tasks
   - Mark nodes as complete
   - Separate sections for pinned, active, and completed nodes
+- **Smart Validation**: Real-time feedback on command validity
+
+### 🧮 Smart Calculator
+Perform instant symbolic calculations anywhere in Quillon:
+- **Search Bar**: Type `@c-expression` for instant results. The result is automatically copied to your clipboard.
+- **Note Editor**: Type `@c-expression` and press **Enter** to replace the command with the result.
+- **Symbolic Solving**: Handles everything from basic arithmetic (`@c-25*4`) to advanced functions (`@c-log(100, 10)`) and trig (`@c-sin(45 deg)`).
+- **Smart Cleanup**: Automatic wiping of the search bar and popup on click-away, `Escape`, or UI interaction.
 
 ### 🗑️ Smart Trash & Bulk Actions
 Efficient note management with powerful bulk operations:
@@ -149,6 +157,7 @@ npm run dev
 🔒 **Private & Favorite Notes** – Secure sensitive notes and highlight important ones.  
 🌂 **Smart Tags** – Automatic blue/green/grey hierarchy for effortless structure.  
 ✅ **Nodes (Tasks)** – Quick task management accessible via `@nodes` command.  
+🧮 **Smart Calculator** – Instant symbolic math and algebra solving with `@c-` command.  
 🗑️ **Smart Trash** – Bulk delete, recover, or permanently remove notes with animated Energy Sphere.  
 🌟 **Adaptive UI** – Seamless experience across devices with a responsive design.  
 
@@ -162,6 +171,11 @@ npm run dev
 | `@nodes` | Open Nodes widget | Both |
 | `@nodes-[task]` | Create public node | Both |
 | `7@nodes-[task]` | Create private node | Both |
+
+### Calculator Command
+| Command | Description | Example |
+|---------|-------------|---------|
+| `@c-[expression]` | Solve math/algebra | `@c-2x+5=15` |
 
 ### Tag Management Commands
 Access via **All Tags** button or **+more** icon:
