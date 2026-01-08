@@ -233,7 +233,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 }
               }
             }}
-            placeholder="Search or Calculate (@c-1+1)"
+            placeholder="Search or @"
             className={`w-full pl-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base ${nodeContentLength !== null ? 'pr-16' : 'pr-4'
               }`}
           />
