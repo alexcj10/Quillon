@@ -83,6 +83,8 @@ Quickly translate any note into 100+ languages without leaving Quillon:
 - **Note-Specific**: Only translates the content of the current note you are editing.
 
 #### 📚 Supported Language Reference
+| Language | Shortcut | Command |
+| :--- | :---: | :--- |
 | **Spanish** | `es` | `@t-spanish` |
 | **French** | `fr` | `@t-french` |
 | **Hindi** | `hi` | `@t-hindi` |
