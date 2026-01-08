@@ -37,8 +37,8 @@ export async function translateText(text: string, targetLang: string): Promise<s
 
     const target = LANGUAGE_MAP[targetLang.toLowerCase()] || targetLang.toLowerCase();
 
-    // Use smaller chunks (1000 chars) to stay safely within URL and API limits
-    const CHUNK_SIZE = 1000;
+    // Increase chunk size to 2000 chars for better speed while staying within safe limits
+    const CHUNK_SIZE = 2000;
     const chunks: string[] = [];
 
     // Better chunking that tries to split on double-newlines or periods if possible
