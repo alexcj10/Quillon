@@ -496,18 +496,25 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       if (contentToTranslate) {
                         setIsTranslating(true);
 
-                        // Translate both title and content in parallel
-                        Promise.all([
-                          title.trim() ? translateText(title, langCode) : Promise.resolve(title),
-                          translateText(contentToTranslate, langCode)
-                        ]).then(([translatedTitle, translatedContent]) => {
-                          if (translatedTitle) setTitle(translatedTitle);
-                          if (translatedContent) setContent(translatedContent);
-                          setIsTranslating(false);
-                        }).catch((err) => {
-                          console.error('Translation error:', err);
-                          setIsTranslating(false);
-                        });
+                        // Translate both title and content
+                        const titleToTranslate = title.trim();
+
+                        // Execute in sequence to avoid hitting rate limits or fetch errors on long notes
+                        (async () => {
+                          try {
+                            const translatedContent = await translateText(contentToTranslate, langCode);
+                            if (translatedContent) setContent(translatedContent);
+
+                            if (titleToTranslate) {
+                              const translatedTitle = await translateText(titleToTranslate, langCode);
+                              if (translatedTitle) setTitle(translatedTitle);
+                            }
+                          } catch (err) {
+                            console.error('Note translation failed:', err);
+                          } finally {
+                            setIsTranslating(false);
+                          }
+                        })();
                       }
                       return; // Exit after translation command handled
                     }

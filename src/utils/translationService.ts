@@ -33,28 +33,57 @@ export const LANGUAGE_MAP: Record<string, string> = {
  * This endpoint is fast, free, and generally unlimited for reasonable use.
  */
 export async function translateText(text: string, targetLang: string): Promise<string | null> {
-    if (!text.trim()) return null;
+    if (!text || !text.trim()) return null;
 
-    // Normalize target language code
     const target = LANGUAGE_MAP[targetLang.toLowerCase()] || targetLang.toLowerCase();
 
-    try {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
+    // Use smaller chunks (1000 chars) to stay safely within URL and API limits
+    const CHUNK_SIZE = 1000;
+    const chunks: string[] = [];
 
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Translation failed');
-
-        const data = await response.json();
-
-        // Google Translate "gtx" returns a complex nested array
-        // data[0] contains the translated segments
-        if (data && data[0]) {
-            return data[0].map((segment: any[]) => segment[0]).join('');
+    // Better chunking that tries to split on double-newlines or periods if possible
+    let remaining = text;
+    while (remaining.length > 0) {
+        if (remaining.length <= CHUNK_SIZE) {
+            chunks.push(remaining);
+            break;
         }
 
-        return null;
+        // Find best split point within the last 20% of the chunk
+        let splitIndex = CHUNK_SIZE;
+        const searchArea = remaining.substring(CHUNK_SIZE - 200, CHUNK_SIZE);
+        const lastPeriod = searchArea.lastIndexOf('. ');
+        const lastNewline = searchArea.lastIndexOf('\n');
+
+        if (lastNewline !== -1) splitIndex = CHUNK_SIZE - 200 + lastNewline + 1;
+        else if (lastPeriod !== -1) splitIndex = CHUNK_SIZE - 200 + lastPeriod + 2;
+
+        chunks.push(remaining.substring(0, splitIndex));
+        remaining = remaining.substring(splitIndex);
+    }
+
+    try {
+        // Process chunks sequentially to be polite to the free API and avoid ratelimiting
+        let fullResult = '';
+        for (const chunk of chunks) {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(chunk)}`;
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                console.error(`Translation chunk failed (Status: ${response.status})`);
+                continue; // Try next chunk instead of failing entirely
+            }
+
+            const data = await response.json();
+            if (data && data[0]) {
+                const chunkResult = data[0].map((segment: any[]) => segment[0]).join('');
+                fullResult += chunkResult;
+            }
+        }
+
+        return fullResult || null;
     } catch (error) {
-        console.error('Translation error:', error);
+        console.error('Translation process error:', error);
         return null;
     }
 }
