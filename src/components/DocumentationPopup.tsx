@@ -146,6 +146,24 @@ Efficient note management with powerful bulk operations.
 
 ---
 
+## 🧮 Smart Calculator
+
+Perform instant calculations anywhere in Quillon.
+
+### ⚡ Usage
+- **Search Bar**: Type \`@c-expression\` to see instant result popup
+- **Note Editor**: Type \`@c-expression\` and press **Enter** to replace with result
+
+### 📝 Examples
+- **Basic**: \`@c-25*4\` → \`100\`
+- **Functions**: \`@c-sqrt(144)\` → \`12\`
+- **Advanced**: \`@c-log(100, 10)\` → \`2\`
+- **Trig**: \`@c-sin(45 deg)\` → \`0.707...\`
+
+> Supports standard math operators (+, -, *, /) and common functions.
+
+---
+
 ## 📝 Refined Note Editor
 
 - **Distraction-Free**: Full-screen, edge-to-edge editing
@@ -168,7 +186,7 @@ A command-based system to keep your workspace clutter-free.
 - \`@show\` → Enter **Hidden Notes** view
 - \`@show-return\` → Return to main workspace
 
-### � Exclusive Privacy
+###  Exclusive Privacy
 - \`@hide\` is **restricted**
 - All other tags must be removed before hiding a note
 - Ensures a clean and intentional hidden state

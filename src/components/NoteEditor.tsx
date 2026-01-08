@@ -16,6 +16,7 @@ import {
 import { Note, isFileTag } from '../types';
 import { NOTE_COLORS } from '../constants/colors';
 import { useNotes } from '../context/NoteContext';
+import { evaluateMathCommand } from '../utils/mathCommandParser';
 
 interface NoteEditorProps {
   note?: Note;
@@ -452,6 +453,41 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             ref={contentRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const textarea = e.currentTarget;
+                const cursorStart = textarea.selectionStart;
+                const textBeforeCursor = content.substring(0, cursorStart);
+                const lastAtSignIndex = textBeforeCursor.lastIndexOf('@c-');
+
+                if (lastAtSignIndex !== -1) {
+                  // Extract potential command: from @c- to cursor
+                  const potentialCommand = textBeforeCursor.substring(lastAtSignIndex);
+
+                  // Simple check: no newlines in command
+                  if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
+                    const result = evaluateMathCommand(potentialCommand);
+                    if (result !== null) {
+                      e.preventDefault();
+
+                      const textAfterCursor = content.substring(cursorStart);
+                      const newContent = content.substring(0, lastAtSignIndex) + result + textAfterCursor;
+
+                      setContent(newContent);
+
+                      // Move cursor to end of inserted result
+                      setTimeout(() => {
+                        if (contentRef.current) {
+                          const newCursorPos = lastAtSignIndex + result.length;
+                          contentRef.current.selectionStart = newCursorPos;
+                          contentRef.current.selectionEnd = newCursorPos;
+                        }
+                      }, 0);
+                    }
+                  }
+                }
+              }
+            }}
             placeholder="Start writing your note..."
             className="w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px]"
           />
@@ -720,7 +756,6 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     )}
                     Private
                   </button>
-
                 </div>
               )}
             </div>

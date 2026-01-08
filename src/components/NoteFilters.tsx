@@ -8,6 +8,8 @@ import { BulkRecoveryPopup } from './BulkRecoveryPopup';
 import { BulkActionsPopup } from './BulkActionsPopup';
 import { ConfirmDialog } from './ConfirmDialog';
 import { EnergySphere } from './EnergySphere';
+import { evaluateMathCommand, isMathCommand } from '../utils/mathCommandParser';
+import { MathResultPopup } from './MathResultPopup';
 
 export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const {
@@ -42,6 +44,9 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showMainDeleteConfirm, setShowMainDeleteConfirm] = useState(false);
   const sphereRef = useRef<HTMLButtonElement>(null);
+
+  // Math Calculator State
+  const [mathResult, setMathResult] = useState<string | null>(null);
 
   // Close popups and clear selection whenever view changes (Trash <-> Main)
   useEffect(() => {
@@ -140,11 +145,11 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const filteredNoteIds = notesToSelect.map(note => note.id);
 
   return (
-    <div className="mb-6 space-y-4 w-full max-w-3xl mx-auto px-4 sm:px-6">
+    <div className="mb-6 space-y-4 w-full max-w-3xl mx-auto px-4 sm:px-6 relative">
 
 
       {/* SEARCH + STARRED + ALL TAGS */}
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 items-center relative z-20">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <input
@@ -162,6 +167,13 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 contentLength = term.slice(7).trim().length;
               }
 
+              // Evaluate math command dynamically
+              if (isMathCommand(term)) {
+                setMathResult(evaluateMathCommand(term));
+              } else {
+                setMathResult(null);
+              }
+
               // Only allow input if not a node command OR if content is within limit
               if (contentLength === 0 || contentLength <= 100) {
                 setSearchTerm(newValue);
@@ -176,6 +188,10 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 const term = searchTerm.trim();
+                // If there's a math result, pressing Enter could "commit" it, 
+                // but usually user just reads it.
+                // We'll leave default behavior (which might be nothing or node creation checks below)
+
                 if (term.toLowerCase() === '@nodes') {
                   setIsOpen(true);
                   setSearchTerm('');
@@ -217,7 +233,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 }
               }
             }}
-            placeholder="Search... (@nodes)"
+            placeholder="Search or Calculate (@c-1+1)"
             className={`w-full pl-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 text-base ${nodeContentLength !== null ? 'pr-16' : 'pr-4'
               }`}
           />
@@ -228,6 +244,13 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
               {nodeContentLength}/100
             </div>
           )}
+
+          {/* Math Result Popup attached to Search Bar */}
+          <MathResultPopup
+            input={searchTerm}
+            result={mathResult}
+            isVisible={!!mathResult}
+          />
         </div>
 
         <button
