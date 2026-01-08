@@ -495,10 +495,17 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       const contentToTranslate = (content.substring(0, lastAtSignIndexTrans) + content.substring(cursorStart)).trim();
                       if (contentToTranslate) {
                         setIsTranslating(true);
-                        translateText(contentToTranslate, langCode).then((translated) => {
-                          if (translated) {
-                            setContent(translated);
-                          }
+
+                        // Translate both title and content in parallel
+                        Promise.all([
+                          title.trim() ? translateText(title, langCode) : Promise.resolve(title),
+                          translateText(contentToTranslate, langCode)
+                        ]).then(([translatedTitle, translatedContent]) => {
+                          if (translatedTitle) setTitle(translatedTitle);
+                          if (translatedContent) setContent(translatedContent);
+                          setIsTranslating(false);
+                        }).catch((err) => {
+                          console.error('Translation error:', err);
                           setIsTranslating(false);
                         });
                       }
