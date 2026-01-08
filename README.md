@@ -75,6 +75,13 @@ Perform instant symbolic calculations anywhere in Quillon:
 - **Symbolic Solving**: Handles everything from basic arithmetic (`@c-25*4`) to advanced functions (`@c-log(100, 10)`) and trig (`@c-sin(45 deg)`).
 - **Smart Cleanup**: Automatic wiping of the search bar and popup on click-away, `Escape`, or UI interaction.
 
+### 🌍 Instant Translation
+Quickly translate any note into 100+ languages without leaving Quillon:
+- **Usage**: Type `@t-[lang]` (e.g., `@t-es`, `@t-hindi`, `@t-fr`) anywhere in a note and press **Enter**.
+- **Free & Unlimited**: Uses a robust backend to provide instant, large-scale translations for free.
+- **Visual Feedback**: Shows a loading indicator while the translation is in progress.
+- **Note-Specific**: Only translates the content of the current note you are editing.
+
 ### 🗑️ Smart Trash & Bulk Actions
 Efficient note management with powerful bulk operations:
 - **Energy Sphere Icon**: A beautiful animated orb that serves as your bulk actions hub
@@ -172,10 +179,11 @@ npm run dev
 | `@nodes-[task]` | Create public node | Both |
 | `7@nodes-[task]` | Create private node | Both |
 
-### Calculator Command
+### Calculator & Translation Commands
 | Command | Description | Example |
 |---------|-------------|---------|
 | `@c-[expression]` | Solve math/algebra | `@c-2x+5=15` |
+| `@t-[lang]` | Translate current note | `@t-es` / `@t-hi` |
 
 ### Tag Management Commands
 Access via **All Tags** button or **+more** icon:

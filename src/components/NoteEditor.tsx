@@ -17,6 +17,7 @@ import { Note, isFileTag } from '../types';
 import { NOTE_COLORS } from '../constants/colors';
 import { useNotes } from '../context/NoteContext';
 import { evaluateMathCommand } from '../utils/mathCommandParser';
+import { translateText, extractLangCode } from '../utils/translationService';
 
 interface NoteEditorProps {
   note?: Note;
@@ -49,6 +50,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [isTitleFocused, setIsTitleFocused] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   // Tag suggestion state
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
@@ -458,39 +460,65 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                 const textarea = e.currentTarget;
                 const cursorStart = textarea.selectionStart;
                 const textBeforeCursor = content.substring(0, cursorStart);
-                const lastAtSignIndex = textBeforeCursor.lastIndexOf('@c-');
 
-                if (lastAtSignIndex !== -1) {
-                  // Extract potential command: from @c- to cursor
-                  const potentialCommand = textBeforeCursor.substring(lastAtSignIndex);
-
-                  // Simple check: no newlines in command
+                // Handle Math Command: @c- + Enter
+                const lastAtSignIndexMath = textBeforeCursor.lastIndexOf('@c-');
+                if (lastAtSignIndexMath !== -1) {
+                  const potentialCommand = textBeforeCursor.substring(lastAtSignIndexMath);
                   if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
                     const result = evaluateMathCommand(potentialCommand);
                     if (result !== null) {
                       e.preventDefault();
-
                       const textAfterCursor = content.substring(cursorStart);
-                      const newContent = content.substring(0, lastAtSignIndex) + result + textAfterCursor;
-
+                      const newContent = content.substring(0, lastAtSignIndexMath) + result + textAfterCursor;
                       setContent(newContent);
-
-                      // Move cursor to end of inserted result
                       setTimeout(() => {
                         if (contentRef.current) {
-                          const newCursorPos = lastAtSignIndex + result.length;
+                          const newCursorPos = lastAtSignIndexMath + result.length;
                           contentRef.current.selectionStart = newCursorPos;
                           contentRef.current.selectionEnd = newCursorPos;
                         }
                       }, 0);
+                      return; // Exit after math command handled
+                    }
+                  }
+                }
+
+                // Handle Translation Command: @t-[lang] + Enter
+                const lastAtSignIndexTrans = textBeforeCursor.lastIndexOf('@t-');
+                if (lastAtSignIndexTrans !== -1) {
+                  const potentialCommand = textBeforeCursor.substring(lastAtSignIndexTrans);
+                  if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
+                    const langCode = extractLangCode(potentialCommand);
+                    if (langCode) {
+                      e.preventDefault();
+                      const contentToTranslate = (content.substring(0, lastAtSignIndexTrans) + content.substring(cursorStart)).trim();
+                      if (contentToTranslate) {
+                        setIsTranslating(true);
+                        translateText(contentToTranslate, langCode).then((translated) => {
+                          if (translated) {
+                            setContent(translated);
+                          }
+                          setIsTranslating(false);
+                        });
+                      }
+                      return; // Exit after translation command handled
                     }
                   }
                 }
               }
             }}
             placeholder="Start writing your note..."
-            className="w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px]"
+            className={`w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] transition-opacity duration-300 ${isTranslating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
           />
+          {isTranslating && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-medium text-blue-500 dark:text-blue-400 animate-pulse">Translating...</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <style>{`
