@@ -215,7 +215,7 @@ Instantly fetch factual information and definitions directly into your note.
 Focus on your work with a built-in Pomodoro timer.
 
 ### ⚡ Usage
-- **Command**: Type \`@pomo-[time]\` anywhere in a note and press **Enter** (e.g. \`@pomo-1h 30m\`)
+- **Command**: Type \`@pomo-[time]\` anywhere in a note and press **Enter** (e.g. \`@pomo-1h 6m 28s\`)
 - **Default**: Type \`@pomo\` for a standard 25-minute focus session
 - **Action**: Starts a countdown with a visual progress bar at the top of the editor
 
