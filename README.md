@@ -98,9 +98,11 @@ Focus on your work with a built-in Pomodoro timer:
 
 ### 🌤️ External Utilities
 Fetch real-time data and perform conversions directly in your note:
-- **Weather**: Type `@w-[city]` (e.g., `@w-London`) to get current conditions.
-- **Currency**: Type `@cc-[amount][from] to [to]` (e.g., `@cc-100usd to eur`) for live exchange rates.
-- **Units**: Type `@u-[value][unit] to [unit]` (e.g., `@u-5km to miles`) for quick conversions.
+- **Weather**: Type `@w-[city]` (e.g., `@w-London`) for instant local weather.
+- **Currency**: Type `@cc-[amount][from] to [to]` (e.g., `@cc-100usd to eur`). 
+  - **Important**: You **must** use 3-letter currency codes (e.g., `USD`, `EUR`, `INR`, `GBP`) instead of full names like "euro" or "rupees".
+- **Units**: Type `@u-[value][unit] to [unit]` (e.g., `@u-5kg to lbs`).
+  - Supports: `kg/lbs`, `km/miles`, `m/ft`, `cm/inch`, `c/f` (temperature).
 
 ### ⚡ Study & Productivity (Deep Dive)
 #### 🧘‍♂️ Zen Quiz Mode

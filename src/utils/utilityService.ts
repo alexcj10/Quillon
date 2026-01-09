@@ -48,9 +48,16 @@ const CONVERSIONS: Record<string, number> = {
     'miles_km': 1.60934,
     'm_ft': 3.28084,
     'ft_m': 0.3048,
-    // Weight
+    'cm_inch': 0.393701,
+    'inch_cm': 2.54,
+    // Weight / Mass
     'kg_lb': 2.20462,
     'lb_kg': 0.453592,
+    'kg_lbs': 2.20462,
+    'lbs_kg': 0.453592,
+    'kgs_lbs': 2.20462,
+    'g_oz': 0.035274,
+    'oz_g': 28.3495,
     // Temperature (special case)
     'c_f': 0, // Formula based
     'f_c': 0, // Formula based

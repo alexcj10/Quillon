@@ -227,8 +227,10 @@ Fetch real-time data and perform conversions directly in your note.
 
 ### 🌍 Features & Commands
 - **Weather**: Type \`@w-[city]\` (e.g., \`@w-London\`)
-- **Currency**: Type \`@cc-[amount][from] to [to]\` (e.g., \`@cc-100usd to eur\`)
-- **Units**: Type \`@u-[value][unit] to [unit]\` (e.g., \`@u-5km to miles\`)
+- **Currency**: Type \`@cc-[amount][from] to [to]\` (e.g., \`@cc-10eur to inr\`)
+  - **Important**: Use 3-letter codes like **USD**, **INR**, **EUR** (not "euro")
+- **Units**: Type \`@u-[value][unit] to [unit]\` (e.g., \`@u-5kg to lbs\`)
+  - Supports: **kg/lbs**, **km/miles**, **m/ft**, **cm/inch**, **c/f** (temp)
 
 ---
 
