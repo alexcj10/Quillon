@@ -210,6 +210,40 @@ Instantly fetch factual information and definitions directly into your note.
 
 ---
 
+## ⏱️ Pomodoro Timer
+
+Focus on your work with a built-in Pomodoro timer.
+
+### ⚡ Usage
+- **Command**: Type \`@pomo-[time]\` anywhere in a note and press **Enter** (e.g. \`@pomo-1h 30m\`)
+- **Default**: Type \`@pomo\` for a standard 25-minute focus session
+- **Action**: Starts a countdown with a visual progress bar at the top of the editor
+
+---
+
+## 🌤️ External Utilities
+
+Fetch real-time data and perform conversions directly in your note.
+
+### 🌍 Features & Commands
+- **Weather**: Type \`@w-[city]\` (e.g., \`@w-London\`)
+- **Currency**: Type \`@cc-[amount][from] to [to]\` (e.g., \`@cc-100usd to eur\`)
+- **Units**: Type \`@u-[value][unit] to [unit]\` (e.g., \`@u-5km to miles\`)
+
+---
+
+## ⚡ Flashcard (Quiz) Mode
+
+Turn your notes into interactive study materials.
+
+### 📖 How it Works
+1. Any line starting with \`A:\` (or \`a:\`) is treated as an answer
+2. Type \`@quiz\` and press **Enter** to toggle the mode
+3. In **Quiz Mode**, answers are hidden behind a **"Reveal"** button
+4. Click to reveal individual answers as you study
+
+---
+
 ## 📝 Refined Note Editor
 
 - **Distraction-Free**: Full-screen, edge-to-edge editing

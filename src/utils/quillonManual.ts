@@ -127,6 +127,16 @@ Speed up your writing with instant lookups directly in the note editor. Type the
     - Example: \`@c-120*5\` calculates the result instantly.
 - **Translation**: \`@t-[lang_code]\`
     - Example: \`@t-es\` translates the entire note into Spanish.
+- **Pomodoro Timer**: \`@pomo\` or \`@pomo-[time]\`
+    - Starts a focus session. Supports custom formats like \`@pomo-1h 30m\` or \`@pomo-10m\`.
+- **Quiz Mode**: \`@quiz\`
+    - Toggles interactive flashcard mode. Lines starting with \`A:\` are hidden.
+- **Weather**: \`@w-[city]\`
+    - Example: \`@w-London\` fetches current weather.
+- **Currency**: \`@cc-[amount][from] to [to]\`
+    - Example: \`@cc-100usd to eur\` for live exchange rates.
+- **Unit Conversion**: \`@u-[value][unit] to [unit]\`
+    - Example: \`@u-5km to miles\` for quick conversions.
 
 ## 9. MISC FEATURES
 - **Dark Mode**: Toggle with the Sun/Moon icon.

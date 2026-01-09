@@ -89,6 +89,25 @@ Instantly fetch factual information and definitions directly into your note:
 - **Dictionary Definitions**: Type `@def-[word]` (e.g., `@def-serendipity`) to get meanings, phonetics, and usage examples.
 - **Purely Factual**: Uses direct Wikipedia and Dictionary APIs to ensure 100% accuracy without AI hallucinations.
 
+### ⏱️ Pomodoro Timer
+Focus on your work with a built-in Pomodoro timer:
+- **Usage**: Type `@pomo-[time]` anywhere in a note and press **Enter**.
+- **Flexible Formats**: Supports `@pomo-1h`, `@pomo-15m`, `@pomo-1m 30s`, `@pomo-3h 4m 5s`.
+- **Default**: Simply type `@pomo` for a standard 25-minute session.
+- **Action**: Starts a countdown with a visual progress bar and time badge at the top of the editor.
+
+### 🌤️ External Utilities
+Fetch real-time data and perform conversions directly in your note:
+- **Weather**: Type `@w-[city]` (e.g., `@w-London`) to get current conditions.
+- **Currency**: Type `@cc-[amount][from] to [to]` (e.g., `@cc-100usd to eur`) for live exchange rates.
+- **Units**: Type `@u-[value][unit] to [unit]` (e.g., `@u-5km to miles`) for quick conversions.
+
+### ⚡ Flashcard (Quiz) Mode
+Turn your notes into interactive study materials:
+- **Toggle**: Type `@quiz` to enter or exit Quiz Mode.
+- **Study**: Any line starting with `A: ` (or `a:`) will be hidden behind a "Reveal" button.
+- **Interactive**: Reveal individual answers as you study.
+
 #### 📚 Supported Language Reference
 | Language | Shortcut | Command |
 | :--- | :---: | :--- |
@@ -213,6 +232,11 @@ npm run dev
 | `@wiki-[topic]` | Wikipedia summary | `@wiki-Tesla` |
 | `@def-[word]` | Dictionary definition | `@def-logic` |
 | `@t-[lang]` | Translate current note | `@t-es` / `@t-hi` |
+| `@pomo-[time]` | Start Pomodoro (custom) | `@pomo-1h 30m` |
+| `@quiz` | Toggle Quiz Mode | `@quiz` |
+| `@w-[city]` | Fetch weather | `@w-Paris` |
+| `@cc-[amt][f] to [t]` | Currency conversion | `@cc-50eur to usd` |
+| `@u-[val][f] to [t]` | Unit conversion | `@u-10kg to lb` |
 
 ### Tag Management Commands
 Access via **All Tags** button or **+more** icon:

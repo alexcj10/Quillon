@@ -12,6 +12,7 @@ import {
   EyeOff,
   Globe,
   Trash2,
+  Timer,
 } from 'lucide-react';
 import { Note, isFileTag } from '../types';
 import { NOTE_COLORS } from '../constants/colors';
@@ -19,6 +20,7 @@ import { useNotes } from '../context/NoteContext';
 import { evaluateMathCommand } from '../utils/mathCommandParser';
 import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchWikiSummary, fetchDefinition, parseInsightCommand } from '../utils/insightService';
+import { fetchWeather, fetchCurrencyExchange, convertUnits, parseUtilityCommand, parsePomoTime } from '../utils/utilityService';
 
 interface NoteEditorProps {
   note?: Note;
@@ -54,6 +56,16 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [isTranslating, setIsTranslating] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupMessage, setLookupMessage] = useState('');
+
+  // Pomodoro state
+  const [pomodoroTime, setPomodoroTime] = useState(0);
+  const [pomodoroTotalTime, setPomodoroTotalTime] = useState(0);
+  const [isPomodoroActive, setIsPomodoroActive] = useState(false);
+
+  // Quiz mode state
+  const [isQuizMode, setIsQuizMode] = useState(false);
+  const [revealedQuizItems, setRevealedQuizItems] = useState<number[]>([]);
+  const [quizUserAnswers, setQuizUserAnswers] = useState<Record<number, string>>({});
 
   // Tag suggestion state
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
@@ -199,6 +211,30 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     window.addEventListener('mousedown', onClick);
     return () => window.removeEventListener('mousedown', onClick);
   }, [showColorPicker]);
+
+  // Pomodoro Timer Effect
+  useEffect(() => {
+    let interval: any;
+    if (isPomodoroActive && pomodoroTime > 0) {
+      interval = setInterval(() => {
+        setPomodoroTime((prev) => prev - 1);
+      }, 1000);
+    } else if (pomodoroTime === 0) {
+      setIsPomodoroActive(false);
+    }
+    return () => clearInterval(interval);
+  }, [isPomodoroActive, pomodoroTime]);
+
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+
+    if (h > 0) {
+      return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   // Toggle privacy manually and sync all current tags to that state
   const togglePrivacy = () => {
@@ -454,126 +490,306 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
         </div>
 
         <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pt-4 pb-2 note-editor-scrollbar">
-          <textarea
-            ref={contentRef}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const textarea = e.currentTarget;
-                const cursorStart = textarea.selectionStart;
-                const textBeforeCursor = content.substring(0, cursorStart);
+          {/* Pomodoro Timer Bar (Always on top if active) */}
+          {isPomodoroActive && (
+            <div className="sticky top-0 left-0 right-0 h-1 bg-gray-100 dark:bg-gray-800 z-50 mb-6">
+              <div
+                className="h-full bg-blue-500 transition-all duration-1000 ease-linear"
+                style={{ width: `${(pomodoroTime / pomodoroTotalTime) * 100}%` }}
+              />
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-2">
+                <Timer className="w-3 h-3" />
+                {formatTime(pomodoroTime)}
+              </div>
+            </div>
+          )}
 
-                // Handle Math Command: @c- + Enter
-                const lastAtSignIndexMath = textBeforeCursor.lastIndexOf('@c-');
-                if (lastAtSignIndexMath !== -1) {
-                  const potentialCommand = textBeforeCursor.substring(lastAtSignIndexMath);
-                  if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
-                    const result = evaluateMathCommand(potentialCommand);
-                    if (result !== null) {
-                      e.preventDefault();
-                      const textAfterCursor = content.substring(cursorStart);
-                      const newContent = content.substring(0, lastAtSignIndexMath) + result + textAfterCursor;
-                      setContent(newContent);
-                      setTimeout(() => {
-                        if (contentRef.current) {
-                          const newCursorPos = lastAtSignIndexMath + result.length;
-                          contentRef.current.selectionStart = newCursorPos;
-                          contentRef.current.selectionEnd = newCursorPos;
-                        }
-                      }, 0);
-                      return; // Exit after math command handled
+          {!isQuizMode && (
+            <textarea
+              ref={contentRef}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const textarea = e.currentTarget;
+                  const cursorStart = textarea.selectionStart;
+                  const textBeforeCursor = content.substring(0, cursorStart);
+
+                  // Handle Math Command: @c- + Enter
+                  const lastAtSignIndexMath = textBeforeCursor.lastIndexOf('@c-');
+                  if (lastAtSignIndexMath !== -1) {
+                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexMath);
+                    if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
+                      const result = evaluateMathCommand(potentialCommand);
+                      if (result !== null) {
+                        e.preventDefault();
+                        const textAfterCursor = content.substring(cursorStart);
+                        const newContent = content.substring(0, lastAtSignIndexMath) + result + textAfterCursor;
+                        setContent(newContent);
+                        setTimeout(() => {
+                          if (contentRef.current) {
+                            const newCursorPos = lastAtSignIndexMath + result.length;
+                            contentRef.current.selectionStart = newCursorPos;
+                            contentRef.current.selectionEnd = newCursorPos;
+                          }
+                        }, 0);
+                        return; // Exit after math command handled
+                      }
                     }
                   }
-                }
 
-                // Handle Translation Command: @t-[lang] + Enter
-                const lastAtSignIndexTrans = textBeforeCursor.lastIndexOf('@t-');
-                if (lastAtSignIndexTrans !== -1) {
-                  const potentialCommand = textBeforeCursor.substring(lastAtSignIndexTrans);
-                  if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
-                    const langCode = extractLangCode(potentialCommand);
-                    if (langCode) {
-                      e.preventDefault();
-                      const contentToTranslate = (content.substring(0, lastAtSignIndexTrans) + content.substring(cursorStart)).trim();
-                      if (contentToTranslate) {
-                        setIsTranslating(true);
+                  // Handle Translation Command: @t-[lang] + Enter
+                  const lastAtSignIndexTrans = textBeforeCursor.lastIndexOf('@t-');
+                  if (lastAtSignIndexTrans !== -1) {
+                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexTrans);
+                    if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
+                      const langCode = extractLangCode(potentialCommand);
+                      if (langCode) {
+                        e.preventDefault();
+                        const contentToTranslate = (content.substring(0, lastAtSignIndexTrans) + content.substring(cursorStart)).trim();
+                        if (contentToTranslate) {
+                          setIsTranslating(true);
 
-                        // Translate both title and content
-                        const titleToTranslate = title.trim();
+                          // Translate both title and content
+                          const titleToTranslate = title.trim();
 
-                        // Execute in sequence to avoid hitting rate limits or fetch errors on long notes
+                          // Execute in sequence to avoid hitting rate limits or fetch errors on long notes
+                          (async () => {
+                            try {
+                              const translatedContent = await translateText(contentToTranslate, langCode);
+                              if (translatedContent) setContent(translatedContent);
+
+                              if (titleToTranslate) {
+                                const translatedTitle = await translateText(titleToTranslate, langCode);
+                                if (translatedTitle) setTitle(translatedTitle.slice(0, MAX_TITLE_LENGTH));
+                              }
+                            } catch (err) {
+                              console.error('Note translation failed:', err);
+                            } finally {
+                              setIsTranslating(false);
+                            }
+                          })();
+                        }
+                        return; // Exit after translation command handled
+                      }
+                    }
+                  }
+
+                  // Handle Insight Commands: @wiki- or @def- + Enter
+                  const lastAtSignIndexInsight = textBeforeCursor.lastIndexOf('@');
+                  if (lastAtSignIndexInsight !== -1) {
+                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexInsight);
+                    if (!potentialCommand.includes('\n') && potentialCommand.length > 5) {
+                      const insightCmd = parseInsightCommand(potentialCommand);
+                      if (insightCmd && insightCmd.query) {
+                        e.preventDefault();
+                        setIsLookingUp(true);
+                        setLookupMessage(insightCmd.type === 'wiki' ? 'Searching Wikipedia...' : 'Looking up definition...');
+
                         (async () => {
                           try {
-                            const translatedContent = await translateText(contentToTranslate, langCode);
-                            if (translatedContent) setContent(translatedContent);
+                            let result = '';
+                            if (insightCmd.type === 'wiki') {
+                              result = await fetchWikiSummary(insightCmd.query);
+                            } else {
+                              result = await fetchDefinition(insightCmd.query);
+                            }
 
-                            if (titleToTranslate) {
-                              const translatedTitle = await translateText(titleToTranslate, langCode);
-                              if (translatedTitle) setTitle(translatedTitle.slice(0, MAX_TITLE_LENGTH));
+                            if (result) {
+                              const textAfterCursor = content.substring(cursorStart);
+                              // Replace the command with the result
+                              const newContent = content.substring(0, lastAtSignIndexInsight) + result + textAfterCursor;
+                              setContent(newContent);
+
+                              // Set cursor at the end of inserted result
+                              setTimeout(() => {
+                                if (contentRef.current) {
+                                  const newCursorPos = lastAtSignIndexInsight + result.length;
+                                  contentRef.current.selectionStart = newCursorPos;
+                                  contentRef.current.selectionEnd = newCursorPos;
+                                }
+                              }, 0);
                             }
                           } catch (err) {
-                            console.error('Note translation failed:', err);
+                            console.error('Insight lookup failed:', err);
                           } finally {
-                            setIsTranslating(false);
+                            setIsLookingUp(false);
                           }
                         })();
+                        return;
                       }
-                      return; // Exit after translation command handled
                     }
                   }
-                }
 
-                // Handle Insight Commands: @wiki- or @def- + Enter
-                const lastAtSignIndexInsight = textBeforeCursor.lastIndexOf('@');
-                if (lastAtSignIndexInsight !== -1) {
-                  const potentialCommand = textBeforeCursor.substring(lastAtSignIndexInsight);
-                  if (!potentialCommand.includes('\n') && potentialCommand.length > 5) {
-                    const insightCmd = parseInsightCommand(potentialCommand);
-                    if (insightCmd && insightCmd.query) {
+                  // Handle Utility Commands: @w-, @cc-, @u- + Enter
+                  const lastAtSignIndexUtil = textBeforeCursor.lastIndexOf('@');
+                  if (lastAtSignIndexUtil !== -1) {
+                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexUtil);
+                    if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
+                      const utilCmd = parseUtilityCommand(potentialCommand);
+                      if (utilCmd) {
+                        e.preventDefault();
+                        setIsLookingUp(true);
+                        setLookupMessage('Processing command...');
+
+                        (async () => {
+                          try {
+                            let result = '';
+                            if (utilCmd.type === 'weather') {
+                              result = await fetchWeather(utilCmd.city);
+                            } else if (utilCmd.type === 'currency') {
+                              result = await fetchCurrencyExchange(utilCmd.amount, utilCmd.from, utilCmd.to);
+                            } else if (utilCmd.type === 'unit') {
+                              result = convertUnits(utilCmd.value, utilCmd.from, utilCmd.to);
+                            }
+
+                            if (result) {
+                              const textAfterCursor = content.substring(cursorStart);
+                              const newContent = content.substring(0, lastAtSignIndexUtil) + result + textAfterCursor;
+                              setContent(newContent);
+                              setTimeout(() => {
+                                if (contentRef.current) {
+                                  const newCursorPos = lastAtSignIndexUtil + result.length;
+                                  contentRef.current.selectionStart = newCursorPos;
+                                  contentRef.current.selectionEnd = newCursorPos;
+                                }
+                              }, 0);
+                            }
+                          } catch (err) {
+                            console.error('Utility command failed:', err);
+                          } finally {
+                            setIsLookingUp(false);
+                          }
+                        })();
+                        return;
+                      }
+                    }
+                  }
+
+                  // Handle Pomodoro Command: @pomo or @pomo-[time] + Enter
+                  const lastAtSignIndexPomo = textBeforeCursor.lastIndexOf('@pomo');
+                  if (lastAtSignIndexPomo !== -1) {
+                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexPomo);
+                    if (!potentialCommand.includes('\n')) {
                       e.preventDefault();
-                      setIsLookingUp(true);
-                      setLookupMessage(insightCmd.type === 'wiki' ? 'Searching Wikipedia...' : 'Looking up definition...');
+                      let timeStr = '';
+                      if (potentialCommand.startsWith('@pomo-')) {
+                        timeStr = potentialCommand.slice(6).trim();
+                      }
 
-                      (async () => {
-                        try {
-                          let result = '';
-                          if (insightCmd.type === 'wiki') {
-                            result = await fetchWikiSummary(insightCmd.query);
-                          } else {
-                            result = await fetchDefinition(insightCmd.query);
-                          }
-
-                          if (result) {
-                            const textAfterCursor = content.substring(cursorStart);
-                            // Replace the command with the result
-                            const newContent = content.substring(0, lastAtSignIndexInsight) + result + textAfterCursor;
-                            setContent(newContent);
-
-                            // Set cursor at the end of inserted result
-                            setTimeout(() => {
-                              if (contentRef.current) {
-                                const newCursorPos = lastAtSignIndexInsight + result.length;
-                                contentRef.current.selectionStart = newCursorPos;
-                                contentRef.current.selectionEnd = newCursorPos;
-                              }
-                            }, 0);
-                          }
-                        } catch (err) {
-                          console.error('Insight lookup failed:', err);
-                        } finally {
-                          setIsLookingUp(false);
-                        }
-                      })();
+                      const seconds = parsePomoTime(timeStr);
+                      const textAfterCursor = content.substring(cursorStart);
+                      setContent(content.substring(0, lastAtSignIndexPomo) + textAfterCursor);
+                      setPomodoroTime(seconds);
+                      setPomodoroTotalTime(seconds);
+                      setIsPomodoroActive(true);
                       return;
                     }
                   }
+
+                  // Handle Quiz Mode Command: @quiz + Enter
+                  if (textBeforeCursor.endsWith('@quiz')) {
+                    e.preventDefault();
+                    const lastIndex = textBeforeCursor.lastIndexOf('@quiz');
+                    const textAfterCursor = content.substring(cursorStart);
+                    setContent(content.substring(0, lastIndex) + textAfterCursor);
+                    setIsQuizMode(!isQuizMode);
+                    setRevealedQuizItems([]);
+                    return;
+                  }
                 }
-              }
-            }}
-            placeholder="Start writing your note..."
-            className={`w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] transition-opacity duration-300 ${isTranslating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
-          />
+              }}
+              placeholder="Start writing your note..."
+              className={`w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] transition-opacity duration-300 ${isTranslating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
+            />
+          )}
+
+          {isQuizMode && (
+            <div className="max-w-3xl mx-auto py-6 animate-in fade-in duration-300">
+              <div className="flex justify-end mb-8">
+                <button
+                  onClick={() => {
+                    setIsQuizMode(false);
+                    setRevealedQuizItems([]);
+                    setQuizUserAnswers({});
+                  }}
+                  className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium"
+                >
+                  Exit Quiz
+                </button>
+              </div>
+
+              <div className="space-y-8">
+                {content.split('\n').filter(line => line.trim()).map((line, idx) => {
+                  const isAnswer = line.trim().toLowerCase().startsWith('a:');
+                  if (!isAnswer) {
+                    return (
+                      <div key={idx} className="animate-in fade-in duration-300">
+                        <p className="text-lg text-gray-900 dark:text-gray-100 leading-relaxed">
+                          {line}
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  const correctAnswer = line.replace(/^a:\s*/i, '').trim();
+                  const userAnswer = quizUserAnswers[idx] || '';
+                  const isRevealed = revealedQuizItems.includes(idx);
+                  const isCorrect = isRevealed && userAnswer.trim().toLowerCase() === correctAnswer.toLowerCase();
+
+                  return (
+                    <div key={idx} className="animate-in fade-in duration-300">
+                      {!isRevealed ? (
+                        <div className="flex flex-col gap-2 pt-1">
+                          <input
+                            type="text"
+                            value={userAnswer}
+                            onChange={(e) => setQuizUserAnswers({ ...quizUserAnswers, [idx]: e.target.value })}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                setRevealedQuizItems([...revealedQuizItems, idx]);
+                              }
+                            }}
+                            placeholder="Answer..."
+                            className="bg-transparent border-b border-gray-200 dark:border-gray-800 py-1 text-lg outline-none focus:border-blue-400 transition-colors dark:text-white"
+                          />
+                          <div className="flex gap-4">
+                            <button
+                              onClick={() => setRevealedQuizItems([...revealedQuizItems, idx])}
+                              className="text-[10px] uppercase font-bold text-blue-500 hover:underline"
+                            >
+                              Check
+                            </button>
+                            <button
+                              onClick={() => {
+                                setQuizUserAnswers({ ...quizUserAnswers, [idx]: correctAnswer });
+                                setRevealedQuizItems([...revealedQuizItems, idx]);
+                              }}
+                              className="text-[10px] uppercase font-bold text-gray-400 hover:underline"
+                            >
+                              Reveal
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="pt-1">
+                          <p className={`text-lg italic ${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
+                            {isCorrect ? '✓ ' : '→ '}{correctAnswer}
+                          </p>
+                          {!isCorrect && userAnswer.trim() && (
+                            <p className="text-xs text-gray-400 mt-1">
+                              (You wrote: {userAnswer})
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {(isTranslating || isLookingUp) && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="flex flex-col items-center gap-2">
