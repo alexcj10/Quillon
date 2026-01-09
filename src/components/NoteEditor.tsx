@@ -775,7 +775,6 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                                   </button>
                                   <button
                                     onClick={() => {
-                                      setQuizUserAnswers({ ...quizUserAnswers, [item.originalIdx]: correctAnswer });
                                       setRevealedQuizItems([...revealedQuizItems, item.originalIdx]);
                                     }}
                                     className="text-[10px] uppercase font-bold text-gray-400 hover:underline"
@@ -786,7 +785,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                               </div>
                             ) : (
                               <div className="pt-1">
-                                <p className={`text-lg italic ${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
+                                <p className={`text-lg italic ${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
                                   {isCorrect ? '✓ ' : '→ '}{correctAnswer}
                                 </p>
                                 {!isCorrect && userAnswer.trim() && (
