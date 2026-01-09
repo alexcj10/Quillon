@@ -64,6 +64,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   // Quiz mode state
   const [isQuizMode, setIsQuizMode] = useState(false);
+  const [isQuizShuffled, setIsQuizShuffled] = useState(false);
   const [revealedQuizItems, setRevealedQuizItems] = useState<number[]>([]);
   const [quizUserAnswers, setQuizUserAnswers] = useState<Record<number, string>>({});
 
@@ -703,14 +704,19 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     }
                   }
 
-                  // Handle Quiz Mode Command: @quiz + Enter
-                  if (textBeforeCursor.endsWith('@quiz')) {
+                  // Handle Quiz Mode Command: @quiz or @quiz-s + Enter
+                  if (textBeforeCursor.endsWith('@quiz') || textBeforeCursor.endsWith('@quiz-s')) {
                     e.preventDefault();
-                    const lastIndex = textBeforeCursor.lastIndexOf('@quiz');
+                    const isShuffle = textBeforeCursor.endsWith('@quiz-s');
+                    const cmdLength = isShuffle ? 7 : 5;
+                    const lastIndex = textBeforeCursor.lastIndexOf(isShuffle ? '@quiz-s' : '@quiz');
                     const textAfterCursor = content.substring(cursorStart);
+
                     setContent(content.substring(0, lastIndex) + textAfterCursor);
-                    setIsQuizMode(!isQuizMode);
+                    setIsQuizShuffled(isShuffle);
+                    setIsQuizMode(true);
                     setRevealedQuizItems([]);
+                    setQuizUserAnswers({});
                     return;
                   }
                 }
@@ -735,6 +741,14 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       items[items.length - 1].answer = line;
                     }
                   });
+
+                  // SHUFFLE LOGIC
+                  if (isQuizShuffled) {
+                    for (let i = items.length - 1; i > 0; i--) {
+                      const j = Math.floor(Math.random() * (i + 1));
+                      [items[i], items[j]] = [items[j], items[i]];
+                    }
+                  }
 
                   return items.map((item, idx) => {
                     const correctAnswer = item.answer ? item.answer.replace(/^a:\s*/i, '').trim() : '';

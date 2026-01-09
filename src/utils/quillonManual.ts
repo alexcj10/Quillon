@@ -129,7 +129,7 @@ Speed up your writing with instant lookups directly in the note editor. Type the
     - Example: \`@t-es\` translates the entire note into Spanish.
 - **Pomodoro Timer**: \`@pomo\` or \`@pomo-[time]\`
     - Starts a focus session. Supports custom formats like \`@pomo-1h 30m\` or \`@pomo-10m\`.
-- **Quiz Mode**: \`@quiz\`
+- **Quiz Mode**: \`@quiz\` (Normal) or \`@quiz-s\` (Shuffled)
     - Toggles interactive flashcard mode. Lines starting with \`A:\` are hidden.
 - **Weather**: \`@w-[city]\`
     - Example: \`@w-London\` fetches current weather.

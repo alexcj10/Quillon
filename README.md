@@ -102,9 +102,12 @@ Fetch real-time data and perform conversions directly in your note:
 - **Currency**: Type `@cc-[amount][from] to [to]` (e.g., `@cc-100usd to eur`) for live exchange rates.
 - **Units**: Type `@u-[value][unit] to [unit]` (e.g., `@u-5km to miles`) for quick conversions.
 
-### ⚡ Flashcard (Quiz) Mode
-Turn your notes into interactive study materials:
-- **Toggle**: Type `@quiz` to enter or exit Quiz Mode.
+### ⚡ Study & Productivity
+- **Zen Quiz Mode**: Interactive flashcards within your notes.
+  - `@quiz`: Starts quiz mode in natural order.
+  - `@quiz-s`: Starts quiz mode with **randomly shuffled** questions.
+- **Pomodoro Timer**: Build-in focus timer.
+ or exit Quiz Mode.
 - **Study**: Any line starting with `A: ` (or `a:`) will be hidden behind a "Reveal" button.
 - **Interactive**: Reveal individual answers as you study.
 
