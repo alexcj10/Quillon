@@ -138,7 +138,7 @@ Speed up your writing with instant lookups directly in the note editor. Type the
 - **Weather**: \`@w-[city]\`
     - Example: \`@w-London\` fetches current weather.
 - **Currency**: \`@cc-[amount][from] to [to]\`
-    - Example: \`@cc-100usd to eur\`. **Note**: Use 3-letter codes (USD, INR, EUR) only.
+    - Example: \`@cc-100usd to eur\`. Fetches **daily market rates**.
 - **Unit Conversion**: \`@u-[value][unit] to [unit]\`
     - Example: \`@u-10kg to lbs\` or \`@u-5km to miles\`. Supports weight, length, and temp.
 
