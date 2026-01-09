@@ -3,18 +3,78 @@
  * Handles Weather, Currency, and Unit conversions.
  */
 
+const WMO_CODES: Record<number, string> = {
+    0: 'Clear sky',
+    1: 'Mainly clear',
+    2: 'Partly cloudy',
+    3: 'Overcast',
+    45: 'Fog',
+    48: 'Depositing rime fog',
+    51: 'Drizzle: Light',
+    53: 'Drizzle: Moderate',
+    55: 'Drizzle: Dense',
+    56: 'Freezing Drizzle: Light',
+    57: 'Freezing Drizzle: Dense',
+    61: 'Rain: Slight',
+    63: 'Rain: Moderate',
+    65: 'Rain: Heavy',
+    66: 'Freezing Rain: Light',
+    67: 'Freezing Rain: Heavy',
+    71: 'Snow fall: Slight',
+    73: 'Snow fall: Moderate',
+    75: 'Snow fall: Heavy',
+    77: 'Snow grains',
+    80: 'Rain showers: Slight',
+    81: 'Rain showers: Moderate',
+    82: 'Rain showers: Violent',
+    85: 'Snow showers: Slight',
+    86: 'Snow showers: Heavy',
+    95: 'Thunderstorm: Slight or moderate',
+    96: 'Thunderstorm with slight hail',
+    99: 'Thunderstorm with heavy hail',
+};
+
 /**
- * Fetches current weather for a city using wttr.in
+ * Fetches current weather for a city using Open-Meteo (High Accuracy)
  */
 export async function fetchWeather(city: string): Promise<string> {
     try {
-        const response = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=3`);
-        if (!response.ok) throw new Error('Weather fetch failed');
-        const text = await response.text();
-        return `Weather (${city}): ${text.trim()}`;
+        // Step 1: Geocoding - Convert city name to coordinates
+        const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
+        if (!geoResponse.ok) throw new Error('Geocoding failed');
+        const geoData = await geoResponse.json();
+
+        if (!geoData.results || geoData.results.length === 0) {
+            return `Weather Error: Could not find city "${city}".`;
+        }
+
+        const { latitude, longitude, name, country } = geoData.results[0];
+
+        // Step 2: Fetch Weather using Coordinates
+        const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+        if (!weatherResponse.ok) throw new Error('Weather fetch failed');
+        const weatherData = await weatherResponse.json();
+
+        if (weatherData.current_weather) {
+            const { temperature, weathercode, windspeed } = weatherData.current_weather;
+            const condition = WMO_CODES[weathercode] || 'Unknown';
+            return `Weather for ${name}, ${country}: ${temperature}°C, ${condition} (Wind: ${windspeed} km/h)`;
+        }
+
+        return `Weather (${city}): Data unavailable.`;
     } catch (error) {
         console.error('Weather error:', error);
-        return `Weather (${city}): Could not fetch data.`;
+        // Fallback to wttr.in if Open-Meteo fails for some reason
+        try {
+            const response = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=3`);
+            if (response.ok) {
+                const text = await response.text();
+                return `Weather (${city}): ${text.trim()} (Fallback)`;
+            }
+        } catch (f) {
+            console.error('Fallback weather error:', f);
+        }
+        return `Weather (${city}): Service unavailable.`;
     }
 }
 
