@@ -130,11 +130,11 @@ Speed up your writing with instant lookups directly in the note editor. Type the
 - **Pomodoro Timer**: \`@pomo\` or \`@pomo-[time]\`
     - Starts a focus session. Supports custom formats like \`@pomo-1h 30m\` or \`@pomo-10m\`.
 - **Quiz Mode**: \`@quiz\` (Normal) or \`@quiz-s\` (Shuffled)
-    - **How it Works**: 
-        - Write a Question line, then an answer line starting with \`A: \`.
-        - The app automatically cleans up your old numbering and re-indexes the quiz professionally (**1, 2, 3...**).
-        - Type your answer and press **Enter** to check against the solution.
-    - **Note**: This mode is and distraction-free; the title is locked and the header action becomes **Exit Quiz**.
+    - **Note Structure**: Pairs any line of text with the \`A: \` line immediately following it.
+    - **Smart Commands**: \`@quiz\` for natural order, \`@quiz-s\` for randomized **Shuffle Mode**.
+    - **Auto-Indexing**: Automatically strips old labels (Q1:, 5., etc.) and adds clean sequential numbers (**1, 2, 3...**).
+    - **Validation**: Type your answer and press **Enter**. Green **✓** means correct; Gray **→** shows the solution.
+    - **Zen Focus**: Disables title editing and replaces "Save" with **Exit Quiz**.
 - **Weather**: \`@w-[city]\`
     - Example: \`@w-London\` fetches current weather.
 - **Currency**: \`@cc-[amount][from] to [to]\`

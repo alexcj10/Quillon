@@ -237,11 +237,23 @@ Fetch real-time data and perform conversions directly in your note.
 Turn your notes into interactive study materials.
 
 ### 📖 Rules of Recall
-1. **The 'A:' Prefix**: Your answer lines **MUST** start with \`A: \` (e.g., \`A: Paris\`).
-2. **Commands**: Type \`@quiz\` for normal order or \`@quiz-s\` to **Shuffle** everything randomly.
-3. **Auto-Clean**: The app automatically strips your written numbers (like \`Q1:\`) and adds fresh, professional sequential indexing (\`1, 2, 3...\`).
-4. **Validation**: Type your answer and press **Enter** to check. Green **✓** means you got it! Gray **→** shows the solution for next time.
-5. **Zen Focus**: Everything else is hidden. Exit anytime via the header button.
+**1. Note Structure**
+- **Question**: Any normal line of text.
+- **Answer**: Must start with **\`A: \`** (e.g., \`A: Paris\`).
+- **Hint**: Standalone \`A: \` lines still work as numbered items!
+
+**2. Commands**
+- **\`@quiz\`**: Default order study.
+- **\`@quiz-s\`**: Randomized **Shuffle Mode**.
+
+**3. Robust Auto-Indexing**
+- **Strip**: Removes old labels like \`Q1:\`, \`5)\`, or \`Question:\`.
+- **Number**: Adds fresh sequential numbers (**1, 2, 3...**) automatically.
+
+**4. Interactive Validation**
+- **Check**: Type answer + **Enter** for Green **✓** feedback.
+- **Reveal**: Click to see the Gray **→** solution neutrally.
+- **Zen**: Locked title and header-integrated **Exit Quiz** button.
 
 ---
 
