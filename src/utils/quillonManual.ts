@@ -120,9 +120,9 @@ Quillon uses a unique color-coded tag system to organize notes into a hierarchy 
 Speed up your writing with instant lookups directly in the note editor. Type the command followed by a word/topic and press **Enter**.
 
 - **Wikipedia Lookup**: \`@wiki-[topic]\`
-    - Example: \`@wiki-Artificial Intelligence\` fetches the Wikipedia summary and appends it.
+    - Gets summaries for one or many topics (e.g., \`@wiki-Elon Musk and Jeff Bezos\`).
 - **Dictionary Definition**: \`@def-[word]\`
-    - Example: \`@def-serendipity\` fetches the meaning and part of speech.
+    - Gets meanings, phonetics, and usage examples.
 - **Math Calculator**: \`@c-[expression]\`
     - Example: \`@c-120*5\` calculates the result instantly.
 - **Translation**: \`@t-[lang_code]\`

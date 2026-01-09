@@ -190,6 +190,23 @@ Translate any note into 100+ languages without leaving Quillon.
 - **Hebrew** (he) — \`@t-hebrew\`
 
 > **Note**: Full names work for common languages listed above. For all other languages, use the standard **ISO shortcut code** (e.g., \`@t-fi\` for Finnish, \`@t-ta\` for Tamil) to translate into any language in the world instantly.
+    
+---
+
+## 🔍 Quick Insight Lookup
+
+Instantly fetch factual information and definitions directly into your note.
+
+### 📖 Wikipedia Summary
+- **Usage**: Type \`@wiki-[topic]\` and press **Enter**
+- **Multi-Topic**: Supports multiple topics (e.g., \`@wiki-Sam Altman and Mira Murati\`)
+- **Action**: Appends a concise summary for each detected entity
+
+### 🔤 Dictionary Definitions
+- **Usage**: Type \`@def-[word]\` and press **Enter**
+- **Action**: Provides meanings, phonetics, and usage examples
+
+> **Accuracy**: Uses direct Wikipedia and professional Dictionary APIs for 100% factual accuracy without AI hallucinations.
 
 ---
 
