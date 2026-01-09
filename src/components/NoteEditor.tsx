@@ -708,7 +708,6 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                   if (textBeforeCursor.endsWith('@quiz') || textBeforeCursor.endsWith('@quiz-s')) {
                     e.preventDefault();
                     const isShuffle = textBeforeCursor.endsWith('@quiz-s');
-                    const cmdLength = isShuffle ? 7 : 5;
                     const lastIndex = textBeforeCursor.lastIndexOf(isShuffle ? '@quiz-s' : '@quiz');
                     const textAfterCursor = content.substring(cursorStart);
 
@@ -737,8 +736,15 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     const isAnswer = line.trim().toLowerCase().startsWith('a:');
                     if (!isAnswer) {
                       items.push({ question: line, answer: null, originalIdx: idx });
-                    } else if (items.length > 0) {
-                      items[items.length - 1].answer = line;
+                    } else {
+                      // If it's an answer: 
+                      // 1. Attach to previous question if it doesn't have an answer yet
+                      // 2. Otherwise, create a new item with an empty question
+                      if (items.length > 0 && items[items.length - 1].answer === null) {
+                        items[items.length - 1].answer = line;
+                      } else {
+                        items.push({ question: '', answer: line, originalIdx: idx });
+                      }
                     }
                   });
 
@@ -760,7 +766,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       <div key={idx} className="animate-in fade-in duration-300">
                         {/* Question */}
                         <p className="text-lg text-gray-900 dark:text-gray-100 leading-relaxed mb-2">
-                          {item.question}
+                          {idx + 1}. {item.question.replace(/^(?:q|que|question|task)\s*(?:\d+\s*)?[\.\:\)]\s*|^\d+[\.\:\)]\s*/i, '')}
                         </p>
 
                         {/* Answer Area (Tightly coupled to question) */}

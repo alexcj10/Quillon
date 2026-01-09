@@ -102,14 +102,31 @@ Fetch real-time data and perform conversions directly in your note:
 - **Currency**: Type `@cc-[amount][from] to [to]` (e.g., `@cc-100usd to eur`) for live exchange rates.
 - **Units**: Type `@u-[value][unit] to [unit]` (e.g., `@u-5km to miles`) for quick conversions.
 
-### ⚡ Study & Productivity
-- **Zen Quiz Mode**: Interactive flashcards within your notes.
-  - `@quiz`: Starts quiz mode in natural order.
-  - `@quiz-s`: Starts quiz mode with **randomly shuffled** questions.
-- **Pomodoro Timer**: Build-in focus timer.
- or exit Quiz Mode.
-- **Study**: Any line starting with `A: ` (or `a:`) will be hidden behind a "Reveal" button.
-- **Interactive**: Reveal individual answers as you study.
+### ⚡ Study & Productivity (Deep Dive)
+#### 🧘‍♂️ Zen Quiz Mode
+Turn any note into a professional study session with one command.
+
+**1. Note Structure**
+The quiz engine looks for a specific pattern:
+- **Questions**: Any line of text (e.g., "What is the capital of Japan?").
+- **Answers**: A line starting with **`A: `** (e.g., `A: Tokyo`).
+- **Grouping**: The engine automatically pairs each question with the `A: ` line immediately following it.
+
+**2. Smart Commands**
+- **`@quiz`**: Activates Quiz Mode with questions in their natural written order.
+- **`@quiz-s`**: Activates **Shuffle Mode**. Questions are randomized to test true mastery of the content.
+
+**3. Robust Auto-Indexing**
+Don't worry about formatting! The app handles it:
+- **Auto-Stripping**: It detects and removes old labels like `Q1:`, `5.`, `Question:`, or `task 10)` from your note.
+- **Clean Numbering**: It replaces everything with a fresh, sequential sequence (`1.`, `2.`, `3.`) based on the current view.
+- **Standalone Mode**: If you write just `A: Answer` without a question, the app will still create a numbered box for it.
+
+**4. Interactive Validation**
+- **Typed Input**: Type your answer and press **Enter** (or click **Check**).
+- **Active Feedback**: Correct answers earn a Green **✓**. Incorrect ones show the solution with a Gray **→**.
+- **Reveal Hints**: Click **Reveal** to see the answer neutrally without marking it as resolved.
+
 
 #### 📚 Supported Language Reference
 | Language | Shortcut | Command |

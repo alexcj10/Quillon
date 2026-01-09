@@ -236,11 +236,12 @@ Fetch real-time data and perform conversions directly in your note.
 
 Turn your notes into interactive study materials.
 
-### 📖 How it Works
-1. Any line starting with \`A:\` (or \`a:\`) is treated as an answer
-2. Type \`@quiz\` and press **Enter** to toggle the mode
-3. In **Quiz Mode**, answers are hidden behind a **"Reveal"** button
-4. Click to reveal individual answers as you study
+### 📖 Rules of Recall
+1. **The 'A:' Prefix**: Your answer lines **MUST** start with \`A: \` (e.g., \`A: Paris\`).
+2. **Commands**: Type \`@quiz\` for normal order or \`@quiz-s\` to **Shuffle** everything randomly.
+3. **Auto-Clean**: The app automatically strips your written numbers (like \`Q1:\`) and adds fresh, professional sequential indexing (\`1, 2, 3...\`).
+4. **Validation**: Type your answer and press **Enter** to check. Green **✓** means you got it! Gray **→** shows the solution for next time.
+5. **Zen Focus**: Everything else is hidden. Exit anytime via the header button.
 
 ---
 
