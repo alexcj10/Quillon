@@ -216,7 +216,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   const saveNote = () => {
     onSave({
-      title,
+      title: title.trim().slice(0, MAX_TITLE_LENGTH),
       content,
       tags,
       color: color || undefined,
@@ -507,7 +507,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
                             if (titleToTranslate) {
                               const translatedTitle = await translateText(titleToTranslate, langCode);
-                              if (translatedTitle) setTitle(translatedTitle);
+                              if (translatedTitle) setTitle(translatedTitle.slice(0, MAX_TITLE_LENGTH));
                             }
                           } catch (err) {
                             console.error('Note translation failed:', err);

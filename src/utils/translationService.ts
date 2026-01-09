@@ -50,13 +50,22 @@ export async function translateText(text: string, targetLang: string): Promise<s
         }
 
         // Find best split point within the last 20% of the chunk
+        // If CHUNK_SIZE is 2000, we search from 1600 to 2000 for a good breaking point
+        const searchRange = Math.floor(CHUNK_SIZE * 0.2);
         let splitIndex = CHUNK_SIZE;
-        const searchArea = remaining.substring(CHUNK_SIZE - 200, CHUNK_SIZE);
-        const lastPeriod = searchArea.lastIndexOf('. ');
-        const lastNewline = searchArea.lastIndexOf('\n');
 
-        if (lastNewline !== -1) splitIndex = CHUNK_SIZE - 200 + lastNewline + 1;
-        else if (lastPeriod !== -1) splitIndex = CHUNK_SIZE - 200 + lastPeriod + 2;
+        const searchArea = remaining.substring(CHUNK_SIZE - searchRange, CHUNK_SIZE);
+        const lastDoubleNewline = searchArea.lastIndexOf('\n\n');
+        const lastNewline = searchArea.lastIndexOf('\n');
+        const lastPeriod = searchArea.lastIndexOf('. ');
+
+        if (lastDoubleNewline !== -1) {
+            splitIndex = CHUNK_SIZE - searchRange + lastDoubleNewline + 2;
+        } else if (lastNewline !== -1) {
+            splitIndex = CHUNK_SIZE - searchRange + lastNewline + 1;
+        } else if (lastPeriod !== -1) {
+            splitIndex = CHUNK_SIZE - searchRange + lastPeriod + 2;
+        }
 
         chunks.push(remaining.substring(0, splitIndex));
         remaining = remaining.substring(splitIndex);
@@ -65,19 +74,25 @@ export async function translateText(text: string, targetLang: string): Promise<s
     try {
         // Process chunks sequentially to be polite to the free API and avoid ratelimiting
         let fullResult = '';
-        for (const chunk of chunks) {
+        for (let i = 0; i < chunks.length; i++) {
+            const chunk = chunks[i];
             const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(chunk)}`;
             const response = await fetch(url);
 
             if (!response.ok) {
-                console.error(`Translation chunk failed (Status: ${response.status})`);
-                continue; // Try next chunk instead of failing entirely
+                console.error(`Translation chunk ${i + 1}/${chunks.length} failed (Status: ${response.status})`);
+                // If a chunk fails, we keep the original text for that part to avoid losing data
+                fullResult += chunk;
+                continue;
             }
 
             const data = await response.json();
             if (data && data[0]) {
                 const chunkResult = data[0].map((segment: any[]) => segment[0]).join('');
                 fullResult += chunkResult;
+            } else {
+                // If parsing fails, fall back to original chunk
+                fullResult += chunk;
             }
         }
 
