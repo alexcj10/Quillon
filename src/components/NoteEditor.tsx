@@ -166,7 +166,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     if (scrollParent && typeof currentScroll === 'number') {
       scrollParent.scrollTop = currentScroll;
     }
-  }, [content]);
+  }, [content, isQuizMode]);
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
