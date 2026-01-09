@@ -1,32 +1,46 @@
 /**
- * Wikipedia API: Fetches a summary for a given topic.
- * Uses a two-step process: 1. Search for correct title, 2. Fetch summary.
+ * Wikipedia API: Fetches summaries for given topic(s).
+ * Supports multiple topics separated by " and ", " & ", or commas.
  */
 export async function fetchWikiSummary(topic: string): Promise<string> {
+    // Split by " and ", " & ", or "," (with surrounding whitespace)
+    const topics = topic.split(/\s+and\s+|\s*&\s*|\s*,\s*/i).filter(t => t.trim().length > 0);
+
+    if (topics.length === 0) return 'Wikipedia: No topic provided.';
+
     try {
-        // Step 1: Search for the best matching title (handles capitalization issues)
-        const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&limit=1&search=${encodeURIComponent(topic)}`;
-        const searchResponse = await fetch(searchUrl);
-        const searchData = await searchResponse.json();
+        const results: string[] = [];
 
-        // searchData format: [query, [titles], [descriptions], [links]]
-        const correctTitle = (searchData[1] && searchData[1][0]) ? searchData[1][0] : topic;
+        for (const t of topics) {
+            const trimmedTopic = t.trim();
 
-        // Step 2: Fetch summary for the (possibly corrected) title
-        const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(correctTitle.replace(/ /g, '_'))}`;
-        const summaryResponse = await fetch(summaryUrl);
+            // Step 1: Search for the best matching page title
+            const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(trimmedTopic)}&format=json&origin=*&srlimit=1`;
+            const searchResponse = await fetch(searchUrl);
+            const searchData = await searchResponse.json();
 
-        if (!summaryResponse.ok) {
-            if (summaryResponse.status === 404) return `Wikipedia: No entry found for "${topic}".`;
-            return `Wikipedia: Error fetching data (${summaryResponse.status}).`;
+            const searchResult = searchData.query?.search?.[0];
+            const correctTitle = searchResult ? searchResult.title : trimmedTopic;
+
+            // Step 2: Fetch summary
+            const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(correctTitle.replace(/ /g, '_'))}`;
+            const summaryResponse = await fetch(summaryUrl);
+
+            if (!summaryResponse.ok) {
+                results.push(`Wikipedia (${trimmedTopic}): No entry found or error fetching data.`);
+                continue;
+            }
+
+            const data = await summaryResponse.json();
+            if (data.extract) {
+                results.push(`Wikipedia (${correctTitle}):\n${data.extract}`);
+            } else {
+                results.push(`Wikipedia (${correctTitle}): No summary available.`);
+            }
         }
 
-        const data = await summaryResponse.json();
-        if (data.extract) {
-            return `Wikipedia (${correctTitle}):\n${data.extract}`;
-        }
-
-        return `Wikipedia: No summary available for "${topic}".`;
+        // Combine with proper spacing
+        return results.join('\n\n');
     } catch (error) {
         console.error('Wikipedia lookup error:', error);
         return 'Wikipedia: Network error or lookup failed.';
