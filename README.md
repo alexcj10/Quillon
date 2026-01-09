@@ -82,6 +82,13 @@ Quickly translate any note into 100+ languages without leaving Quillon:
 - **Visual Feedback**: Shows a loading indicator while the translation is in progress.
 - **Note-Specific**: Only translates the content of the current note you are editing.
 
+### 🔍 Quick Insight Lookup
+Instantly fetch factual information and definitions directly into your note:
+- **Wikipedia Summary**: Type `@wiki-[topic]` (e.g., `@wiki-Quantum Physics`) and press **Enter**.
+- **Multi-Topic Support**: Use "and", "&", or commas to fetch multiple summaries at once (e.g., `@wiki-Sam Altman and Mira Murati`).
+- **Dictionary Definitions**: Type `@def-[word]` (e.g., `@def-serendipity`) to get meanings, phonetics, and usage examples.
+- **Purely Factual**: Uses direct Wikipedia and Dictionary APIs to ensure 100% accuracy without AI hallucinations.
+
 #### 📚 Supported Language Reference
 | Language | Shortcut | Command |
 | :--- | :---: | :--- |
@@ -203,6 +210,8 @@ npm run dev
 | Command | Description | Example |
 |---------|-------------|---------|
 | `@c-[expression]` | Solve math/algebra | `@c-2x+5=15` |
+| `@wiki-[topic]` | Wikipedia summary | `@wiki-Tesla` |
+| `@def-[word]` | Dictionary definition | `@def-logic` |
 | `@t-[lang]` | Translate current note | `@t-es` / `@t-hi` |
 
 ### Tag Management Commands
