@@ -1,19 +1,29 @@
 /**
  * Wikipedia API: Fetches a summary for a given topic.
+ * Uses a two-step process: 1. Search for correct title, 2. Fetch summary.
  */
 export async function fetchWikiSummary(topic: string): Promise<string> {
     try {
-        const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
-        const response = await fetch(url);
+        // Step 1: Search for the best matching title (handles capitalization issues)
+        const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&limit=1&search=${encodeURIComponent(topic)}`;
+        const searchResponse = await fetch(searchUrl);
+        const searchData = await searchResponse.json();
 
-        if (!response.ok) {
-            if (response.status === 404) return `Wikipedia: No entry found for "${topic}".`;
-            return `Wikipedia: Error fetching data (${response.status}).`;
+        // searchData format: [query, [titles], [descriptions], [links]]
+        const correctTitle = (searchData[1] && searchData[1][0]) ? searchData[1][0] : topic;
+
+        // Step 2: Fetch summary for the (possibly corrected) title
+        const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(correctTitle.replace(/ /g, '_'))}`;
+        const summaryResponse = await fetch(summaryUrl);
+
+        if (!summaryResponse.ok) {
+            if (summaryResponse.status === 404) return `Wikipedia: No entry found for "${topic}".`;
+            return `Wikipedia: Error fetching data (${summaryResponse.status}).`;
         }
 
-        const data = await response.json();
+        const data = await summaryResponse.json();
         if (data.extract) {
-            return `Wikipedia (${topic}):\n${data.extract}`;
+            return `Wikipedia (${correctTitle}):\n${data.extract}`;
         }
 
         return `Wikipedia: No summary available for "${topic}".`;
