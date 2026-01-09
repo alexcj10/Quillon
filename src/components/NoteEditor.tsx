@@ -460,32 +460,48 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
               onChange={(e) => setTitle(e.target.value)}
               onFocus={() => setIsTitleFocused(true)}
               onBlur={() => setIsTitleFocused(false)}
+              readOnly={isQuizMode}
               maxLength={MAX_TITLE_LENGTH}
               placeholder="Note title"
-              className="text-xl font-semibold bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 flex-1 min-w-0"
+              className={`text-xl font-semibold bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 flex-1 min-w-0 ${isQuizMode ? 'cursor-default' : ''}`}
             />
-            <span
-              className={`text-xs ml-2 transition-opacity duration-200 ${isTitleFocused || title.length > MAX_TITLE_LENGTH * 0.8
-                ? 'opacity-100'
-                : 'opacity-0'
-                } ${title.length >= MAX_TITLE_LENGTH
-                  ? 'text-red-500 font-medium'
-                  : 'text-gray-400'
-                }`}
-            >
-              {title.length}/{MAX_TITLE_LENGTH}
-            </span>
+            {!isQuizMode && (
+              <span
+                className={`text-xs ml-2 transition-opacity duration-200 ${isTitleFocused || title.length > MAX_TITLE_LENGTH * 0.8
+                  ? 'opacity-100'
+                  : 'opacity-0'
+                  } ${title.length >= MAX_TITLE_LENGTH
+                    ? 'text-red-500 font-medium'
+                    : 'text-gray-400'
+                  }`}
+              >
+                {title.length}/{MAX_TITLE_LENGTH}
+              </span>
+            )}
           </div>
 
           <button
             onClick={() => {
-              saveNote();
-              onClose();
+              if (isQuizMode) {
+                setIsQuizMode(false);
+                setRevealedQuizItems([]);
+                setQuizUserAnswers({});
+              } else {
+                saveNote();
+                onClose();
+              }
             }}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition flex items-center gap-2 flex-shrink-0 whitespace-nowrap"
+            className={isQuizMode
+              ? "px-4 py-2 text-xs font-bold tracking-widest text-gray-500 hover:text-red-500 transition-colors uppercase border border-gray-200 dark:border-gray-800 rounded-full bg-white dark:bg-black/20"
+              : "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition flex items-center gap-2 flex-shrink-0 whitespace-nowrap"
+            }
           >
-            <Check className="w-4 h-4" />
-            Save
+            {isQuizMode ? 'Exit Quiz' : (
+              <>
+                <Check className="w-4 h-4" />
+                Save
+              </>
+            )}
           </button>
         </div>
 
@@ -705,87 +721,87 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           )}
 
           {isQuizMode && (
-            <div className="max-w-3xl mx-auto py-6 animate-in fade-in duration-300">
-              <div className="flex justify-end mb-8">
-                <button
-                  onClick={() => {
-                    setIsQuizMode(false);
-                    setRevealedQuizItems([]);
-                    setQuizUserAnswers({});
-                  }}
-                  className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium"
-                >
-                  Exit Quiz
-                </button>
-              </div>
+            <div className="relative max-w-3xl mx-auto pt-0 pb-12 animate-in fade-in duration-300">
+              <div className="space-y-6">
+                {(() => {
+                  const lines = content.split('\n').filter(l => l.trim());
+                  const items: { question: string, answer: string | null, originalIdx: number }[] = [];
 
-              <div className="space-y-8">
-                {content.split('\n').filter(line => line.trim()).map((line, idx) => {
-                  const isAnswer = line.trim().toLowerCase().startsWith('a:');
-                  if (!isAnswer) {
+                  lines.forEach((line, idx) => {
+                    const isAnswer = line.trim().toLowerCase().startsWith('a:');
+                    if (!isAnswer) {
+                      items.push({ question: line, answer: null, originalIdx: idx });
+                    } else if (items.length > 0) {
+                      items[items.length - 1].answer = line;
+                    }
+                  });
+
+                  return items.map((item, idx) => {
+                    const correctAnswer = item.answer ? item.answer.replace(/^a:\s*/i, '').trim() : '';
+                    const userAnswer = quizUserAnswers[item.originalIdx] || '';
+                    const isRevealed = revealedQuizItems.includes(item.originalIdx);
+                    const isCorrect = isRevealed && userAnswer.trim().toLowerCase() === correctAnswer.toLowerCase();
+
                     return (
                       <div key={idx} className="animate-in fade-in duration-300">
-                        <p className="text-lg text-gray-900 dark:text-gray-100 leading-relaxed">
-                          {line}
+                        {/* Question */}
+                        <p className="text-lg text-gray-900 dark:text-gray-100 leading-relaxed mb-2">
+                          {item.question}
                         </p>
+
+                        {/* Answer Area (Tightly coupled to question) */}
+                        {item.answer && (
+                          <div className="ml-0 sm:ml-4">
+                            {!isRevealed ? (
+                              <div className="flex flex-col gap-2">
+                                <input
+                                  type="text"
+                                  value={userAnswer}
+                                  onChange={(e) => setQuizUserAnswers({ ...quizUserAnswers, [item.originalIdx]: e.target.value })}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      setRevealedQuizItems([...revealedQuizItems, item.originalIdx]);
+                                    }
+                                  }}
+                                  placeholder="Answer..."
+                                  className="bg-transparent border-b border-gray-200 dark:border-gray-800 py-1 text-lg outline-none focus:border-blue-400 transition-colors dark:text-gray-300 w-full max-w-md"
+                                />
+                                <div className="flex gap-4">
+                                  <button
+                                    onClick={() => setRevealedQuizItems([...revealedQuizItems, item.originalIdx])}
+                                    className="text-[10px] uppercase font-bold text-blue-500 hover:underline"
+                                  >
+                                    Check
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setQuizUserAnswers({ ...quizUserAnswers, [item.originalIdx]: correctAnswer });
+                                      setRevealedQuizItems([...revealedQuizItems, item.originalIdx]);
+                                    }}
+                                    className="text-[10px] uppercase font-bold text-gray-400 hover:underline"
+                                  >
+                                    Reveal
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="pt-1">
+                                <p className={`text-lg italic ${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
+                                  {isCorrect ? '✓ ' : '→ '}{correctAnswer}
+                                </p>
+                                {!isCorrect && userAnswer.trim() && (
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    (You wrote: {userAnswer})
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
-                  }
-
-                  const correctAnswer = line.replace(/^a:\s*/i, '').trim();
-                  const userAnswer = quizUserAnswers[idx] || '';
-                  const isRevealed = revealedQuizItems.includes(idx);
-                  const isCorrect = isRevealed && userAnswer.trim().toLowerCase() === correctAnswer.toLowerCase();
-
-                  return (
-                    <div key={idx} className="animate-in fade-in duration-300">
-                      {!isRevealed ? (
-                        <div className="flex flex-col gap-2 pt-1">
-                          <input
-                            type="text"
-                            value={userAnswer}
-                            onChange={(e) => setQuizUserAnswers({ ...quizUserAnswers, [idx]: e.target.value })}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                setRevealedQuizItems([...revealedQuizItems, idx]);
-                              }
-                            }}
-                            placeholder="Answer..."
-                            className="bg-transparent border-b border-gray-200 dark:border-gray-800 py-1 text-lg outline-none focus:border-blue-400 transition-colors dark:text-white"
-                          />
-                          <div className="flex gap-4">
-                            <button
-                              onClick={() => setRevealedQuizItems([...revealedQuizItems, idx])}
-                              className="text-[10px] uppercase font-bold text-blue-500 hover:underline"
-                            >
-                              Check
-                            </button>
-                            <button
-                              onClick={() => {
-                                setQuizUserAnswers({ ...quizUserAnswers, [idx]: correctAnswer });
-                                setRevealedQuizItems([...revealedQuizItems, idx]);
-                              }}
-                              className="text-[10px] uppercase font-bold text-gray-400 hover:underline"
-                            >
-                              Reveal
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="pt-1">
-                          <p className={`text-lg italic ${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
-                            {isCorrect ? '✓ ' : '→ '}{correctAnswer}
-                          </p>
-                          {!isCorrect && userAnswer.trim() && (
-                            <p className="text-xs text-gray-400 mt-1">
-                              (You wrote: {userAnswer})
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                  });
+                })()}
               </div>
             </div>
           )}
