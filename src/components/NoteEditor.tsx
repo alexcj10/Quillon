@@ -18,6 +18,7 @@ import { NOTE_COLORS } from '../constants/colors';
 import { useNotes } from '../context/NoteContext';
 import { evaluateMathCommand } from '../utils/mathCommandParser';
 import { translateText, extractLangCode } from '../utils/translationService';
+import { fetchWikiSummary, fetchDefinition, parseInsightCommand } from '../utils/insightService';
 
 interface NoteEditorProps {
   note?: Note;
@@ -51,6 +52,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [isTitleFocused, setIsTitleFocused] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [lookupMessage, setLookupMessage] = useState('');
 
   // Tag suggestion state
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
@@ -520,16 +523,64 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     }
                   }
                 }
+
+                // Handle Insight Commands: @wiki- or @def- + Enter
+                const lastAtSignIndexInsight = textBeforeCursor.lastIndexOf('@');
+                if (lastAtSignIndexInsight !== -1) {
+                  const potentialCommand = textBeforeCursor.substring(lastAtSignIndexInsight);
+                  if (!potentialCommand.includes('\n') && potentialCommand.length > 5) {
+                    const insightCmd = parseInsightCommand(potentialCommand);
+                    if (insightCmd && insightCmd.query) {
+                      e.preventDefault();
+                      setIsLookingUp(true);
+                      setLookupMessage(insightCmd.type === 'wiki' ? 'Searching Wikipedia...' : 'Looking up definition...');
+
+                      (async () => {
+                        try {
+                          let result = '';
+                          if (insightCmd.type === 'wiki') {
+                            result = await fetchWikiSummary(insightCmd.query);
+                          } else {
+                            result = await fetchDefinition(insightCmd.query);
+                          }
+
+                          if (result) {
+                            const textAfterCursor = content.substring(cursorStart);
+                            // Replace the command with the result
+                            const newContent = content.substring(0, lastAtSignIndexInsight) + result + textAfterCursor;
+                            setContent(newContent);
+
+                            // Set cursor at the end of inserted result
+                            setTimeout(() => {
+                              if (contentRef.current) {
+                                const newCursorPos = lastAtSignIndexInsight + result.length;
+                                contentRef.current.selectionStart = newCursorPos;
+                                contentRef.current.selectionEnd = newCursorPos;
+                              }
+                            }, 0);
+                          }
+                        } catch (err) {
+                          console.error('Insight lookup failed:', err);
+                        } finally {
+                          setIsLookingUp(false);
+                        }
+                      })();
+                      return;
+                    }
+                  }
+                }
               }
             }}
             placeholder="Start writing your note..."
             className={`w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] transition-opacity duration-300 ${isTranslating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
           />
-          {isTranslating && (
+          {(isTranslating || isLookingUp) && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="flex flex-col items-center gap-2">
                 <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm font-medium text-blue-500 dark:text-blue-400 animate-pulse">Translating...</span>
+                <span className="text-sm font-medium text-blue-500 dark:text-blue-400 animate-pulse">
+                  {isTranslating ? 'Translating...' : lookupMessage}
+                </span>
               </div>
             </div>
           )}

@@ -116,7 +116,19 @@ Quillon uses a unique color-coded tag system to organize notes into a hierarchy 
     - It can read your notes to answer questions like "What was my idea for the app?"
     - It respects privacy: It can only read Private notes if the Private Space is currently UNLOCKED by the user.
 
-## 8. MISC FEATURES
+## 8. EDITOR COMMANDS (Shortcuts)
+Speed up your writing with instant lookups directly in the note editor. Type the command followed by a word/topic and press **Enter**.
+
+- **Wikipedia Lookup**: \`@wiki-[topic]\`
+    - Example: \`@wiki-Artificial Intelligence\` fetches the Wikipedia summary and appends it.
+- **Dictionary Definition**: \`@def-[word]\`
+    - Example: \`@def-serendipity\` fetches the meaning and part of speech.
+- **Math Calculator**: \`@c-[expression]\`
+    - Example: \`@c-120*5\` calculates the result instantly.
+- **Translation**: \`@t-[lang_code]\`
+    - Example: \`@t-es\` translates the entire note into Spanish.
+
+## 9. MISC FEATURES
 - **Dark Mode**: Toggle with the Sun/Moon icon.
 - **Export/Download**: Use the options menu on a note to download as TXT.
 
