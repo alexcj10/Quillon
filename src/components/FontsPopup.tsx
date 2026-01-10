@@ -57,9 +57,16 @@ export function FontsPopup({ isVisible, onClose, onSelectFont, currentFont }: Fo
                 </div>
 
                 {/* Footer Hint */}
-                <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
-                    <p className="text-[10px] text-center text-gray-500 dark:text-gray-400">
-                        <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-[10px] font-mono">@font-d</kbd> to reset
+                <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-1.5 items-center">
+                    <p className="text-[10px] text-center text-gray-500 dark:text-gray-400 flex flex-wrap justify-center gap-1.5 leading-none items-center">
+                        <span>Type</span>
+                        <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-[10px] font-mono whitespace-nowrap">@font-[index]</kbd>
+                        <span>or</span>
+                        <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-[10px] font-mono whitespace-nowrap">@font-[name]</kbd>
+                    </p>
+                    <p className="text-[10px] text-center text-gray-500 dark:text-gray-400 flex items-center gap-1.5 leading-none">
+                        <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-[10px] font-mono whitespace-nowrap">@font-d</kbd>
+                        <span>to reset</span>
                     </p>
                 </div>
             </div>
