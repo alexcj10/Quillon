@@ -11,7 +11,7 @@ export interface Font {
 
 // Available fonts with index for quick selection
 export const AVAILABLE_FONTS: Font[] = [
-    { index: 1, name: 'System Default', family: 'system-ui, -apple-system, sans-serif' },
+    { index: 1, name: 'System Default', family: 'inherit' },
     { index: 2, name: 'Inter', family: "'Inter', sans-serif" },
     { index: 3, name: 'Roboto', family: "'Roboto', sans-serif" },
     { index: 4, name: 'Open Sans', family: "'Open Sans', sans-serif" },
