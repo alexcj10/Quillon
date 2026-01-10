@@ -27,6 +27,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     const volumeRef = useRef(volume);
     const isEnabledRef = useRef(isSoundEnabled);
     const lastClickTimeRef = useRef(0);
+    const lastInteractionRef = useRef<{ x: number, y: number, time: number } | null>(null);
 
     // Persist settings and sync refs
     useEffect(() => {
@@ -82,38 +83,64 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
     // Global interaction listener for ALL buttons
     useEffect(() => {
-        const handleInteraction = (e: Event) => {
-            // Use refs to bypass state closures
+        const handleInteractionStart = (e: PointerEvent) => {
             if (!isEnabledRef.current) return;
 
-            // Throttle to prevent double-clicks (e.g., pointerdown + touchstart firing together)
+            // Throttle to prevent double-clicks
             const now = Date.now();
             if (now - lastClickTimeRef.current < 50) return;
-            lastClickTimeRef.current = now;
 
             const target = e.target as HTMLElement;
-
-            // Check if interacted element is a button or inside a button
             const isButton =
                 target.tagName === 'BUTTON' ||
                 target.closest('button') !== null ||
                 target.getAttribute('role') === 'button' ||
                 target.classList.contains('cursor-pointer');
 
-            if (isButton) {
-                // Apply squared scaling for natural volume
-                const gain = volumeRef.current * volumeRef.current;
-                playSoftClick(gain);
+            if (!isButton) return;
+
+            // MOUSE: Trigger instantly on press
+            if (e.pointerType === 'mouse') {
+                lastClickTimeRef.current = now;
+                playSoftClick(volumeRef.current * volumeRef.current);
+            }
+            // TOUCH/PEN: Record start position for scroll-awareness
+            else {
+                lastInteractionRef.current = {
+                    x: e.clientX,
+                    y: e.clientY,
+                    time: now
+                };
             }
         };
 
-        // Listen to BOTH pointerdown (modern) and touchstart (older mobile)
-        document.addEventListener('pointerdown', handleInteraction, true);
-        document.addEventListener('touchstart', handleInteraction, true);
+        const handleInteractionEnd = (e: PointerEvent) => {
+            if (!isEnabledRef.current || e.pointerType === 'mouse') return;
+            if (!lastInteractionRef.current) return;
+
+            const now = Date.now();
+            const start = lastInteractionRef.current;
+            lastInteractionRef.current = null;
+
+            // Calculate displacement
+            const dx = Math.abs(e.clientX - start.x);
+            const dy = Math.abs(e.clientY - start.y);
+            const duration = now - start.time;
+
+            // Only trigger if movement is minimal (TAP, not SCROLL) and reasonably fast
+            if (dx < 10 && dy < 10 && duration < 350) {
+                lastClickTimeRef.current = now;
+                playSoftClick(volumeRef.current * volumeRef.current);
+            }
+        };
+
+        // Pointer events handle both mouse and touch elegantly
+        document.addEventListener('pointerdown', handleInteractionStart, true);
+        document.addEventListener('pointerup', handleInteractionEnd, true);
 
         return () => {
-            document.removeEventListener('pointerdown', handleInteraction, true);
-            document.removeEventListener('touchstart', handleInteraction, true);
+            document.removeEventListener('pointerdown', handleInteractionStart, true);
+            document.removeEventListener('pointerup', handleInteractionEnd, true);
         };
     }, []); // Empty dependency array - relies on refs for real-time values
 
