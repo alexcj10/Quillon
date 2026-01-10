@@ -25,7 +25,8 @@ export const AVAILABLE_FONTS: Font[] = [
     { index: 12, name: 'Nunito', family: "'Nunito', sans-serif" },
     { index: 13, name: 'Poppins', family: "'Poppins', sans-serif" },
     { index: 14, name: 'Montserrat', family: "'Montserrat', sans-serif" },
-    { index: 15, name: 'Comic Sans MS', family: "'Comic Sans MS', cursive" },
+    { index: 15, name: 'Comic Neue', family: "'Comic Neue', cursive" },
+    { index: 16, name: 'Caveat', family: "'Caveat', cursive" },
 ];
 
 export const DEFAULT_FONT = AVAILABLE_FONTS[0];
