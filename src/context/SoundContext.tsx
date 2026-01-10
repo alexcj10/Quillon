@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { playSoftClick, playSuccess, resumeContext } from '../hooks/useClickSound';
 
 interface SoundContextType {
     isSoundEnabled: boolean;
     setSoundEnabled: (enabled: boolean) => void;
+    volume: number;
+    setVolume: (volume: number) => void;
     softClick: () => void;
     success: () => void;
 }
@@ -13,25 +15,48 @@ const SoundContext = createContext<SoundContextType | undefined>(undefined);
 export function SoundProvider({ children }: { children: React.ReactNode }) {
     const [isSoundEnabled, setIsSoundEnabled] = useState(() => {
         const saved = localStorage.getItem('quillon-sound-enabled');
-        return saved !== null ? JSON.parse(saved) : true; // Enabled by default
+        return saved !== null ? JSON.parse(saved) : true;
     });
 
-    // Persist setting
+    const [volume, setVolumeState] = useState(() => {
+        const saved = localStorage.getItem('quillon-sound-volume');
+        return saved !== null ? JSON.parse(saved) : 1.0; // Default 100%
+    });
+
+    // Refs for real-time access in event listeners without stale closures
+    const volumeRef = useRef(volume);
+    const isEnabledRef = useRef(isSoundEnabled);
+    const lastClickTimeRef = useRef(0);
+
+    // Persist settings and sync refs
     useEffect(() => {
         localStorage.setItem('quillon-sound-enabled', JSON.stringify(isSoundEnabled));
+        isEnabledRef.current = isSoundEnabled;
     }, [isSoundEnabled]);
+
+    useEffect(() => {
+        localStorage.setItem('quillon-sound-volume', JSON.stringify(volume));
+        volumeRef.current = volume;
+    }, [volume]);
 
     const setSoundEnabled = useCallback((enabled: boolean) => {
         setIsSoundEnabled(enabled);
     }, []);
 
+    const setVolume = useCallback((val: number) => {
+        setVolumeState(val);
+    }, []);
+
+    // Squared Scaling: Matches human hearing much better than linear
+    const getGain = (v: number) => v * v;
+
     const softClick = useCallback(() => {
-        if (isSoundEnabled) playSoftClick();
-    }, [isSoundEnabled]);
+        if (isSoundEnabled) playSoftClick(getGain(volume));
+    }, [isSoundEnabled, volume]);
 
     const success = useCallback(() => {
-        if (isSoundEnabled) playSuccess();
-    }, [isSoundEnabled]);
+        if (isSoundEnabled) playSuccess(0.3 * getGain(volume));
+    }, [isSoundEnabled, volume]);
 
     // Unlock audio context on first interaction (required for mobile)
     useEffect(() => {
@@ -58,7 +83,13 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     // Global interaction listener for ALL buttons
     useEffect(() => {
         const handleInteraction = (e: Event) => {
-            if (!isSoundEnabled) return;
+            // Use refs to bypass state closures
+            if (!isEnabledRef.current) return;
+
+            // Throttle to prevent double-clicks (e.g., pointerdown + touchstart firing together)
+            const now = Date.now();
+            if (now - lastClickTimeRef.current < 50) return;
+            lastClickTimeRef.current = now;
 
             const target = e.target as HTMLElement;
 
@@ -70,8 +101,9 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
                 target.classList.contains('cursor-pointer');
 
             if (isButton) {
-                // Important: on mobile, playSoftClick also calls resumeContext internally if needed
-                playSoftClick();
+                // Apply squared scaling for natural volume
+                const gain = volumeRef.current * volumeRef.current;
+                playSoftClick(gain);
             }
         };
 
@@ -83,12 +115,14 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
             document.removeEventListener('pointerdown', handleInteraction, true);
             document.removeEventListener('touchstart', handleInteraction, true);
         };
-    }, [isSoundEnabled]);
+    }, []); // Empty dependency array - relies on refs for real-time values
 
     return (
         <SoundContext.Provider value={{
             isSoundEnabled,
             setSoundEnabled,
+            volume,
+            setVolume,
             softClick,
             success
         }}>

@@ -3,6 +3,7 @@ import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { useNodesWidget } from '../context/NodesContext';
 import { useSound } from '../context/SoundContext';
+import { playSuccess } from '../hooks/useClickSound';
 import { isFileTag, getFileTagDisplayName, Note } from '../types';
 import { TagModal } from './TagModal';
 import { BulkRecoveryPopup } from './BulkRecoveryPopup';
@@ -38,7 +39,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   } = useNotes();
 
   const { setIsOpen, addNode } = useNodesWidget();
-  const { setSoundEnabled, success } = useSound();
+  const { setSoundEnabled, setVolume } = useSound();
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isBulkPopupOpen, setIsBulkPopupOpen] = useState(false);
@@ -249,9 +250,23 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                     }
                     setSearchTerm('');
                   }
-                } else if (term.toLowerCase() === '@sound-on') {
+                } else if (term.toLowerCase().startsWith('@sound-on')) {
+                  let newVol = 1.0; // Default
+                  // Matches @sound-on-50, @sound-on 50, @sound-on:50 etc.
+                  const volMatch = term.match(/@sound-on[- :]*(\d+)/i);
+
+                  if (volMatch) {
+                    const percent = parseInt(volMatch[1], 10);
+                    if (!isNaN(percent)) {
+                      newVol = Math.min(100, Math.max(0, percent)) / 100;
+                      setVolume(newVol);
+                      console.log(`[Quillon Sound] Volume set to: ${percent}% (internal gain: ${(newVol * newVol).toFixed(4)})`);
+                    }
+                  }
+
                   setSoundEnabled(true);
-                  success(); // Play success chime
+                  // Apply squared scaling to feedback chime for consistency
+                  playSuccess(0.3 * (newVol * newVol));
                   setSearchTerm('');
                 } else if (term.toLowerCase() === '@sound-off') {
                   setSoundEnabled(false);

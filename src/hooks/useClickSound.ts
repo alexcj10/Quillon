@@ -58,7 +58,7 @@ export const playClick = (volume: number = 0.3) => {
     }
 };
 
-// Digital Felt Tap (High-end UI texture, extremely short and clean)
+// Digital Felt Tap (Improved for better volume perception)
 export const playSoftClick = (volume: number = 0.03) => {
     try {
         const ctx = getAudioContext();
@@ -67,23 +67,40 @@ export const playSoftClick = (volume: number = 0.03) => {
             ctx.resume();
         }
 
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
+        const masterGain = ctx.createGain();
+        masterGain.connect(ctx.destination);
 
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
+        // Core Texture (High frequency - the "Felt")
+        const feltOsc = ctx.createOscillator();
+        feltOsc.type = 'sine';
+        feltOsc.frequency.setValueAtTime(3000, ctx.currentTime);
 
-        // High frequency texture (3000Hz) - feels like a microscopic tick
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(3000, ctx.currentTime);
+        const feltGain = ctx.createGain();
+        feltGain.gain.setValueAtTime(0, ctx.currentTime);
+        feltGain.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.001);
+        feltGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.01);
 
-        // Instantaneous attack and extreme fast decay
-        gainNode.gain.setValueAtTime(0, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.001); // 1ms attack
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.01); // 10ms decay
+        feltOsc.connect(feltGain);
+        feltGain.connect(masterGain);
 
-        oscillator.start(ctx.currentTime);
-        oscillator.stop(ctx.currentTime + 0.012); // Shorter than 15ms
+        // Sub Body (Lower frequency - gives it "weight" at high volumes)
+        const bodyOsc = ctx.createOscillator();
+        bodyOsc.type = 'sine';
+        bodyOsc.frequency.setValueAtTime(400, ctx.currentTime);
+
+        const bodyGain = ctx.createGain();
+        bodyGain.gain.setValueAtTime(0, ctx.currentTime);
+        bodyGain.gain.linearRampToValueAtTime(volume * 0.5, ctx.currentTime + 0.002);
+        bodyGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.015);
+
+        bodyOsc.connect(bodyGain);
+        bodyGain.connect(masterGain);
+
+        feltOsc.start(ctx.currentTime);
+        bodyOsc.start(ctx.currentTime);
+
+        feltOsc.stop(ctx.currentTime + 0.02);
+        bodyOsc.stop(ctx.currentTime + 0.02);
     } catch (error) {
         // Silently fail
     }
