@@ -99,28 +99,40 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
             if (!isButton) return;
 
-            // Check if element is a fixed/sticky UI control (not in a scroll list)
-            // This allows us to trigger "Header/Toolbar" buttons instantly even on touch
-            const computedStyle = window.getComputedStyle(target);
-            const isFixedUI =
-                computedStyle.position === 'fixed' ||
-                computedStyle.position === 'sticky' ||
-                target.closest('header, nav, .toolbar, .fixed');
-
-            // MOUSE or FIXED UI: Immediate feedback on press (Down event)
-            if (e.pointerType === 'mouse' || isFixedUI) {
+            // MOUSE: Immediate feedback on press (Down event)
+            if (e.pointerType === 'mouse') {
                 lastClickTimeRef.current = now;
                 playSoftClick(volumeRef.current * volumeRef.current);
-                // Clear any pending touch to prevent double sound on Release
-                lastInteractionRef.current = null;
+                return;
             }
-            // DYNAMIC LIST ITEM: Start tracking for scroll vs tap
-            else {
+
+            // TOUCH/PEN: Use hybrid logic to allow scrolling
+            // Only trigger "Press" instantly for things in Header/Nav (Safe regions)
+            const isInFixedZone = target.closest('header, nav, .toolbar, .fixed-navbar');
+
+            if (isInFixedZone) {
+                lastClickTimeRef.current = now;
+                playSoftClick(volumeRef.current * volumeRef.current);
+                lastInteractionRef.current = null; // Don't trigger on Release
+            } else {
                 lastInteractionRef.current = {
                     x: e.clientX,
                     y: e.clientY,
                     time: now
                 };
+            }
+        };
+
+        const handleInteractionMove = (e: PointerEvent) => {
+            if (!lastInteractionRef.current || e.pointerType === 'mouse') return;
+
+            // If the finger moves more than 5px while down, it's a scroll/swipe
+            const start = lastInteractionRef.current;
+            const dx = Math.abs(e.clientX - start.x);
+            const dy = Math.abs(e.clientY - start.y);
+
+            if (dx > 5 || dy > 5) {
+                lastInteractionRef.current = null; // CANCEL the sound trigger
             }
         };
 
@@ -144,12 +156,20 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
             }
         };
 
+        const handleInteractionCancel = () => {
+            lastInteractionRef.current = null;
+        };
+
         document.addEventListener('pointerdown', handleInteractionStart, { capture: true, passive: true });
+        document.addEventListener('pointermove', handleInteractionMove, { capture: true, passive: true });
         document.addEventListener('pointerup', handleInteractionEnd, { capture: true, passive: true });
+        document.addEventListener('pointercancel', handleInteractionCancel, { capture: true, passive: true });
 
         return () => {
             document.removeEventListener('pointerdown', handleInteractionStart, { capture: true });
+            document.removeEventListener('pointermove', handleInteractionMove, { capture: true });
             document.removeEventListener('pointerup', handleInteractionEnd, { capture: true });
+            document.removeEventListener('pointercancel', handleInteractionCancel, { capture: true });
         };
     }, []);
 
