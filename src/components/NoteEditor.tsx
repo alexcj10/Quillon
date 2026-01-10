@@ -96,15 +96,23 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   // Get all notes to extract file tag history
   const { notes: allNotes } = useNotes();
-  // Local state for the current note's font, initialized from note or default
-  // Local state for the current note's font, initialized from note or default
-  // const { currentFont: globalFont } = useFont(); // Only used for initial default if needed
+  const { currentFont: globalFont, setCurrentFont } = useFont();
+
+  // Local state for the current note's font, initialized from note or global preference
   const [noteFont, setNoteFont] = useState(() => {
     if (note?.fontFamily) {
       return getFontByName(note.fontFamily) || DEFAULT_FONT;
     }
-    return DEFAULT_FONT;
+    // If it's a new note, use the font selected in the search bar (globalFont)
+    return globalFont || DEFAULT_FONT;
   });
+
+  // Reset global font selection to default after one note session (on unmount)
+  useEffect(() => {
+    return () => {
+      setCurrentFont(DEFAULT_FONT);
+    };
+  }, [setCurrentFont]);
 
   // Update local font state if note prop changes
   useEffect(() => {
