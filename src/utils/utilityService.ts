@@ -35,12 +35,14 @@ const WMO_CODES: Record<number, string> = {
 };
 
 /**
- * Fetches current weather for a city using Open-Meteo (High Accuracy)
+ * Fetches current weather for a city using Open-Meteo (High Accuracy / Nowcasting)
  */
 export async function fetchWeather(city: string): Promise<string> {
+    const cacheBuster = `_=${Date.now()}`;
     try {
-        // Step 1: Geocoding - Convert city name to coordinates
-        const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
+        // Step 1: Geocoding with precise location data
+        const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json&${cacheBuster}`;
+        const geoResponse = await fetch(geoUrl);
         if (!geoResponse.ok) throw new Error('Geocoding failed');
         const geoData = await geoResponse.json();
 
@@ -48,33 +50,47 @@ export async function fetchWeather(city: string): Promise<string> {
             return `Weather Error: Could not find city "${city}".`;
         }
 
-        const { latitude, longitude, name, country } = geoData.results[0];
+        const { latitude, longitude, name, country, admin1 } = geoData.results[0];
+        const locationStr = admin1 ? `${name}, ${admin1}, ${country}` : `${name}, ${country}`;
 
-        // Step 2: Fetch Weather using Coordinates
-        const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+        // Step 2: Fetch Weather using Modern "Current" Parameters
+        // current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto&${cacheBuster}`;
+
+        const weatherResponse = await fetch(weatherUrl);
         if (!weatherResponse.ok) throw new Error('Weather fetch failed');
         const weatherData = await weatherResponse.json();
 
-        if (weatherData.current_weather) {
-            const { temperature, weathercode, windspeed } = weatherData.current_weather;
-            const condition = WMO_CODES[weathercode] || 'Unknown';
-            return `Weather for ${name}, ${country}: ${temperature}°C, ${condition} (Wind: ${windspeed} km/h)`;
+        if (weatherData.current) {
+            const {
+                temperature_2m,
+                relative_humidity_2m,
+                apparent_temperature,
+                weather_code,
+                wind_speed_10m
+            } = weatherData.current;
+
+            const condition = WMO_CODES[weather_code] || 'Unknown';
+            const temp = Math.round(temperature_2m);
+            const feelsLike = Math.round(apparent_temperature);
+
+            return `Weather for ${locationStr}: ${temp}°C (Feels like ${feelsLike}°C), ${condition}, ${relative_humidity_2m}% Humidity (Wind: ${wind_speed_10m} km/h).`;
         }
 
-        return `Weather (${city}): Data unavailable.`;
+        return `Weather (${city}): Data currently unavailable.`;
     } catch (error) {
         console.error('Weather error:', error);
-        // Fallback to wttr.in if Open-Meteo fails for some reason
+        // Fallback to wttr.in if Open-Meteo fails
         try {
-            const response = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=3`);
+            const response = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=3&${cacheBuster}`);
             if (response.ok) {
                 const text = await response.text();
-                return `Weather (${city}): ${text.trim()} (Fallback)`;
+                return `Weather (${city}): ${text.trim()} (Fallback Data)`;
             }
         } catch (f) {
             console.error('Fallback weather error:', f);
         }
-        return `Weather (${city}): Service unavailable.`;
+        return `Weather (${city}): Service currently unavailable. Try again in a moment.`;
     }
 }
 

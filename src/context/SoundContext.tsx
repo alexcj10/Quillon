@@ -86,9 +86,9 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         const handleInteractionStart = (e: PointerEvent) => {
             if (!isEnabledRef.current) return;
 
-            // Throttle to prevent double-clicks
+            // Throttle to prevent acoustic double-triggering
             const now = Date.now();
-            if (now - lastClickTimeRef.current < 50) return;
+            if (now - lastClickTimeRef.current < 40) return;
 
             const target = e.target as HTMLElement;
             const isButton =
@@ -99,12 +99,12 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
             if (!isButton) return;
 
-            // MOUSE: Trigger instantly on press
+            // MOUSE: Immediate feedback on press (Down event)
             if (e.pointerType === 'mouse') {
                 lastClickTimeRef.current = now;
                 playSoftClick(volumeRef.current * volumeRef.current);
             }
-            // TOUCH/PEN: Record start position for scroll-awareness
+            // TOUCH/PEN: Start tracking for scroll vs tap
             else {
                 lastInteractionRef.current = {
                     x: e.clientX,
@@ -122,27 +122,29 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
             const start = lastInteractionRef.current;
             lastInteractionRef.current = null;
 
-            // Calculate displacement
-            const dx = Math.abs(e.clientX - start.x);
-            const dy = Math.abs(e.clientY - start.y);
+            // Calculate movement distance (Euclidean)
+            const dx = e.clientX - start.x;
+            const dy = e.clientY - start.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
             const duration = now - start.time;
 
-            // Only trigger if movement is minimal (TAP, not SCROLL) and reasonably fast
-            if (dx < 10 && dy < 10 && duration < 350) {
+            // 10px threshold is standard for 'tap vs scroll'
+            // duration < 300ms ensures it's a quick tap and not a long-press scroll start
+            if (distance < 10 && duration < 300) {
                 lastClickTimeRef.current = now;
                 playSoftClick(volumeRef.current * volumeRef.current);
             }
         };
 
-        // Pointer events handle both mouse and touch elegantly
-        document.addEventListener('pointerdown', handleInteractionStart, true);
-        document.addEventListener('pointerup', handleInteractionEnd, true);
+        // Pointer events are high-performance and unified
+        document.addEventListener('pointerdown', handleInteractionStart, { capture: true, passive: true });
+        document.addEventListener('pointerup', handleInteractionEnd, { capture: true, passive: true });
 
         return () => {
-            document.removeEventListener('pointerdown', handleInteractionStart, true);
-            document.removeEventListener('pointerup', handleInteractionEnd, true);
+            document.removeEventListener('pointerdown', handleInteractionStart, { capture: true });
+            document.removeEventListener('pointerup', handleInteractionEnd, { capture: true });
         };
-    }, []); // Empty dependency array - relies on refs for real-time values
+    }, []); // Uses refs to avoid re-binding and stale closures
 
     return (
         <SoundContext.Provider value={{
