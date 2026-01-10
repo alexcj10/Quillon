@@ -22,7 +22,7 @@ export function FontsPopup({ isVisible, onClose, onSelectFont, currentFont }: Fo
             <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 w-full sm:w-64">
 
                 {/* Font List */}
-                <div className="max-h-48 overflow-y-auto p-1.5">
+                <div className="max-h-48 overflow-y-auto p-1.5 custom-scrollbar">
                     {AVAILABLE_FONTS.map((font) => (
                         <button
                             key={font.index}
