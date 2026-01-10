@@ -279,6 +279,17 @@ npm run dev
 | `@cc-[amt][f] to [t]` | Currency conversion | `@cc-50eur to usd` |
 | `@u-[val][f] to [t]` | Unit conversion | `@u-10kg to lb` |
 
+### Font Commands
+| Command | Description | Example |
+|---------|-------------|---------|
+| `@fonts` | View all fonts with preview | `@fonts` |
+| `@font-[index]` | Change font by number | `@font-15` (Comic Neue) |
+| `@font-[name]` | Change font by name | `@font-Caveat` |
+| `@font-d` | Reset to default font | `@font-d` |
+
+> [!NOTE]
+> Each note remembers its own font independently. Fonts selected in the search bar apply only to the next new note.
+
 ### Tag Management Commands
 Access via **All Tags** button or **+more** icon:
 

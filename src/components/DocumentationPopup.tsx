@@ -234,6 +234,33 @@ Fetch real-time data and perform conversions directly in your note.
 
 ---
 
+## ✍️ Font Customization
+
+Personalize your notes with custom fonts for better readability and style.
+
+### 🎨 Available Commands
+- **\`@fonts\`** — View all available fonts with live preview
+  - **Note Editor**: Each font name renders in its actual typeface
+  - **Search Bar**: Shows a graphical popup with font previews
+- **\`@font-[index]\`** — Change font by number (e.g., \`@font-15\` for Comic Neue)
+- **\`@font-[name]\`** — Change font by name (e.g., \`@font-Caveat\`, \`@font-Lora\`)
+  - Case-insensitive matching
+- **\`@font-d\`** — Reset to default system font
+
+### 📝 Font Persistence
+- **Per-Note**: Each note remembers its own font independently
+- **One-Time Selection**: Fonts selected in the search bar apply only to the next new note, then reset to default
+
+### 🎯 Available Fonts
+16 carefully curated fonts including:
+- **System Default**, **Inter**, **Roboto**, **Open Sans**
+- **Lora**, **Playfair Display**, **Merriweather** (Serif)
+- **Fira Code**, **JetBrains Mono** (Monospace)
+- **Comic Neue**, **Caveat** (Handwritten/Comic)
+- And more!
+
+---
+
 ## ⚡ Flashcard (Quiz) Mode
 
 Turn your notes into interactive study materials.

@@ -142,11 +142,12 @@ Speed up your writing with instant lookups directly in the note editor. Type the
 - **Unit Conversion**: \`@u-[value][unit] to [unit]\`
     - Example: \`@u-10kg to lbs\` or \`@u-5km to miles\`. Supports weight, length, and temp.
 - **Font Selection**: Change the note editor font with these commands:
-    - \`@fonts\` — View all available fonts with index numbers (inserts list in note editor, shows popup in search bar).
-    - \`@font-[index]\` — Change font by index (e.g., \`@font-3\` for Roboto).
-    - \`@font-[name]\` — Change font by name (e.g., \`@font-Lora\`). Case-insensitive.
+    - \`@fonts\` — View all available fonts with live preview. In the note editor, each font name renders in its actual typeface. In the search bar, shows a graphical popup.
+    - \`@font-[index]\` — Change font by index (e.g., \`@font-3\` for Roboto, \`@font-15\` for Comic Neue).
+    - \`@font-[name]\` — Change font by name (e.g., \`@font-Lora\`, \`@font-Caveat\`). Case-insensitive.
     - \`@font-d\` — Reset to the default system font.
-    - Font preference is saved and persists across sessions.
+    - **Per-Note Persistence**: Each note remembers its own font choice independently.
+    - **One-Time Selection**: Fonts selected in the search bar apply only to the next new note, then reset to default.
 
 ## 9. INTERACTIVE SOUND SYSTEM
 Quillon includes a global audio feedback system for a professional, tactile feel.
