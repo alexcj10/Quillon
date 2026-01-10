@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { playSoftClick } from '../hooks/useClickSound';
+import { playSoftClick, playSuccess, resumeContext } from '../hooks/useClickSound';
 
 interface SoundContextType {
     isSoundEnabled: boolean;
     setSoundEnabled: (enabled: boolean) => void;
     softClick: () => void;
+    success: () => void;
 }
 
 const SoundContext = createContext<SoundContextType | undefined>(undefined);
@@ -28,14 +29,40 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         if (isSoundEnabled) playSoftClick();
     }, [isSoundEnabled]);
 
-    // Global click/touch listener for ALL buttons
+    const success = useCallback(() => {
+        if (isSoundEnabled) playSuccess();
+    }, [isSoundEnabled]);
+
+    // Unlock audio context on first interaction (required for mobile)
     useEffect(() => {
-        const handleInteraction = (e: MouseEvent | TouchEvent) => {
+        const unlock = async () => {
+            await resumeContext();
+
+            // Once unlocked, we can remove these listeners
+            window.removeEventListener('click', unlock);
+            window.removeEventListener('touchstart', unlock);
+            window.removeEventListener('pointerdown', unlock);
+        };
+
+        window.addEventListener('click', unlock);
+        window.addEventListener('touchstart', unlock);
+        window.addEventListener('pointerdown', unlock);
+
+        return () => {
+            window.removeEventListener('click', unlock);
+            window.removeEventListener('touchstart', unlock);
+            window.removeEventListener('pointerdown', unlock);
+        };
+    }, []);
+
+    // Global interaction listener for ALL buttons
+    useEffect(() => {
+        const handleInteraction = (e: Event) => {
             if (!isSoundEnabled) return;
 
             const target = e.target as HTMLElement;
 
-            // Check if clicked/touched element is a button or inside a button
+            // Check if interacted element is a button or inside a button
             const isButton =
                 target.tagName === 'BUTTON' ||
                 target.closest('button') !== null ||
@@ -43,16 +70,17 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
                 target.classList.contains('cursor-pointer');
 
             if (isButton) {
+                // Important: on mobile, playSoftClick also calls resumeContext internally if needed
                 playSoftClick();
             }
         };
 
-        // Listen to both click (desktop) and touchstart (mobile)
-        document.addEventListener('click', handleInteraction, true);
+        // Listen to BOTH pointerdown (modern) and touchstart (older mobile)
+        document.addEventListener('pointerdown', handleInteraction, true);
         document.addEventListener('touchstart', handleInteraction, true);
 
         return () => {
-            document.removeEventListener('click', handleInteraction, true);
+            document.removeEventListener('pointerdown', handleInteraction, true);
             document.removeEventListener('touchstart', handleInteraction, true);
         };
     }, [isSoundEnabled]);
@@ -61,7 +89,8 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         <SoundContext.Provider value={{
             isSoundEnabled,
             setSoundEnabled,
-            softClick
+            softClick,
+            success
         }}>
             {children}
         </SoundContext.Provider>

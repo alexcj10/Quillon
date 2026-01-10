@@ -10,8 +10,20 @@ const getAudioContext = (): AudioContext => {
     return audioContext;
 };
 
+// Export a function to resume the context (crucial for mobile unlocking)
+export const resumeContext = async () => {
+    try {
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') {
+            await ctx.resume();
+        }
+    } catch (e) {
+        console.warn('Audio resume failed', e);
+    }
+};
+
 // Generate a subtle click sound using Web Audio API
-const playClick = (volume: number = 0.3) => {
+export const playClick = (volume: number = 0.3) => {
     try {
         const ctx = getAudioContext();
 
@@ -46,8 +58,8 @@ const playClick = (volume: number = 0.3) => {
     }
 };
 
-// Gentle Tick Sound (clean, subtle, like a soft notification)
-const playSoftClick = (volume: number = 0.04) => {
+// Digital Felt Tap (High-end UI texture, extremely short and clean)
+export const playSoftClick = (volume: number = 0.03) => {
     try {
         const ctx = getAudioContext();
 
@@ -61,23 +73,24 @@ const playSoftClick = (volume: number = 0.04) => {
         oscillator.connect(gainNode);
         gainNode.connect(ctx.destination);
 
-        // Simple clean tick - single high tone, very short
+        // High frequency texture (3000Hz) - feels like a microscopic tick
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, ctx.currentTime); // A5 note - pleasant pitch
+        oscillator.frequency.setValueAtTime(3000, ctx.currentTime);
 
-        // Ultra short - just a tiny pip
-        gainNode.gain.setValueAtTime(volume, ctx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.015); // 15ms
+        // Instantaneous attack and extreme fast decay
+        gainNode.gain.setValueAtTime(0, ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.001); // 1ms attack
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.01); // 10ms decay
 
         oscillator.start(ctx.currentTime);
-        oscillator.stop(ctx.currentTime + 0.02); // 20ms total
+        oscillator.stop(ctx.currentTime + 0.012); // Shorter than 15ms
     } catch (error) {
         // Silently fail
     }
 };
 
 // Success sound (for completed actions)
-const playSuccess = (volume: number = 0.2) => {
+export const playSuccess = (volume: number = 0.2) => {
     try {
         const ctx = getAudioContext();
 
@@ -129,6 +142,3 @@ export function useClickSound() {
 
     return { click, softClick, success, toggleSound };
 }
-
-// Export direct functions for non-hook usage
-export { playClick, playSoftClick, playSuccess };

@@ -38,7 +38,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   } = useNotes();
 
   const { setIsOpen, addNode } = useNodesWidget();
-  const { setSoundEnabled } = useSound();
+  const { setSoundEnabled, success } = useSound();
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isBulkPopupOpen, setIsBulkPopupOpen] = useState(false);
@@ -251,6 +251,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                   }
                 } else if (term.toLowerCase() === '@sound-on') {
                   setSoundEnabled(true);
+                  success(); // Play success chime
                   setSearchTerm('');
                 } else if (term.toLowerCase() === '@sound-off') {
                   setSoundEnabled(false);
