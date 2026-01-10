@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { useNodesWidget } from '../context/NodesContext';
+import { useSound } from '../context/SoundContext';
 import { isFileTag, getFileTagDisplayName, Note } from '../types';
 import { TagModal } from './TagModal';
 import { BulkRecoveryPopup } from './BulkRecoveryPopup';
@@ -37,6 +38,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   } = useNotes();
 
   const { setIsOpen, addNode } = useNodesWidget();
+  const { setSoundEnabled } = useSound();
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isBulkPopupOpen, setIsBulkPopupOpen] = useState(false);
@@ -247,6 +249,12 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                     }
                     setSearchTerm('');
                   }
+                } else if (term.toLowerCase() === '@sound-on') {
+                  setSoundEnabled(true);
+                  setSearchTerm('');
+                } else if (term.toLowerCase() === '@sound-off') {
+                  setSoundEnabled(false);
+                  setSearchTerm('');
                 }
               }
             }}

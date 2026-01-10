@@ -11,6 +11,7 @@ import DocumentationPopup from './components/DocumentationPopup';
 import { isFileTag, Note } from './types';
 import powninLogo from './assets/pownin.png';
 import { NodesProvider } from './context/NodesContext';
+import { SoundProvider } from './context/SoundContext';
 import { NodesWidget } from './components/NodesWidget';
 
 import helpIcon from './assets/help.png';
@@ -272,17 +273,19 @@ function NoteList() {
       </div>
       <NodesWidget />
       <DocumentationPopup isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} />
-    </div>
+    </div >
   );
 }
 
 function App() {
   return (
-    <NoteProvider>
-      <NodesProvider>
-        <NoteList />
-      </NodesProvider>
-    </NoteProvider>
+    <SoundProvider>
+      <NoteProvider>
+        <NodesProvider>
+          <NoteList />
+        </NodesProvider>
+      </NoteProvider>
+    </SoundProvider>
   );
 }
 
