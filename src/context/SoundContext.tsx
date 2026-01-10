@@ -86,9 +86,9 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         const handleInteractionStart = (e: PointerEvent) => {
             if (!isEnabledRef.current) return;
 
-            // Throttle to prevent acoustic double-triggering
+            // Extreme responsiveness: 25ms throttle
             const now = Date.now();
-            if (now - lastClickTimeRef.current < 40) return;
+            if (now - lastClickTimeRef.current < 25) return;
 
             const target = e.target as HTMLElement;
             const isButton =
@@ -99,12 +99,22 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
             if (!isButton) return;
 
-            // MOUSE: Immediate feedback on press (Down event)
-            if (e.pointerType === 'mouse') {
+            // Check if element is a fixed/sticky UI control (not in a scroll list)
+            // This allows us to trigger "Header/Toolbar" buttons instantly even on touch
+            const computedStyle = window.getComputedStyle(target);
+            const isFixedUI =
+                computedStyle.position === 'fixed' ||
+                computedStyle.position === 'sticky' ||
+                target.closest('header, nav, .toolbar, .fixed');
+
+            // MOUSE or FIXED UI: Immediate feedback on press (Down event)
+            if (e.pointerType === 'mouse' || isFixedUI) {
                 lastClickTimeRef.current = now;
                 playSoftClick(volumeRef.current * volumeRef.current);
+                // Clear any pending touch to prevent double sound on Release
+                lastInteractionRef.current = null;
             }
-            // TOUCH/PEN: Start tracking for scroll vs tap
+            // DYNAMIC LIST ITEM: Start tracking for scroll vs tap
             else {
                 lastInteractionRef.current = {
                     x: e.clientX,
@@ -122,21 +132,18 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
             const start = lastInteractionRef.current;
             lastInteractionRef.current = null;
 
-            // Calculate movement distance (Euclidean)
             const dx = e.clientX - start.x;
             const dy = e.clientY - start.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             const duration = now - start.time;
 
-            // 10px threshold is standard for 'tap vs scroll'
-            // duration < 300ms ensures it's a quick tap and not a long-press scroll start
+            // 10px threshold for 'tap vs scroll'
             if (distance < 10 && duration < 300) {
                 lastClickTimeRef.current = now;
                 playSoftClick(volumeRef.current * volumeRef.current);
             }
         };
 
-        // Pointer events are high-performance and unified
         document.addEventListener('pointerdown', handleInteractionStart, { capture: true, passive: true });
         document.addEventListener('pointerup', handleInteractionEnd, { capture: true, passive: true });
 
@@ -144,7 +151,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
             document.removeEventListener('pointerdown', handleInteractionStart, { capture: true });
             document.removeEventListener('pointerup', handleInteractionEnd, { capture: true });
         };
-    }, []); // Uses refs to avoid re-binding and stale closures
+    }, []);
 
     return (
         <SoundContext.Provider value={{
