@@ -2,7 +2,7 @@ import { StorageError } from './errors.ts';
 
 export class DocumentDB {
   private dbName = 'DocumentStorage';
-  private version = 3;
+  private version = 4;
   private storeName = 'documents';
   private db: IDBDatabase | null = null;
 
@@ -31,6 +31,9 @@ export class DocumentDB {
         }
         if (!db.objectStoreNames.contains('attachments')) {
           db.createObjectStore('attachments', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('nodes_data')) {
+          db.createObjectStore('nodes_data', { keyPath: 'id' });
         }
       };
     });
@@ -217,6 +220,35 @@ export class DocumentDB {
 
       request.onerror = () => reject(new StorageError('Failed to delete attachment'));
       request.onsuccess = () => resolve();
+    });
+  }
+
+  // Nodes methods
+  async getAllNodes(): Promise<any[]> {
+    const db = await this.connect();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('nodes_data', 'readonly');
+      const store = tx.objectStore('nodes_data');
+      const request = store.getAll();
+
+      request.onerror = () => reject(new StorageError('Failed to load nodes'));
+      request.onsuccess = () => resolve(request.result);
+    });
+  }
+
+  async saveNodesBulk(nodes: any[]): Promise<void> {
+    const db = await this.connect();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('nodes_data', 'readwrite');
+      const store = tx.objectStore('nodes_data');
+
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(new StorageError('Failed to save bulk nodes'));
+
+      // Clear existing first to ensure sync (simpler for full-list state)
+      store.clear().onsuccess = () => {
+        nodes.forEach(node => store.put(node));
+      };
     });
   }
 }
