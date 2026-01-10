@@ -260,8 +260,10 @@ npm run dev
 | `@wiki-[topic]` | Wikipedia summary | `@wiki-Tesla` |
 | `@def-[word]` | Dictionary definition | `@def-logic` |
 | `@t-[lang]` | Translate current note | `@t-es` / `@t-hi` |
-| `@pomo-[time]` | Start Pomodoro (custom) | `@pomo-1h 30m` |
-| `@quiz` | Toggle Quiz Mode | `@quiz` |
+| `@pomo` | Pomodoro (25 min default) | `@pomo` |
+| `@pomo-[time]` | Custom timer (h/m/s) | `@pomo-1h 30m 45s` |
+| `@quiz` | Quiz Mode (ordered) | `@quiz` |
+| `@quiz-s` | Quiz Mode (shuffled) | `@quiz-s` |
 | `@w-[city]` | Fetch weather | `@w-Paris` |
 | `@cc-[amt][f] to [t]` | Currency conversion | `@cc-50eur to usd` |
 | `@u-[val][f] to [t]` | Unit conversion | `@u-10kg to lb` |
