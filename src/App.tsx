@@ -12,6 +12,7 @@ import { isFileTag, Note } from './types';
 import powninLogo from './assets/pownin.png';
 import { NodesProvider } from './context/NodesContext';
 import { SoundProvider } from './context/SoundContext';
+import { FontProvider } from './context/FontContext';
 import { NodesWidget } from './components/NodesWidget';
 
 import helpIcon from './assets/help.png';
@@ -280,11 +281,13 @@ function NoteList() {
 function App() {
   return (
     <SoundProvider>
-      <NoteProvider>
-        <NodesProvider>
-          <NoteList />
-        </NodesProvider>
-      </NoteProvider>
+      <FontProvider>
+        <NoteProvider>
+          <NodesProvider>
+            <NoteList />
+          </NodesProvider>
+        </NoteProvider>
+      </FontProvider>
     </SoundProvider>
   );
 }

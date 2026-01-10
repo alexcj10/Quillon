@@ -17,10 +17,12 @@ import {
 import { Note, isFileTag } from '../types';
 import { NOTE_COLORS } from '../constants/colors';
 import { useNotes } from '../context/NoteContext';
+import { useFont } from '../context/FontContext';
 import { evaluateMathCommand } from '../utils/mathCommandParser';
 import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchWikiSummary, fetchDefinition, parseInsightCommand } from '../utils/insightService';
 import { fetchWeather, fetchCurrencyExchange, convertUnits, parseUtilityCommand, parsePomoTime } from '../utils/utilityService';
+import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, getFontsListText, DEFAULT_FONT } from '../utils/fontService';
 
 interface NoteEditorProps {
   note?: Note;
@@ -94,6 +96,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   // Get all notes to extract file tag history
   const { notes: allNotes } = useNotes();
+  const { currentFont, setCurrentFont } = useFont();
 
   // Compute all file tags from user's notes with space/trash metadata
   const allFileTagSuggestions = useMemo(() => {
@@ -718,9 +721,53 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     setQuizUserAnswers({});
                     return;
                   }
+
+                  // Handle Font Commands: @fonts, @font-d, @font-[index/name] + Enter
+                  const lastAtSignIndexFont = textBeforeCursor.lastIndexOf('@font');
+                  if (lastAtSignIndexFont !== -1) {
+                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexFont);
+                    if (!potentialCommand.includes('\n')) {
+                      // @fonts - Insert font list as text
+                      if (isFontsListCommand(potentialCommand)) {
+                        e.preventDefault();
+                        const fontsList = getFontsListText();
+                        const textAfterCursor = content.substring(cursorStart);
+                        const newContent = content.substring(0, lastAtSignIndexFont) + fontsList + textAfterCursor;
+                        setContent(newContent);
+                        setTimeout(() => {
+                          if (contentRef.current) {
+                            const newCursorPos = lastAtSignIndexFont + fontsList.length;
+                            contentRef.current.selectionStart = newCursorPos;
+                            contentRef.current.selectionEnd = newCursorPos;
+                          }
+                        }, 0);
+                        return;
+                      }
+
+                      // @font-d - Reset to default font
+                      if (isDefaultFontCommand(potentialCommand)) {
+                        e.preventDefault();
+                        setCurrentFont(DEFAULT_FONT);
+                        const textAfterCursor = content.substring(cursorStart);
+                        setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
+                        return;
+                      }
+
+                      // @font-[index/name] - Change font
+                      const font = parseFontCommand(potentialCommand);
+                      if (font) {
+                        e.preventDefault();
+                        setCurrentFont(font);
+                        const textAfterCursor = content.substring(cursorStart);
+                        setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
+                        return;
+                      }
+                    }
+                  }
                 }
               }}
               placeholder="Start writing your note..."
+              style={{ fontFamily: currentFont.family }}
               className={`w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] transition-opacity duration-300 ${isTranslating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
             />
           )}

@@ -141,6 +141,12 @@ Speed up your writing with instant lookups directly in the note editor. Type the
     - Example: \`@cc-100usd to eur\`. Fetches **daily market rates**.
 - **Unit Conversion**: \`@u-[value][unit] to [unit]\`
     - Example: \`@u-10kg to lbs\` or \`@u-5km to miles\`. Supports weight, length, and temp.
+- **Font Selection**: Change the note editor font with these commands:
+    - \`@fonts\` — View all available fonts with index numbers (inserts list in note editor, shows popup in search bar).
+    - \`@font-[index]\` — Change font by index (e.g., \`@font-3\` for Roboto).
+    - \`@font-[name]\` — Change font by name (e.g., \`@font-Lora\`). Case-insensitive.
+    - \`@font-d\` — Reset to the default system font.
+    - Font preference is saved and persists across sessions.
 
 ## 9. INTERACTIVE SOUND SYSTEM
 Quillon includes a global audio feedback system for a professional, tactile feel.

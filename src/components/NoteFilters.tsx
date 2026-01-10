@@ -3,6 +3,7 @@ import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { useNodesWidget } from '../context/NodesContext';
 import { useSound } from '../context/SoundContext';
+import { useFont } from '../context/FontContext';
 import { playSuccess } from '../hooks/useClickSound';
 import { isFileTag, getFileTagDisplayName, Note } from '../types';
 import { TagModal } from './TagModal';
@@ -12,7 +13,9 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { EnergySphere } from './EnergySphere';
 import { evaluateMathCommand, isMathCommand } from '../utils/mathCommandParser';
 import { MathResultPopup } from './MathResultPopup';
+import { FontsPopup } from './FontsPopup';
 import { useOutsideClick } from '../hooks/useOutsideClick';
+import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, DEFAULT_FONT } from '../utils/fontService';
 
 export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const {
@@ -40,6 +43,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
 
   const { setIsOpen, addNode } = useNodesWidget();
   const { setSoundEnabled, setVolume } = useSound();
+  const { currentFont, setCurrentFont } = useFont();
 
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isBulkPopupOpen, setIsBulkPopupOpen] = useState(false);
@@ -53,13 +57,17 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const [mathResult, setMathResult] = useState<string | null>(null);
   const [isMathPopupVisible, setIsMathPopupVisible] = useState(false);
 
+  // Fonts Popup State
+  const [isFontsPopupVisible, setIsFontsPopupVisible] = useState(false);
+
   const searchBarRef = useOutsideClick({
     onOutsideClick: () => {
       setSearchTerm('');
       setMathResult(null);
       setIsMathPopupVisible(false);
+      setIsFontsPopupVisible(false);
     },
-    isOpen: isMathPopupVisible
+    isOpen: isMathPopupVisible || isFontsPopupVisible
   });
 
   // Close popups and clear selection whenever view changes (Trash <-> Main)
@@ -271,6 +279,21 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 } else if (term.toLowerCase() === '@sound-off') {
                   setSoundEnabled(false);
                   setSearchTerm('');
+                } else if (isFontsListCommand(term)) {
+                  // @fonts - Show fonts popup
+                  setIsFontsPopupVisible(true);
+                  setSearchTerm('');
+                } else if (isDefaultFontCommand(term)) {
+                  // @font-d - Reset to default font
+                  setCurrentFont(DEFAULT_FONT);
+                  setSearchTerm('');
+                } else if (term.toLowerCase().startsWith('@font-')) {
+                  // @font-[index/name] - Change font
+                  const font = parseFontCommand(term);
+                  if (font) {
+                    setCurrentFont(font);
+                    setSearchTerm('');
+                  }
                 }
               }
             }}
@@ -291,6 +314,16 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
             input={searchTerm}
             result={mathResult}
             isVisible={isMathPopupVisible}
+          />
+
+          {/* Fonts Popup */}
+          <FontsPopup
+            isVisible={isFontsPopupVisible}
+            onClose={() => setIsFontsPopupVisible(false)}
+            onSelectFont={(font) => {
+              setCurrentFont(font);
+            }}
+            currentFont={currentFont}
           />
         </div>
 
