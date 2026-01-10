@@ -22,7 +22,7 @@ import { evaluateMathCommand } from '../utils/mathCommandParser';
 import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchWikiSummary, fetchDefinition, parseInsightCommand } from '../utils/insightService';
 import { fetchWeather, fetchCurrencyExchange, convertUnits, parseUtilityCommand, parsePomoTime } from '../utils/utilityService';
-import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, getFontsListText, DEFAULT_FONT, getFontByName } from '../utils/fontService';
+import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, getFontsListText, DEFAULT_FONT, getFontByName, parseFontsListFromContent } from '../utils/fontService';
 
 interface NoteEditorProps {
   note?: Note;
@@ -553,251 +553,290 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           )}
 
           {!isQuizMode && (
-            <textarea
-              ref={contentRef}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  const textarea = e.currentTarget;
-                  const cursorStart = textarea.selectionStart;
-                  const textBeforeCursor = content.substring(0, cursorStart);
+            <div className="relative">
+              {/* Styled overlay for fonts list preview */}
+              {(() => {
+                const fontMap = parseFontsListFromContent(content);
+                if (!fontMap) return null;
 
-                  // Handle Math Command: @c- + Enter
-                  const lastAtSignIndexMath = textBeforeCursor.lastIndexOf('@c-');
-                  if (lastAtSignIndexMath !== -1) {
-                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexMath);
-                    if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
-                      const result = evaluateMathCommand(potentialCommand);
-                      if (result !== null) {
-                        e.preventDefault();
-                        const textAfterCursor = content.substring(cursorStart);
-                        const newContent = content.substring(0, lastAtSignIndexMath) + result + textAfterCursor;
-                        setContent(newContent);
-                        setTimeout(() => {
-                          if (contentRef.current) {
-                            const newCursorPos = lastAtSignIndexMath + result.length;
-                            contentRef.current.selectionStart = newCursorPos;
-                            contentRef.current.selectionEnd = newCursorPos;
-                          }
-                        }, 0);
-                        return; // Exit after math command handled
+                const lines = content.split('\n');
+                return (
+                  <div
+                    className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-lg leading-relaxed"
+                    style={{
+                      color: 'inherit',
+                      padding: '0',
+                      margin: '0',
+                    }}
+                  >
+                    {lines.map((line, idx) => {
+                      const font = fontMap.get(idx);
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            fontFamily: font ? font.family : noteFont.family,
+                            lineHeight: '1.75rem', // Match textarea leading-relaxed
+                          }}
+                        >
+                          {line || '\u00A0'} {/* Non-breaking space for empty lines */}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              <textarea
+                ref={contentRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const textarea = e.currentTarget;
+                    const cursorStart = textarea.selectionStart;
+                    const textBeforeCursor = content.substring(0, cursorStart);
+
+                    // Handle Math Command: @c- + Enter
+                    const lastAtSignIndexMath = textBeforeCursor.lastIndexOf('@c-');
+                    if (lastAtSignIndexMath !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexMath);
+                      if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
+                        const result = evaluateMathCommand(potentialCommand);
+                        if (result !== null) {
+                          e.preventDefault();
+                          const textAfterCursor = content.substring(cursorStart);
+                          const newContent = content.substring(0, lastAtSignIndexMath) + result + textAfterCursor;
+                          setContent(newContent);
+                          setTimeout(() => {
+                            if (contentRef.current) {
+                              const newCursorPos = lastAtSignIndexMath + result.length;
+                              contentRef.current.selectionStart = newCursorPos;
+                              contentRef.current.selectionEnd = newCursorPos;
+                            }
+                          }, 0);
+                          return; // Exit after math command handled
+                        }
                       }
                     }
-                  }
 
-                  // Handle Translation Command: @t-[lang] + Enter
-                  const lastAtSignIndexTrans = textBeforeCursor.lastIndexOf('@t-');
-                  if (lastAtSignIndexTrans !== -1) {
-                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexTrans);
-                    if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
-                      const langCode = extractLangCode(potentialCommand);
-                      if (langCode) {
-                        e.preventDefault();
-                        const contentToTranslate = (content.substring(0, lastAtSignIndexTrans) + content.substring(cursorStart)).trim();
-                        if (contentToTranslate) {
-                          setIsTranslating(true);
+                    // Handle Translation Command: @t-[lang] + Enter
+                    const lastAtSignIndexTrans = textBeforeCursor.lastIndexOf('@t-');
+                    if (lastAtSignIndexTrans !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexTrans);
+                      if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
+                        const langCode = extractLangCode(potentialCommand);
+                        if (langCode) {
+                          e.preventDefault();
+                          const contentToTranslate = (content.substring(0, lastAtSignIndexTrans) + content.substring(cursorStart)).trim();
+                          if (contentToTranslate) {
+                            setIsTranslating(true);
 
-                          // Translate both title and content
-                          const titleToTranslate = title.trim();
+                            // Translate both title and content
+                            const titleToTranslate = title.trim();
 
-                          // Execute in sequence to avoid hitting rate limits or fetch errors on long notes
+                            // Execute in sequence to avoid hitting rate limits or fetch errors on long notes
+                            (async () => {
+                              try {
+                                const translatedContent = await translateText(contentToTranslate, langCode);
+                                if (translatedContent) setContent(translatedContent);
+
+                                if (titleToTranslate) {
+                                  const translatedTitle = await translateText(titleToTranslate, langCode);
+                                  if (translatedTitle) setTitle(translatedTitle.slice(0, MAX_TITLE_LENGTH));
+                                }
+                              } catch (err) {
+                                console.error('Note translation failed:', err);
+                              } finally {
+                                setIsTranslating(false);
+                              }
+                            })();
+                          }
+                          return; // Exit after translation command handled
+                        }
+                      }
+                    }
+
+                    // Handle Insight Commands: @wiki- or @def- + Enter
+                    const lastAtSignIndexInsight = textBeforeCursor.lastIndexOf('@');
+                    if (lastAtSignIndexInsight !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexInsight);
+                      if (!potentialCommand.includes('\n') && potentialCommand.length > 5) {
+                        const insightCmd = parseInsightCommand(potentialCommand);
+                        if (insightCmd && insightCmd.query) {
+                          e.preventDefault();
+                          setIsLookingUp(true);
+                          setLookupMessage(insightCmd.type === 'wiki' ? 'Searching Wikipedia...' : 'Looking up definition...');
+
                           (async () => {
                             try {
-                              const translatedContent = await translateText(contentToTranslate, langCode);
-                              if (translatedContent) setContent(translatedContent);
+                              let result = '';
+                              if (insightCmd.type === 'wiki') {
+                                result = await fetchWikiSummary(insightCmd.query);
+                              } else {
+                                result = await fetchDefinition(insightCmd.query);
+                              }
 
-                              if (titleToTranslate) {
-                                const translatedTitle = await translateText(titleToTranslate, langCode);
-                                if (translatedTitle) setTitle(translatedTitle.slice(0, MAX_TITLE_LENGTH));
+                              if (result) {
+                                const textAfterCursor = content.substring(cursorStart);
+                                // Replace the command with the result
+                                const newContent = content.substring(0, lastAtSignIndexInsight) + result + textAfterCursor;
+                                setContent(newContent);
+
+                                // Set cursor at the end of inserted result
+                                setTimeout(() => {
+                                  if (contentRef.current) {
+                                    const newCursorPos = lastAtSignIndexInsight + result.length;
+                                    contentRef.current.selectionStart = newCursorPos;
+                                    contentRef.current.selectionEnd = newCursorPos;
+                                  }
+                                }, 0);
                               }
                             } catch (err) {
-                              console.error('Note translation failed:', err);
+                              console.error('Insight lookup failed:', err);
                             } finally {
-                              setIsTranslating(false);
+                              setIsLookingUp(false);
                             }
                           })();
+                          return;
                         }
-                        return; // Exit after translation command handled
                       }
                     }
-                  }
 
-                  // Handle Insight Commands: @wiki- or @def- + Enter
-                  const lastAtSignIndexInsight = textBeforeCursor.lastIndexOf('@');
-                  if (lastAtSignIndexInsight !== -1) {
-                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexInsight);
-                    if (!potentialCommand.includes('\n') && potentialCommand.length > 5) {
-                      const insightCmd = parseInsightCommand(potentialCommand);
-                      if (insightCmd && insightCmd.query) {
+                    // Handle Utility Commands: @w-, @cc-, @u- + Enter
+                    const lastAtSignIndexUtil = textBeforeCursor.lastIndexOf('@');
+                    if (lastAtSignIndexUtil !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexUtil);
+                      if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
+                        const utilCmd = parseUtilityCommand(potentialCommand);
+                        if (utilCmd) {
+                          e.preventDefault();
+                          setIsLookingUp(true);
+                          setLookupMessage('Processing command...');
+
+                          (async () => {
+                            try {
+                              let result = '';
+                              if (utilCmd.type === 'weather') {
+                                result = await fetchWeather(utilCmd.city);
+                              } else if (utilCmd.type === 'currency') {
+                                result = await fetchCurrencyExchange(utilCmd.amount, utilCmd.from, utilCmd.to);
+                              } else if (utilCmd.type === 'unit') {
+                                result = convertUnits(utilCmd.value, utilCmd.from, utilCmd.to);
+                              }
+
+                              if (result) {
+                                const textAfterCursor = content.substring(cursorStart);
+                                const newContent = content.substring(0, lastAtSignIndexUtil) + result + textAfterCursor;
+                                setContent(newContent);
+                                setTimeout(() => {
+                                  if (contentRef.current) {
+                                    const newCursorPos = lastAtSignIndexUtil + result.length;
+                                    contentRef.current.selectionStart = newCursorPos;
+                                    contentRef.current.selectionEnd = newCursorPos;
+                                  }
+                                }, 0);
+                              }
+                            } catch (err) {
+                              console.error('Utility command failed:', err);
+                            } finally {
+                              setIsLookingUp(false);
+                            }
+                          })();
+                          return;
+                        }
+                      }
+                    }
+
+                    // Handle Pomodoro Command: @pomo or @pomo-[time] + Enter
+                    const lastAtSignIndexPomo = textBeforeCursor.lastIndexOf('@pomo');
+                    if (lastAtSignIndexPomo !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexPomo);
+                      if (!potentialCommand.includes('\n')) {
                         e.preventDefault();
-                        setIsLookingUp(true);
-                        setLookupMessage(insightCmd.type === 'wiki' ? 'Searching Wikipedia...' : 'Looking up definition...');
+                        let timeStr = '';
+                        if (potentialCommand.startsWith('@pomo-')) {
+                          timeStr = potentialCommand.slice(6).trim();
+                        }
 
-                        (async () => {
-                          try {
-                            let result = '';
-                            if (insightCmd.type === 'wiki') {
-                              result = await fetchWikiSummary(insightCmd.query);
-                            } else {
-                              result = await fetchDefinition(insightCmd.query);
-                            }
-
-                            if (result) {
-                              const textAfterCursor = content.substring(cursorStart);
-                              // Replace the command with the result
-                              const newContent = content.substring(0, lastAtSignIndexInsight) + result + textAfterCursor;
-                              setContent(newContent);
-
-                              // Set cursor at the end of inserted result
-                              setTimeout(() => {
-                                if (contentRef.current) {
-                                  const newCursorPos = lastAtSignIndexInsight + result.length;
-                                  contentRef.current.selectionStart = newCursorPos;
-                                  contentRef.current.selectionEnd = newCursorPos;
-                                }
-                              }, 0);
-                            }
-                          } catch (err) {
-                            console.error('Insight lookup failed:', err);
-                          } finally {
-                            setIsLookingUp(false);
-                          }
-                        })();
+                        const seconds = parsePomoTime(timeStr);
+                        const textAfterCursor = content.substring(cursorStart);
+                        setContent(content.substring(0, lastAtSignIndexPomo) + textAfterCursor);
+                        setPomodoroTime(seconds);
+                        setPomodoroTotalTime(seconds);
+                        setIsPomodoroActive(true);
                         return;
                       }
                     }
-                  }
 
-                  // Handle Utility Commands: @w-, @cc-, @u- + Enter
-                  const lastAtSignIndexUtil = textBeforeCursor.lastIndexOf('@');
-                  if (lastAtSignIndexUtil !== -1) {
-                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexUtil);
-                    if (!potentialCommand.includes('\n') && potentialCommand.length > 3) {
-                      const utilCmd = parseUtilityCommand(potentialCommand);
-                      if (utilCmd) {
-                        e.preventDefault();
-                        setIsLookingUp(true);
-                        setLookupMessage('Processing command...');
-
-                        (async () => {
-                          try {
-                            let result = '';
-                            if (utilCmd.type === 'weather') {
-                              result = await fetchWeather(utilCmd.city);
-                            } else if (utilCmd.type === 'currency') {
-                              result = await fetchCurrencyExchange(utilCmd.amount, utilCmd.from, utilCmd.to);
-                            } else if (utilCmd.type === 'unit') {
-                              result = convertUnits(utilCmd.value, utilCmd.from, utilCmd.to);
-                            }
-
-                            if (result) {
-                              const textAfterCursor = content.substring(cursorStart);
-                              const newContent = content.substring(0, lastAtSignIndexUtil) + result + textAfterCursor;
-                              setContent(newContent);
-                              setTimeout(() => {
-                                if (contentRef.current) {
-                                  const newCursorPos = lastAtSignIndexUtil + result.length;
-                                  contentRef.current.selectionStart = newCursorPos;
-                                  contentRef.current.selectionEnd = newCursorPos;
-                                }
-                              }, 0);
-                            }
-                          } catch (err) {
-                            console.error('Utility command failed:', err);
-                          } finally {
-                            setIsLookingUp(false);
-                          }
-                        })();
-                        return;
-                      }
-                    }
-                  }
-
-                  // Handle Pomodoro Command: @pomo or @pomo-[time] + Enter
-                  const lastAtSignIndexPomo = textBeforeCursor.lastIndexOf('@pomo');
-                  if (lastAtSignIndexPomo !== -1) {
-                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexPomo);
-                    if (!potentialCommand.includes('\n')) {
+                    // Handle Quiz Mode Command: @quiz or @quiz-s + Enter
+                    if (textBeforeCursor.endsWith('@quiz') || textBeforeCursor.endsWith('@quiz-s')) {
                       e.preventDefault();
-                      let timeStr = '';
-                      if (potentialCommand.startsWith('@pomo-')) {
-                        timeStr = potentialCommand.slice(6).trim();
-                      }
-
-                      const seconds = parsePomoTime(timeStr);
+                      const isShuffle = textBeforeCursor.endsWith('@quiz-s');
+                      const lastIndex = textBeforeCursor.lastIndexOf(isShuffle ? '@quiz-s' : '@quiz');
                       const textAfterCursor = content.substring(cursorStart);
-                      setContent(content.substring(0, lastAtSignIndexPomo) + textAfterCursor);
-                      setPomodoroTime(seconds);
-                      setPomodoroTotalTime(seconds);
-                      setIsPomodoroActive(true);
+
+                      setContent(content.substring(0, lastIndex) + textAfterCursor);
+                      setIsQuizShuffled(isShuffle);
+                      setIsQuizMode(true);
+                      setRevealedQuizItems([]);
+                      setQuizUserAnswers({});
                       return;
                     }
-                  }
 
-                  // Handle Quiz Mode Command: @quiz or @quiz-s + Enter
-                  if (textBeforeCursor.endsWith('@quiz') || textBeforeCursor.endsWith('@quiz-s')) {
-                    e.preventDefault();
-                    const isShuffle = textBeforeCursor.endsWith('@quiz-s');
-                    const lastIndex = textBeforeCursor.lastIndexOf(isShuffle ? '@quiz-s' : '@quiz');
-                    const textAfterCursor = content.substring(cursorStart);
+                    // Handle Font Commands: @fonts, @font-d, @font-[index/name] + Enter
+                    const lastAtSignIndexFont = textBeforeCursor.lastIndexOf('@font');
+                    if (lastAtSignIndexFont !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexFont);
+                      if (!potentialCommand.includes('\n')) {
+                        // @fonts - Insert font list as text
+                        if (isFontsListCommand(potentialCommand)) {
+                          e.preventDefault();
+                          const fontsList = getFontsListText();
+                          const textAfterCursor = content.substring(cursorStart);
+                          const newContent = content.substring(0, lastAtSignIndexFont) + fontsList + textAfterCursor;
+                          setContent(newContent);
+                          setTimeout(() => {
+                            if (contentRef.current) {
+                              const newCursorPos = lastAtSignIndexFont + fontsList.length;
+                              contentRef.current.selectionStart = newCursorPos;
+                              contentRef.current.selectionEnd = newCursorPos;
+                            }
+                          }, 0);
+                          return;
+                        }
 
-                    setContent(content.substring(0, lastIndex) + textAfterCursor);
-                    setIsQuizShuffled(isShuffle);
-                    setIsQuizMode(true);
-                    setRevealedQuizItems([]);
-                    setQuizUserAnswers({});
-                    return;
-                  }
+                        // @font-d - Reset to default font
+                        if (isDefaultFontCommand(potentialCommand)) {
+                          e.preventDefault();
+                          setNoteFont(DEFAULT_FONT); // Update local note font state
+                          const textAfterCursor = content.substring(cursorStart);
+                          setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
+                          return;
+                        }
 
-                  // Handle Font Commands: @fonts, @font-d, @font-[index/name] + Enter
-                  const lastAtSignIndexFont = textBeforeCursor.lastIndexOf('@font');
-                  if (lastAtSignIndexFont !== -1) {
-                    const potentialCommand = textBeforeCursor.substring(lastAtSignIndexFont);
-                    if (!potentialCommand.includes('\n')) {
-                      // @fonts - Insert font list as text
-                      if (isFontsListCommand(potentialCommand)) {
-                        e.preventDefault();
-                        const fontsList = getFontsListText();
-                        const textAfterCursor = content.substring(cursorStart);
-                        const newContent = content.substring(0, lastAtSignIndexFont) + fontsList + textAfterCursor;
-                        setContent(newContent);
-                        setTimeout(() => {
-                          if (contentRef.current) {
-                            const newCursorPos = lastAtSignIndexFont + fontsList.length;
-                            contentRef.current.selectionStart = newCursorPos;
-                            contentRef.current.selectionEnd = newCursorPos;
-                          }
-                        }, 0);
-                        return;
-                      }
-
-                      // @font-d - Reset to default font
-                      if (isDefaultFontCommand(potentialCommand)) {
-                        e.preventDefault();
-                        setNoteFont(DEFAULT_FONT); // Update local note font state
-                        const textAfterCursor = content.substring(cursorStart);
-                        setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
-                        return;
-                      }
-
-                      // @font-[index/name] - Change font
-                      const font = parseFontCommand(potentialCommand);
-                      if (font) {
-                        e.preventDefault();
-                        setNoteFont(font); // Update local note font state
-                        const textAfterCursor = content.substring(cursorStart);
-                        setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
-                        return;
+                        // @font-[index/name] - Change font
+                        const font = parseFontCommand(potentialCommand);
+                        if (font) {
+                          e.preventDefault();
+                          setNoteFont(font); // Update local note font state
+                          const textAfterCursor = content.substring(cursorStart);
+                          setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
+                          return;
+                        }
                       }
                     }
                   }
-                }
-              }}
-              placeholder="Start writing your note..."
-              style={{ fontFamily: noteFont.family }}
-              className={`w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] transition-opacity duration-300 ${isTranslating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
-            />
+                }}
+                placeholder="Start writing your note..."
+                style={{
+                  fontFamily: noteFont.family,
+                  color: parseFontsListFromContent(content) ? 'transparent' : 'inherit',
+                  caretColor: 'auto',
+                }}
+                className={`w-full resize-none overflow-hidden bg-transparent outline-none placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] transition-opacity duration-300 ${isTranslating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
+              />
+            </div>
           )}
 
           {isQuizMode && (

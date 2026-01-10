@@ -103,6 +103,49 @@ export function getFontsListText(): string {
 }
 
 /**
+ * Check if content contains the fonts list (for styled rendering)
+ */
+export function containsFontsList(content: string): boolean {
+    const lines = content.split('\n');
+    // Check if we have at least 3 consecutive lines matching the pattern "number. FontName"
+    let consecutiveMatches = 0;
+    for (const line of lines) {
+        if (/^\d+\. [A-Za-z\s]+$/.test(line.trim())) {
+            consecutiveMatches++;
+            if (consecutiveMatches >= 3) return true;
+        } else {
+            consecutiveMatches = 0;
+        }
+    }
+    return false;
+}
+
+/**
+ * Parse fonts list from content and return line-by-line font mapping
+ * Returns null if no fonts list detected
+ */
+export function parseFontsListFromContent(content: string): Map<number, Font> | null {
+    if (!containsFontsList(content)) return null;
+
+    const lines = content.split('\n');
+    const fontMap = new Map<number, Font>();
+
+    lines.forEach((line, lineIndex) => {
+        const match = line.trim().match(/^(\d+)\. (.+)$/);
+        if (match) {
+            const fontIndex = parseInt(match[1], 10);
+            const fontName = match[2].trim();
+            const font = AVAILABLE_FONTS.find(f => f.index === fontIndex && f.name === fontName);
+            if (font) {
+                fontMap.set(lineIndex, font);
+            }
+        }
+    });
+
+    return fontMap.size > 0 ? fontMap : null;
+}
+
+/**
  * LocalStorage key for font preference
  */
 export const FONT_STORAGE_KEY = 'quillon-editor-font';
