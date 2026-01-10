@@ -142,17 +142,28 @@ Speed up your writing with instant lookups directly in the note editor. Type the
 - **Unit Conversion**: \`@u-[value][unit] to [unit]\`
     - Example: \`@u-10kg to lbs\` or \`@u-5km to miles\`. Supports weight, length, and temp.
 
-## 9. MISC FEATURES
+## 9. INTERACTIVE SOUND SYSTEM
+Quillon includes a global audio feedback system for a professional, tactile feel.
+- **Haptic Click**: Every button and clickable element triggers a subtle "Digital Felt Tap".
+- **Dynamic Volume**: Human ears perceive volume non-linearly. Quillon uses **Squared Scaling** so that 50% volume actually sounds correctly balanced compared to 100%.
+- **Sound Commands**:
+    - \`@sound-on-[PERCENT]\` — Set exact volume (e.g., \`@sound-on-50\`).
+    - \`@sound-on\` — Enable haptic sounds.
+    - \`@sound-off\` — Mute all sounds.
+- **Mobile Support**: Audio wakes up on your first interaction to bypass mobile browser restrictions.
+- **Persistence**: All sound settings are saved locally and persist after refresh.
+
+## 10. MISC FEATURES
 - **Dark Mode**: Toggle with the Sun/Moon icon.
 - **Export/Download**: Use the options menu on a note to download as TXT.
 
-## 9. TECHNICAL ARCHITECTURE (About Pownin)
+## 11. TECHNICAL ARCHITECTURE (About Pownin)
 - **Model**: Pownin uses **Llama 3.3** (via Groq API) for high-speed reasoning.
 - **RAG Engine**: Uses a Custom Vector Search + Keyword Hybrid system.
 - **Tech Stack**: Built with React, TypeScript, and IndexedDB for high-capacity local storage (limited only by device disk space).
 - **Indexing**: Notes are converted into Vector Embeddings to allow "Semantic Search" (matching meaning, not just words).
 
-## 10. DEVELOPER (About the Creator)
+## 12. DEVELOPER (About the Creator)
 - **Solo Developer**: Quillon (and Pownin) was created entirely by **AlexCJ**
 - **No Team**: There is no "Quillon Team". It is a passion project by a single developer.
 - **Contact**: You can find AlexCJ on GitHub (alexcj10) or LinkedIn.

@@ -189,6 +189,17 @@ A specialized command-based system to keep your workspace clutter-free:
 - **Seamless Switching**: Toggle between spaces with a single click
 - **Independent Organization**: Each space has its own tags, starred notes, and trash
 
+### 🔊 Interactive Sound System
+Quillon features a global, real-time audio feedback system for a more tactile experience:
+- **Haptic Feedback**: Every button and clickable element triggers a premium **Digital Felt Tap** (a high-frequency, ultra-short texture).
+- **Audio Unlock**: Optimized for mobile; audio wakes up on your first interaction.
+- **Dynamic Volume**: Sounds use **Squared Scaling** to match human hearing perception.
+- **Commands**:
+  - `@sound-on-[PERCENT]` — Set exact volume (e.g., `@sound-on-50`)
+  - `@sound-on` — Enable haptic sounds
+  - `@sound-off` — Mute all sounds
+- **Persistence**: Your sound and volume preferences are saved locally.
+
 ---
 
 ## 🛠 Tech Stack  
@@ -282,6 +293,13 @@ Access via **All Tags** button or **+more** icon:
 |---------|-------------|---------|
 | `@show` | Enter Hidden Notes view | `@show` |
 | `@show-return` | Exit Hidden Notes view | `@show-return` |
+
+### Sound & Audio Commands
+| Command | Description | Example |
+|---------|-------------|---------|
+| `@sound-on` | Enable system sounds | `@sound-on` |
+| `@sound-on-[XX]` | Set specific volume (%) | `@sound-on-40` |
+| `@sound-off` | Mute all sounds | `@sound-off` |
 
 **Tag Types**: `blue` (folders), `green` (context), `grey` (standard)
 > [!TIP]

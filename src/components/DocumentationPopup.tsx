@@ -304,6 +304,30 @@ A command-based system to keep your workspace clutter-free.
 - Separate starred notes
 - Separate trash for each space
 
+---
+
+## 🔊 Interactive Sound System
+
+Quillon features a global audio feedback system for a professional, tactile experience.
+
+### ✨ Haptic Haptics
+- Every button and clickable element triggers a subtle **Digital Felt Tap**
+- Instant, zero-latency response
+
+### 🔉 Natural Volume
+- Uses **Squared Scaling** to match human hearing
+- 50% volume sounds correctly balanced against 100%
+
+### ⚡ Commands
+- **\`@sound-on-[PERCENT]\`** — Set exact volume (e.g., \`@sound-on-40\`)
+- **\`@sound-on\`** — Enable haptic sounds
+- **\`@sound-off\`** — Mute all sounds
+
+### 📱 Performance
+- **Mobile Support**: Audio wakes up on first interaction
+- **Universal**: Optimized for Desktop, Tablet, and Mobile
+- **Persistent**: Settings save locally across refreshes
+
 ## 💾 Data & Storage
 
 - **Local-First**: All notes and documents are stored locally on your device using **IndexedDB** (disk-backed browser storage).
