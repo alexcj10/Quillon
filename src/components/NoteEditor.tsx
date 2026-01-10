@@ -22,7 +22,7 @@ import { evaluateMathCommand } from '../utils/mathCommandParser';
 import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchWikiSummary, fetchDefinition, parseInsightCommand } from '../utils/insightService';
 import { fetchWeather, fetchCurrencyExchange, convertUnits, parseUtilityCommand, parsePomoTime } from '../utils/utilityService';
-import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, getFontsListText, DEFAULT_FONT } from '../utils/fontService';
+import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, getFontsListText, DEFAULT_FONT, getFontByName } from '../utils/fontService';
 
 interface NoteEditorProps {
   note?: Note;
@@ -96,7 +96,25 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   // Get all notes to extract file tag history
   const { notes: allNotes } = useNotes();
-  const { currentFont, setCurrentFont } = useFont();
+  // Local state for the current note's font, initialized from note or default
+  // Local state for the current note's font, initialized from note or default
+  // const { currentFont: globalFont } = useFont(); // Only used for initial default if needed
+  const [noteFont, setNoteFont] = useState(() => {
+    if (note?.fontFamily) {
+      return getFontByName(note.fontFamily) || DEFAULT_FONT;
+    }
+    return DEFAULT_FONT;
+  });
+
+  // Update local font state if note prop changes
+  useEffect(() => {
+    if (note?.fontFamily) {
+      const font = getFontByName(note.fontFamily);
+      if (font) setNoteFont(font);
+    }
+  }, [note]);
+
+  // Helper to get font by name for initialization (REMOVED)
 
   // Compute all file tags from user's notes with space/trash metadata
   const allFileTagSuggestions = useMemo(() => {
@@ -170,7 +188,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     if (scrollParent && typeof currentScroll === 'number') {
       scrollParent.scrollTop = currentScroll;
     }
-  }, [content, isQuizMode]);
+  }, [content, isQuizMode, noteFont]); // Re-adjust height when font changes
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -266,6 +284,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
       isPinned,
       isFavorite,
       isPrivate,
+      fontFamily: noteFont.name, // Save the font name
     });
   };
 
@@ -467,6 +486,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
               readOnly={isQuizMode}
               maxLength={MAX_TITLE_LENGTH}
               placeholder="Note title"
+              style={{ fontFamily: noteFont.family }}
               className={`text-xl font-semibold bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 flex-1 min-w-0 ${isQuizMode ? 'cursor-default' : ''}`}
             />
             {!isQuizMode && (
@@ -747,7 +767,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       // @font-d - Reset to default font
                       if (isDefaultFontCommand(potentialCommand)) {
                         e.preventDefault();
-                        setCurrentFont(DEFAULT_FONT);
+                        setNoteFont(DEFAULT_FONT); // Update local note font state
                         const textAfterCursor = content.substring(cursorStart);
                         setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
                         return;
@@ -757,7 +777,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       const font = parseFontCommand(potentialCommand);
                       if (font) {
                         e.preventDefault();
-                        setCurrentFont(font);
+                        setNoteFont(font); // Update local note font state
                         const textAfterCursor = content.substring(cursorStart);
                         setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
                         return;
@@ -767,7 +787,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                 }
               }}
               placeholder="Start writing your note..."
-              style={{ fontFamily: currentFont.family }}
+              style={{ fontFamily: noteFont.family }}
               className={`w-full resize-none overflow-hidden bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] transition-opacity duration-300 ${isTranslating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
             />
           )}

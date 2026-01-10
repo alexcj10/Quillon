@@ -38,6 +38,7 @@ export interface Note {
   shareProtection?: ShareProtection;
   shareUrl?: string;
   embedding?: number[];
+  fontFamily?: string;
 }
 
 // Helper function to identify file tags

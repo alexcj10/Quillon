@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { downloadNote } from '../utils/downloadUtils';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 
+import { getFontByName, DEFAULT_FONT } from '../utils/fontService';
 import { Note } from '../types';
 
 interface NoteViewerProps {
@@ -15,6 +16,9 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
   const [showFormatOptions, setShowFormatOptions] = useState(false);
   const [isTitleExpanded, setIsTitleExpanded] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+
+  // Get font for viewing
+  const noteFont = note.fontFamily ? (getFontByName(note.fontFamily) || DEFAULT_FONT) : DEFAULT_FONT;
 
   // Lock body scroll when maximized
   useEffect(() => {
@@ -78,6 +82,7 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
                 <div className="flex-1 min-w-0">
                   <h2
                     onClick={toggleTitleExpansion}
+                    style={{ fontFamily: noteFont.family }}
                     className={`text-base sm:text-lg md:text-xl font-bold mb-2 break-words text-gray-900 dark:text-white cursor-pointer ${isTitleExpanded ? '' : 'line-clamp-2'
                       } transition-all duration-200`}
                   >
@@ -180,8 +185,10 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
                 }
               `}</style>
               <div className="px-4 py-3 sm:p-6">
-                <div className={`whitespace-pre-wrap break-words text-base sm:text-lg leading-relaxed ${note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
-                  }`}>
+                <div
+                  className={`whitespace-pre-wrap break-words text-base sm:text-lg leading-relaxed ${note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'}`}
+                  style={{ fontFamily: noteFont.family }}
+                >
                   {note.content}
                 </div>
               </div>

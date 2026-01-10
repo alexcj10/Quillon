@@ -1,13 +1,15 @@
 import { useState, useCallback } from 'react';
 import { Note, isFileTag, getFileTagDisplayName } from '../types';
 import { Pin, Star, Trash2, Edit, Copy, Check, Lock, RotateCcw, XCircle, Eye, Download, ChevronDown, Share2, Folder, EyeOff } from 'lucide-react';
-import { useNotes } from '../context/NoteContext';
+import { useFont } from '../context/FontContext';
+import { getFontByName, DEFAULT_FONT } from '../utils/fontService';
 import { NoteViewer } from './NoteViewer';
 import { downloadNote } from '../utils/downloadUtils';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { ShareDialog } from './ShareDialog';
 import { ConfirmDialog } from './ConfirmDialog';
 import { getNoteColorClass } from '../utils/colorUtils';
+import { useNotes } from '../context/NoteContext';
 
 interface NoteCardProps {
   note: Note;
@@ -27,6 +29,25 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
     selectedNoteIds,
     toggleNoteSelection,
   } = useNotes();
+  // const { currentFont: globalFont } = useFont(); // Not used for cards anymore
+
+  // Helper to determine font family for this card
+  const getNoteFontFamily = () => {
+    if (note.fontFamily) {
+      const font = getFontByName(note.fontFamily);
+      if (font) return font.family;
+
+      // Fallback for potential legacy command strings if any exist
+      if (note.fontFamily.startsWith('font-') || note.fontFamily.startsWith('@font-')) {
+        return note.fontFamily;
+      }
+      return note.fontFamily;
+    }
+    return DEFAULT_FONT.family;
+  };
+
+  const noteFontFamily = getNoteFontFamily();
+
   const [copied, setCopied] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
   const [showFormatOptions, setShowFormatOptions] = useState(false);
@@ -112,7 +133,10 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
         )}
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white truncate">
+            <h3
+              className="text-lg font-semibold text-gray-800 dark:text-white truncate"
+              style={{ fontFamily: noteFontFamily }}
+            >
               {note.title}
             </h3>
             {note.isPrivate && (
@@ -145,7 +169,10 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
 
         <div className="flex-1 min-h-0 overflow-hidden mb-3">
           {isContentVisible ? (
-            <p className="text-gray-600 dark:text-gray-200 text-sm line-clamp-4 break-words">
+            <p
+              className="text-gray-600 dark:text-gray-200 text-sm line-clamp-4 break-words"
+              style={{ fontFamily: noteFontFamily }}
+            >
               {note.content}
             </p>
           ) : (
