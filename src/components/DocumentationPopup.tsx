@@ -305,9 +305,10 @@ A command-based system to keep your workspace clutter-free.
 - Separate trash for each space
 
 ## 💾 Data & Storage
-- **Local First**: All data is stored locally on your device using **IndexedDB**.
-- **Capacity**: You can store as much as your device's hard drive allows.
-- **Privacy**: No cloud servers. Your notes are yours.
+
+- **Local-First**: All notes and documents are stored locally on your device using **IndexedDB** (disk-backed browser storage).
+- **Capacity**: No artificial limits are imposed by Quillon. Storage capacity scales with available device space and browser-managed quotas, making it effectively unlimited for personal use.
+- **Privacy**: No cloud servers. Your data never leaves your device.
 `;
 
     // Custom renderer for ReactMarkdown with Lucide icons for headers if we wanted, 
