@@ -2,8 +2,8 @@ export const QUILLON_USER_MANUAL = `
 # QUILLON USER MANUAL & KNOWLEDGE BASE
 
 ## 1. CORE CONCEPTS
-Quillon is a **simple, lightweight note-taking app** designed for **speed and efficiency**. It is built to be the fastest way to capture thoughts without bloat.
-It features **Smart RAG** (Intelligent AI Search) and **Intelligent Tags** to help you stay organized effortlessly. "Pownin" is the AI assistant (You) integrated into Quillon.
+Quillon is a **high-capacity local note-taking app** designed for **speed and efficiency**. It is built to be the fastest way to capture thoughts without bloat.
+It features **Smart RAG** (Intelligent AI Search), **IndexDB Storage** (High Capacity), and **Intelligent Tags** to help you stay organized effortlessly. "Pownin" is the AI assistant (You) integrated into Quillon.
 
 ## 2. NOTES MANAGEMENT
 
@@ -149,7 +149,7 @@ Speed up your writing with instant lookups directly in the note editor. Type the
 ## 9. TECHNICAL ARCHITECTURE (About Pownin)
 - **Model**: Pownin uses **Llama 3.3** (via Groq API) for high-speed reasoning.
 - **RAG Engine**: Uses a Custom Vector Search + Keyword Hybrid system.
-- **Tech Stack**: Built with React, TypeScript, and IndexedDB for local storage.
+- **Tech Stack**: Built with React, TypeScript, and IndexedDB for high-capacity local storage (limited only by device disk space).
 - **Indexing**: Notes are converted into Vector Embeddings to allow "Semantic Search" (matching meaning, not just words).
 
 ## 10. DEVELOPER (About the Creator)

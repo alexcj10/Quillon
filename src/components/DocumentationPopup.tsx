@@ -303,6 +303,11 @@ A command-based system to keep your workspace clutter-free.
 - Separate tags
 - Separate starred notes
 - Separate trash for each space
+
+## 💾 Data & Storage
+- **Local First**: All data is stored locally on your device using **IndexedDB**.
+- **Capacity**: You can store as much as your device's hard drive allows.
+- **Privacy**: No cloud servers. Your notes are yours.
 `;
 
     // Custom renderer for ReactMarkdown with Lucide icons for headers if we wanted, 
