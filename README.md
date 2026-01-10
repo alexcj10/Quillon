@@ -110,6 +110,14 @@ Fetch real-time data and perform conversions directly in your note:
 - **Units**: Type `@u-[value][unit] to [unit]` (e.g., `@u-5kg to lbs`).
   - Supports: `kg/lbs`, `km/miles`, `m/ft`, `cm/inch`, `c/f` (temperature).
 
+### ✍️ Font Customization
+Personalize your notes with custom fonts for better readability and style:
+- **Live Preview**: Type `@fonts` to see all available fonts. In the note editor, each font name renders in its actual typeface for instant visual comparison.
+- **Quick Selection**: Use `@font-[index]` (e.g., `@font-15` for Comic Neue) or `@font-[name]` (e.g., `@font-Caveat`) to change fonts.
+- **Per-Note Persistence**: Each note remembers its own font independently, allowing different fonts for different types of content.
+- **One-Time Selection**: Fonts selected in the search bar apply only to the next new note, then automatically reset to default.
+- **16 Curated Fonts**: Including system fonts, elegant serifs (Playfair Display, Lora), monospace options (Fira Code, JetBrains Mono), and handwritten styles (Comic Neue, Caveat).
+
 ### ⚡ Study & Productivity (Deep Dive)
 #### 🧘‍♂️ Zen Quiz Mode
 Turn any note into a professional study session with one command.
