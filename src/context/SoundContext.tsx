@@ -28,14 +28,14 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         if (isSoundEnabled) playSoftClick();
     }, [isSoundEnabled]);
 
-    // Global click listener for ALL buttons
+    // Global click/touch listener for ALL buttons
     useEffect(() => {
-        const handleGlobalClick = (e: MouseEvent) => {
+        const handleInteraction = (e: MouseEvent | TouchEvent) => {
             if (!isSoundEnabled) return;
 
             const target = e.target as HTMLElement;
 
-            // Check if clicked element is a button or inside a button
+            // Check if clicked/touched element is a button or inside a button
             const isButton =
                 target.tagName === 'BUTTON' ||
                 target.closest('button') !== null ||
@@ -47,11 +47,13 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
             }
         };
 
-        // Use capture phase to catch clicks early
-        document.addEventListener('click', handleGlobalClick, true);
+        // Listen to both click (desktop) and touchstart (mobile)
+        document.addEventListener('click', handleInteraction, true);
+        document.addEventListener('touchstart', handleInteraction, true);
 
         return () => {
-            document.removeEventListener('click', handleGlobalClick, true);
+            document.removeEventListener('click', handleInteraction, true);
+            document.removeEventListener('touchstart', handleInteraction, true);
         };
     }, [isSoundEnabled]);
 

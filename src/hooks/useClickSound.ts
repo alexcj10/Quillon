@@ -46,8 +46,8 @@ const playClick = (volume: number = 0.3) => {
     }
 };
 
-// Soft click variant (gentle, pleasant sound for all buttons)
-const playSoftClick = (volume: number = 0.08) => {
+// Gentle Tick Sound (clean, subtle, like a soft notification)
+const playSoftClick = (volume: number = 0.04) => {
     try {
         const ctx = getAudioContext();
 
@@ -61,17 +61,16 @@ const playSoftClick = (volume: number = 0.08) => {
         oscillator.connect(gainNode);
         gainNode.connect(ctx.destination);
 
-        // Very soft, warm tap sound
+        // Simple clean tick - single high tone, very short
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(600, ctx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.02);
+        oscillator.frequency.setValueAtTime(880, ctx.currentTime); // A5 note - pleasant pitch
 
-        gainNode.gain.setValueAtTime(0, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.002); // 2ms attack
-        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03); // 30ms decay
+        // Ultra short - just a tiny pip
+        gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.015); // 15ms
 
         oscillator.start(ctx.currentTime);
-        oscillator.stop(ctx.currentTime + 0.04); // Very short
+        oscillator.stop(ctx.currentTime + 0.02); // 20ms total
     } catch (error) {
         // Silently fail
     }
