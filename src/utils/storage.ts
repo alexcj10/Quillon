@@ -2,8 +2,6 @@ import { Document } from '../types/document';
 import { StorageError } from './errors.ts';
 import { DocumentDB } from './db';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
 const METADATA_KEY = 'documents-metadata';
 
 export class DocumentStorage {
@@ -17,32 +15,19 @@ export class DocumentStorage {
     return documents.reduce((total, doc) => total + doc.size, 0);
   }
 
-  validateFileSize(size: number): void {
-    if (size > MAX_FILE_SIZE) {
-      throw new StorageError(`File size exceeds maximum limit of ${MAX_FILE_SIZE / 1024 / 1024}MB`);
-    }
+  validateFileSize(_size: number): void {
+    // No limit
   }
 
-  validateTotalSize(currentSize: number, newSize: number): void {
-    if (currentSize + newSize > MAX_TOTAL_SIZE) {
-      throw new StorageError(`Total storage would exceed maximum limit of ${MAX_TOTAL_SIZE / 1024 / 1024}MB`);
-    }
+  validateTotalSize(_currentSize: number, _newSize: number): void {
+    // No limit
   }
 
   async saveDocuments(documents: Document[]): Promise<void> {
     try {
-      // Save metadata to localStorage
+      // Save metadata to IndexedDB
       const metadata = documents.map(({ url, ...rest }) => rest);
-      const metadataString = JSON.stringify(metadata);
-
-      try {
-        localStorage.setItem(METADATA_KEY, metadataString);
-      } catch (e) {
-        if ((e as any).name === 'QuotaExceededError') {
-          throw new StorageError('Storage quota exceeded. Please delete some documents to free up space.');
-        }
-        throw e;
-      }
+      await this.db.saveMetadataBulk(metadata);
 
       // Save files to IndexedDB
       await Promise.all(
@@ -58,10 +43,28 @@ export class DocumentStorage {
 
   async loadDocuments(): Promise<Document[]> {
     try {
-      const metadata = localStorage.getItem(METADATA_KEY);
-      if (!metadata) return [];
+      // Migration Logic: Check localStorage first
+      const localMetadata = localStorage.getItem(METADATA_KEY);
+      if (localMetadata) {
+        try {
+          const parsedMetadata = JSON.parse(localMetadata);
+          if (Array.isArray(parsedMetadata) && parsedMetadata.length > 0) {
+            // Check if DB is empty to avoid overwriting newer data
+            const dbMetadata = await this.db.getAllMetadata();
+            if (dbMetadata.length === 0) {
+              await this.db.saveMetadataBulk(parsedMetadata);
+              console.log('Migrated document metadata to IndexedDB');
+              localStorage.removeItem(METADATA_KEY);
+            }
+          }
+        } catch (e) {
+          console.error('Failed to parse local metadata during migration', e);
+        }
+      }
 
-      const docs = JSON.parse(metadata);
+      // Load metadata from IndexedDB
+      const docs = await this.db.getAllMetadata();
+
       const fullDocs = await Promise.all(
         docs.map(async (doc: Omit<Document, 'url'>) => {
           try {
@@ -83,26 +86,12 @@ export class DocumentStorage {
 
   async deleteDocument(id: string): Promise<void> {
     try {
-      await this.db.delete(id);
-
-      // Update metadata
-      const metadata = localStorage.getItem(METADATA_KEY);
-      if (metadata) {
-        const docs = JSON.parse(metadata);
-        const updatedDocs = docs.filter((doc: Document) => doc.id !== id);
-        localStorage.setItem(METADATA_KEY, JSON.stringify(updatedDocs));
-      }
+      await this.db.delete(id); // Delete content
+      await this.db.deleteMetadata(id); // Delete metadata
     } catch (error) {
       throw new StorageError('Failed to delete document');
     }
   }
 }
 
-import { Note } from '../types';
 
-export function getNotes(): Note[] {
-  return JSON.parse(localStorage.getItem("notes") || "[]");
-}
-export function saveNotes(notes: Note[]) {
-  localStorage.setItem("notes", JSON.stringify(notes));
-}

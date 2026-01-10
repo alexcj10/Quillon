@@ -34,6 +34,7 @@ function NoteList() {
     addNote,
     updateNote,
     clearSelection,
+    isNotesLoaded,
   } = useNotes();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -195,28 +196,36 @@ function NoteList() {
 
         {<NoteFilters displayedNotes={filteredNotes} />}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredNotes.map(note => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              onEdit={handleEdit}
-            />
-          ))}
-          {filteredNotes.length === 0 && (
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">
-                {showTrash
-                  ? showHidden ? 'Hidden trash is empty' : 'Trash is empty'
-                  : showHidden
-                    ? 'No hidden notes found'
-                    : showPrivateNotes
-                      ? 'No private notes found'
-                      : 'No notes found'}
-              </p>
-            </div>
-          )}
-        </div>
+        {!isNotesLoaded ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-700 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-500 dark:text-gray-400">Loading your notes...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {filteredNotes.map(note => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                onEdit={handleEdit}
+              />
+            ))}
+            {filteredNotes.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 dark:text-gray-400">
+                  {showTrash
+                    ? showHidden ? 'Hidden trash is empty' : 'Trash is empty'
+                    : showHidden
+                      ? 'No hidden notes found'
+                      : showPrivateNotes
+                        ? 'No private notes found'
+                        : 'No notes found'}
+                </p>
+              </div>
+            )}
+
+          </div>
+        )}
 
         {isEditing && !showTrash && (
           <NoteEditor

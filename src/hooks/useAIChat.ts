@@ -5,7 +5,7 @@ import { Message, Session } from '../types';
 import { useNotes } from '../context/NoteContext';
 
 export function useAIChat() {
-    const { isPrivateSpaceUnlocked } = useNotes();
+    const { notes, isPrivateSpaceUnlocked } = useNotes();
     const [history, setHistory] = useState<Session[]>([]);
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([
@@ -108,7 +108,7 @@ export function useAIChat() {
             // Call RAG Engine
             // Note: messages needs to be stripped of IDs/timestamps for strict compliance if required, 
             // but usually extra props are fine. 
-            const response = await ragQuery(text, newMessages, { includePrivate: isPrivateSpaceUnlocked });
+            const response = await ragQuery(text, notes, newMessages, { includePrivate: isPrivateSpaceUnlocked });
 
             const aiMsg: Message = {
                 id: (Date.now() + 1).toString(),
@@ -157,7 +157,7 @@ export function useAIChat() {
         } finally {
             setIsLoading(false);
         }
-    }, [messages, currentSessionId, isPrivateSpaceUnlocked]);
+    }, [messages, currentSessionId, isPrivateSpaceUnlocked, notes]);
 
     return {
         messages,

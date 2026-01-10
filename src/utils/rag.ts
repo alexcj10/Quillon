@@ -1,4 +1,3 @@
-import { getNotes } from "./storage";
 import { embedText } from "./embed";
 import { cosineSimilarity } from "./similarity";
 import { isFileTag, getFileTagDisplayName, Note } from "../types";
@@ -8,6 +7,7 @@ const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
 
 export async function ragQuery(
     question: string,
+    allNotes: Note[],
     history: Array<{ role: 'user' | 'ai', content: string }> = [],
     options: { includePrivate: boolean } = { includePrivate: false }
 ) {
@@ -18,7 +18,7 @@ export async function ragQuery(
 
     // NOTE: Removed personality re-check. AI handles everything now.
 
-    const allNotes = getNotes();
+    // SECURITY & SEPARATION:
     // SECURITY & SEPARATION:
     // User requested "Totally Separate" modes.
     // - Public Mode: See ONLY Public Notes.

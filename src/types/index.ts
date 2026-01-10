@@ -111,6 +111,7 @@ export interface NoteContextType {
   bulkRestoreFromTrash: () => void;
   bulkDeleteForever: () => void;
   bulkMoveToTrash: () => void;
+  isNotesLoaded: boolean;
 }
 
 export interface Message {

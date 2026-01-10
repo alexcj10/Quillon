@@ -5,11 +5,13 @@ import { initializeEmbeddings } from "../utils/initializeEmbeddings";
 
 const NoteContext = createContext<NoteContextType | undefined>(undefined);
 
+import { DocumentDB } from '../utils/db';
+
+const db = new DocumentDB();
+
 export function NoteProvider({ children }: { children: React.ReactNode }) {
-  const [notes, setNotes] = useState<Note[]>(() => {
-    const savedNotes = localStorage.getItem('notes');
-    return savedNotes ? JSON.parse(savedNotes) : [];
-  });
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [isNotesLoaded, setIsNotesLoaded] = useState(false);
   const [privateSpacePassword, setPrivateSpacePassword] = useState<string>(() => {
     const saved = localStorage.getItem('privateSpacePassword');
     return saved || '';
@@ -30,9 +32,50 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
 
+  // ... other state definitions ...
+
+  // Load notes from IndexedDB on mount
   useEffect(() => {
-    localStorage.setItem('notes', JSON.stringify(notes));
-  }, [notes]);
+    const loadNotes = async () => {
+      try {
+        // First check if we need to migrate from localStorage
+        const localNotes = localStorage.getItem('notes');
+        if (localNotes) {
+          const parsedNotes = JSON.parse(localNotes);
+          if (parsedNotes.length > 0) {
+            // Check if IndexedDB is empty
+            const dbNotes = await db.getAllNotes();
+            if (dbNotes.length === 0) {
+              await db.saveNotesBulk(parsedNotes);
+              console.log('Migrated notes to IndexedDB');
+              // Only clear localStorage if we actually migrated data to an empty DB
+              localStorage.removeItem('notes');
+            } else {
+              console.log('DB already populated. Skipping migration to preserve DB integrity, but keeping LocalStorage backup just in case.');
+            }
+          }
+        }
+
+        const savedNotes = await db.getAllNotes();
+        setNotes(savedNotes);
+      } catch (error) {
+        console.error('Failed to load notes:', error);
+      } finally {
+        setIsNotesLoaded(true);
+      }
+    };
+    loadNotes();
+  }, []);
+
+  // Save changes to IndexedDB
+  useEffect(() => {
+    if (!isNotesLoaded) return;
+
+    // We save individual note updates in the action functions for better performance
+    // This effect acts as a backup/sync for bulk operations if needed, 
+    // but for now we'll rely on specific operations to keep DB in sync
+    // to avoid writing the entire array on every small change
+  }, [notes, isNotesLoaded]);
 
   useEffect(() => {
     const { changed, notes: updatedNotes } = initializeEmbeddings(notes);
@@ -88,6 +131,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       updatedAt: new Date().toISOString(),
       embedding: embedText(`${note.title} ${note.content} ${tagText}`)
     };
+    db.saveNote(newNote); // Save to IndexedDB
     setNotes(prev => [...prev, newNote]);
   };
 
@@ -137,6 +181,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
           updatedNote.embedding = embedText(`${t} ${c} ${tagStr}`);
         }
 
+        db.saveNote(updatedNote); // Save to IndexedDB
         return updatedNote;
       }
       return note;
@@ -144,61 +189,74 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   };
 
   const moveToTrash = (id: string) => {
-    setNotes(prev => prev.map(note =>
-      note.id === id
-        ? {
+    setNotes(prev => prev.map(note => {
+      if (note.id === id) {
+        const updatedNote = {
           ...note,
           isDeleted: true,
           deletedAt: new Date().toISOString(),
           isPinned: false,
           isPinnedInFavorite: false,
-        }
-        : note
-    ));
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
   };
 
   const restoreFromTrash = (id: string) => {
-    setNotes(prev => prev.map(note =>
-      note.id === id
-        ? {
+    setNotes(prev => prev.map(note => {
+      if (note.id === id) {
+        const updatedNote = {
           ...note,
           isDeleted: false,
           deletedAt: undefined,
-        }
-        : note
-    ));
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
   };
 
-  const permanentlyDelete = (id: string) => {
+  const permanentlyDelete = async (id: string) => {
+    await db.deleteNote(id);
     setNotes(prev => prev.filter(note => note.id !== id));
   };
 
   const deleteNote = moveToTrash;
 
   const hideNote = (id: string) => {
-    setNotes(prev => prev.map(note =>
-      note.id === id
-        ? {
+    setNotes(prev => prev.map(note => {
+      if (note.id === id) {
+        const updatedNote = {
           ...note,
           isHidden: true,
           tags: ['@hide'], // Set only @hide tag
           updatedAt: new Date().toISOString(),
-        }
-        : note
-    ));
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
   };
 
   const unhideNote = (id: string) => {
-    setNotes(prev => prev.map(note =>
-      note.id === id
-        ? {
+    setNotes(prev => prev.map(note => {
+      if (note.id === id) {
+        const updatedNote = {
           ...note,
           isHidden: false,
           tags: note.tags.filter(tag => tag !== '@hide'), // Remove @hide tag
           updatedAt: new Date().toISOString(),
-        }
-        : note
-    ));
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
   };
 
   const setupPrivateSpace = (password: string) => {
@@ -230,14 +288,17 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   const toggleDarkMode = () => setIsDarkMode((prev: boolean) => !prev);
 
   const incrementViewCount = (id: string) => {
-    setNotes(prev => prev.map(note =>
-      note.id === id
-        ? {
+    setNotes(prev => prev.map(note => {
+      if (note.id === id) {
+        const updatedNote = {
           ...note,
           viewCount: (note.viewCount || 0) + 1,
-        }
-        : note
-    ));
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
   };
 
   const shareNote = (noteId: string, email: string, permission: 'view' | 'edit') => {
@@ -553,6 +614,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       bulkRestoreFromTrash,
       bulkDeleteForever,
       bulkMoveToTrash,
+      isNotesLoaded,
     }}>
       {children}
     </NoteContext.Provider>
