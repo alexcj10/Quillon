@@ -2,6 +2,8 @@ import { embedText } from "./embed";
 import { cosineSimilarity } from "./similarity";
 import { isFileTag, getFileTagDisplayName, Note } from "../types";
 import { QUILLON_USER_MANUAL } from "./quillonManual";
+import { buildEntityRegistry, EntityRegistry } from "./entityRegistry";
+import { validateResponse, generateClarificationPrompt, formatCitations } from "./contextValidator";
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
 
@@ -38,6 +40,9 @@ export async function ragQuery(
         const lastTs = Math.max(...timestamps);
         lastVaultUpdate = new Date(lastTs).toLocaleString();
     }
+
+    // Build Entity Registry for validation
+    const entityRegistry: EntityRegistry = buildEntityRegistry(activeNotes);
 
     // --- 0. PLANNER CORE (Deep Reasoning) ---
     // Instead of just rewriting, we break the query into steps for better retrieval.
@@ -568,6 +573,42 @@ Instructions:
 
         const initialAnswer = data?.choices?.[0]?.message?.content ?? "No response from AI";
         if (!initialAnswer || initialAnswer.startsWith("Error")) return initialAnswer;
+
+        // --- 4.5. VALIDATION LAYER (Context Grounding) ---
+        // Validate the AI response against known context to prevent hallucinations
+        try {
+            const validationResult = await validateResponse({
+                query: normalizedQuestion,
+                response: initialAnswer,
+                context: finalNotesToProcess.map(item => item.n),
+                entityRegistry
+            });
+
+            // Check for critical validation failures
+            const criticalIssues = validationResult.issues.filter(i => i.severity === 'critical');
+
+            if (criticalIssues.length > 0 || validationResult.confidence < 0.5) {
+                // Generate clarification prompt
+                const clarification = generateClarificationPrompt(validationResult);
+
+                if (clarification) {
+                    // Return clarification instead of potentially hallucinated response
+                    return clarification;
+                }
+            }
+
+            // If validation passed, optionally add citations
+            if (validationResult.citations.length > 0 && validationResult.confidence > 0.8) {
+                const citations = formatCitations(validationResult.citations);
+                // Only add citations for complex queries
+                if (normalizedQuestion.length > 20 && !initialAnswer.includes('**Sources:**')) {
+                    return initialAnswer + citations;
+                }
+            }
+        } catch (validationError) {
+            console.warn('Validation failed, proceeding with unvalidated response:', validationError);
+            // Continue with original response if validation fails
+        }
 
         // --- 5. REFLECTION CORE (The Mirror) ---
         if (normalizedQuestion.length > 20) {
