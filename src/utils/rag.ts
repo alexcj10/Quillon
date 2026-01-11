@@ -471,8 +471,10 @@ ${longTermMemoryContext}
 *** HIERARCHY OF TRUTH (FOLLOW STRICTLY) ***
 0. **SYSTEM FACTS (METADATA)**:
    - **[CURRENT VIEW]: ${options.includePrivate ? "PRIVATE SPACE (Seeing Private Notes Only)" : "PUBLIC SPACE (Seeing Public Notes Only)"}**
-   - Public Space Stats: ${allNotes.filter(n => !n.isPrivate).length} notes, ${new Set(allNotes.filter(n => !n.isPrivate).flatMap(n => n.tags || [])).size} tags.
-   - Private Space Stats: ${allNotes.filter(n => n.isPrivate).length} notes, ${new Set(allNotes.filter(n => n.isPrivate).flatMap(n => n.tags || [])).size} tags.
+   - Public Space Stats: ${allNotes.filter(n => !n.isPrivate && !n.isDeleted).length} notes, ${new Set(allNotes.filter(n => !n.isPrivate && !n.isDeleted).flatMap(n => n.tags || []).filter(t => t !== '@hide')).size} tags.
+   - Private Space Stats: ${allNotes.filter(n => n.isPrivate && !n.isDeleted).length} notes, ${new Set(allNotes.filter(n => n.isPrivate && !n.isDeleted).flatMap(n => n.tags || []).filter(t => t !== '@hide')).size} tags.
+   - TRASH Stats (Public): ${allNotes.filter(n => !n.isPrivate && n.isDeleted).length} notes, ${new Set(allNotes.filter(n => !n.isPrivate && n.isDeleted).flatMap(n => n.tags || []).filter(t => t !== '@hide')).size} tags.
+   - TRASH Stats (Private): ${allNotes.filter(n => n.isPrivate && n.isDeleted).length} notes, ${new Set(allNotes.filter(n => n.isPrivate && n.isDeleted).flatMap(n => n.tags || []).filter(t => t !== '@hide')).size} tags.
 1. **USER NOTES (ABSOLUTE FIRST PRIORITY)**: ALWAYS check the notes context below. If the answer exists in notes, USE IT. Override everything else.
    - **STATS RULE**: If user asks "How many tags/notes?" without saying "public" or "private", answer based on **[CURRENT VIEW]** only.
    - If user explicitly asks for "Both" or "Private from Public", you may use the System Stats above to answer.
