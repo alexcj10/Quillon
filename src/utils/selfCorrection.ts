@@ -130,8 +130,8 @@ function removeHallucinations(
         }
     });
 
-    // Clean up double spaces and punctuation
-    fixed = fixed.replace(/\s+/g, ' ').trim();
+    // Clean up redundant spaces but PRESERVE NEWLINES for Markdown
+    fixed = fixed.replace(/[^\S\r\n]+/g, ' ').trim();
     fixed = fixed.replace(/\.\s*\./g, '.');
 
     return { fixed, corrections };

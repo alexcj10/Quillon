@@ -555,9 +555,13 @@ Instructions:
    - Do NOT say "To summarize..." or "In conclusion...".
    - If the main answer covers it, stop.
 
-8. **Current Date & Time**: It is currently ${new Date().toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}.
-9. **Confidence**: Don't apologize for being an AI. Don't say "As an AI...". Confidently state what you find or know.
-10. **Literalness**: If a link or key is in the notes, provide it accurately. `
+9. **Current Date & Time**: It is currently ${new Date().toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}.
+
+10. **Confidence**: Don't apologize for being an AI. Don't say "As an AI...". Confidently state what you find or know.
+
+11. **Literalness & Lists**: 
+    - If a link or key is in the notes, provide it accurately.
+    - **UI CLARITY**: When listing multiple items (like API keys, URLs, or tasks), **ALWAYS use Markdown bullets** (- or *) to make them stand out. Never put multiple keys on the same line. `
             },
             ...historyMessages,
             { role: "user", content: finalQuestion }
