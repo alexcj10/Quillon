@@ -4,6 +4,7 @@ import { isFileTag, getFileTagDisplayName, Note } from "../types";
 import { QUILLON_USER_MANUAL } from "./quillonManual";
 import { buildEntityRegistry, EntityRegistry } from "./entityRegistry";
 import { validateResponse, generateClarificationPrompt, formatCitations } from "./contextValidator";
+import { verifyContentLightweight, generateLightweightFeedback, formatLightweightSources } from "./contentVerifier";
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
 
@@ -608,6 +609,38 @@ Instructions:
         } catch (validationError) {
             console.warn('Validation failed, proceeding with unvalidated response:', validationError);
             // Continue with original response if validation fails
+        }
+
+        // --- 4.6. CONTENT VERIFICATION LAYER (Semantic Validation - NO API CALLS!) ---
+        // Verify long-form content using embeddings and similarity
+        try {
+            const contentVerification = await verifyContentLightweight({
+                response: initialAnswer,
+                context: finalNotesToProcess.map(item => item.n)
+            });
+
+            // Check if content is accurate
+            if (!contentVerification.isAccurate || contentVerification.confidence < 0.65) {
+                // Generate detailed feedback
+                const feedback = generateLightweightFeedback(contentVerification);
+
+                if (feedback) {
+                    // Return feedback instead of potentially inaccurate response
+                    return feedback;
+                }
+            }
+
+            // If content verification passed, add verified sources
+            if (contentVerification.matchedNotes.length > 0 && contentVerification.confidence >= 0.8) {
+                const sources = formatLightweightSources(contentVerification.matchedNotes);
+                // Add sources for complex queries
+                if (normalizedQuestion.length > 20 && !initialAnswer.includes('**Sources')) {
+                    return initialAnswer + sources;
+                }
+            }
+        } catch (contentError) {
+            console.warn('Content verification failed, proceeding with response:', contentError);
+            // Continue with original response if content verification fails
         }
 
         // --- 5. REFLECTION CORE (The Mirror) ---
