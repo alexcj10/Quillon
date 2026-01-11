@@ -835,7 +835,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       if (!potentialCommand.includes('\n') && potentialCommand.trim() === '@summary') {
                         e.preventDefault();
                         setIsLookingUp(true);
-                        setLookupMessage('Generating summary...');
+                        setLookupMessage('Rewriting with summary...');
 
                         const textToSummarize = content.substring(0, lastAtSignIndexSummary) + content.substring(cursorStart);
 
@@ -848,15 +848,12 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           try {
                             const summary = await fetchSummary(textToSummarize);
                             if (summary) {
-                              const textAfterCursor = content.substring(cursorStart);
-                              const formattedSummary = `\n\nSUMMARY:\n${summary}\n`;
-                              const newContent = content.substring(0, lastAtSignIndexSummary) + formattedSummary + textAfterCursor;
-                              setContent(newContent);
+                              // REPLACE entire content with the summary
+                              setContent(summary);
                               setTimeout(() => {
                                 if (contentRef.current) {
-                                  const newCursorPos = lastAtSignIndexSummary + formattedSummary.length;
-                                  contentRef.current.selectionStart = newCursorPos;
-                                  contentRef.current.selectionEnd = newCursorPos;
+                                  contentRef.current.selectionStart = summary.length;
+                                  contentRef.current.selectionEnd = summary.length;
                                 }
                               }, 0);
                             }
@@ -877,7 +874,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       if (!potentialCommand.includes('\n') && potentialCommand.trim() === '@elaboration') {
                         e.preventDefault();
                         setIsLookingUp(true);
-                        setLookupMessage('Elaborating in simple words...');
+                        setLookupMessage('Rewriting in simple words...');
 
                         const textToElaborate = content.substring(0, lastAtSignIndexElaborate) + content.substring(cursorStart);
 
@@ -890,15 +887,12 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           try {
                             const elaboration = await fetchElaboration(textToElaborate);
                             if (elaboration) {
-                              const textAfterCursor = content.substring(cursorStart);
-                              const formattedElaboration = `\n\nELABORATION:\n${elaboration}\n`;
-                              const newContent = content.substring(0, lastAtSignIndexElaborate) + formattedElaboration + textAfterCursor;
-                              setContent(newContent);
+                              // REPLACE entire content with the elaboration
+                              setContent(elaboration);
                               setTimeout(() => {
                                 if (contentRef.current) {
-                                  const newCursorPos = lastAtSignIndexElaborate + formattedElaboration.length;
-                                  contentRef.current.selectionStart = newCursorPos;
-                                  contentRef.current.selectionEnd = newCursorPos;
+                                  contentRef.current.selectionStart = elaboration.length;
+                                  contentRef.current.selectionEnd = elaboration.length;
                                 }
                               }, 0);
                             }
