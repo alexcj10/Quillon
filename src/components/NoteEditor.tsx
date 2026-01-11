@@ -848,12 +848,13 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           try {
                             const summary = await fetchSummary(textToSummarize);
                             if (summary) {
-                              // REPLACE entire content with the summary
-                              setContent(summary);
+                              // REPLACE entire content with the summary, prefixed with label
+                              const finalContent = `SUMMARY:\n${summary}`;
+                              setContent(finalContent);
                               setTimeout(() => {
                                 if (contentRef.current) {
-                                  contentRef.current.selectionStart = summary.length;
-                                  contentRef.current.selectionEnd = summary.length;
+                                  contentRef.current.selectionStart = finalContent.length;
+                                  contentRef.current.selectionEnd = finalContent.length;
                                 }
                               }, 0);
                             }
@@ -887,12 +888,13 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           try {
                             const elaboration = await fetchElaboration(textToElaborate);
                             if (elaboration) {
-                              // REPLACE entire content with the elaboration
-                              setContent(elaboration);
+                              // REPLACE entire content with the elaboration, prefixed with label
+                              const finalContent = `ELABORATION:\n${elaboration}`;
+                              setContent(finalContent);
                               setTimeout(() => {
                                 if (contentRef.current) {
-                                  contentRef.current.selectionStart = elaboration.length;
-                                  contentRef.current.selectionEnd = elaboration.length;
+                                  contentRef.current.selectionStart = finalContent.length;
+                                  contentRef.current.selectionEnd = finalContent.length;
                                 }
                               }, 0);
                             }
