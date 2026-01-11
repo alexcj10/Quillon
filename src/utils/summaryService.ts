@@ -34,24 +34,21 @@ async function callGroq(messages: { role: string, content: string }[], maxTokens
 
         if (!res.ok) {
             if (res.status === 429) {
-                return "ERROR: API Rate limit reached. Groq's free tier is busy. Please try again in 1-2 minutes.";
+                return "ERROR: Busy. Try in 1m.";
             }
-            const errorData = await res.json().catch(() => ({}));
-            console.error("Groq Summary API Error:", errorData);
-            return `ERROR: ${errorData.error?.message || res.statusText}`;
+            return "ERROR: System error.";
         }
 
         const data = await res.json();
         const content = data?.choices?.[0]?.message?.content;
 
         if (!content || content.toLowerCase().includes("error:")) {
-            return "ERROR: AI could not generate a valid response. Please try again.";
+            return "ERROR: Failed. Try again.";
         }
 
         return content;
     } catch (error) {
-        console.error("Summary request failed:", error);
-        return "ERROR: Connection failed. Please check your internet and API keys.";
+        return "ERROR: Connection failed.";
     }
 }
 

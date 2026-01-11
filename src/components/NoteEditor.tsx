@@ -849,7 +849,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                             const summary = await fetchSummary(textToSummarize);
                             if (summary) {
                               if (summary.startsWith("ERROR:")) {
-                                setLookupMessage(summary.replace("ERROR:", "🛑").trim());
+                                setLookupMessage("Busy. Retry soon.");
                                 setTimeout(() => setIsLookingUp(false), 3000);
                                 return;
                               }
@@ -866,8 +866,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           } catch (err) {
                             console.error('Summary failed:', err);
                           } finally {
-                            // If it wasn't an error showing a message, clear it immediately
-                            if (!lookupMessage.includes("🛑")) {
+                            // Clear if not showing an error
+                            if (!lookupMessage.includes("Retry") && !lookupMessage.includes("Error")) {
                               setIsLookingUp(false);
                             }
                           }
@@ -897,7 +897,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                             const elaboration = await fetchElaboration(textToElaborate);
                             if (elaboration) {
                               if (elaboration.startsWith("ERROR:")) {
-                                setLookupMessage(elaboration.replace("ERROR:", "🛑").trim());
+                                setLookupMessage("Busy. Retry soon.");
                                 setTimeout(() => setIsLookingUp(false), 3000);
                                 return;
                               }
@@ -914,7 +914,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           } catch (err) {
                             console.error('Elaboration failed:', err);
                           } finally {
-                            if (!lookupMessage.includes("🛑")) {
+                            if (!lookupMessage.includes("Retry") && !lookupMessage.includes("Error")) {
                               setIsLookingUp(false);
                             }
                           }
@@ -1038,8 +1038,10 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           {(isTranslating || isLookingUp) && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="flex flex-col items-center gap-2">
-                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm font-medium text-blue-500 dark:text-blue-400 animate-pulse">
+                {!lookupMessage.includes('Retry') && !lookupMessage.includes('Error') && (
+                  <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                )}
+                <span className={`text-sm font-medium ${lookupMessage.includes('Retry') ? 'text-red-500' : 'text-blue-500 dark:text-blue-400 animate-pulse'}`}>
                   {isTranslating ? 'Translating...' : lookupMessage}
                 </span>
               </div>
