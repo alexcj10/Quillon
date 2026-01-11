@@ -4,7 +4,7 @@ import { isFileTag, getFileTagDisplayName, Note } from "../types";
 import { QUILLON_USER_MANUAL } from "./quillonManual";
 import { buildEntityRegistry, EntityRegistry } from "./entityRegistry";
 import { validateResponse, generateClarificationPrompt, formatCitations } from "./contextValidator";
-import { verifyContentLightweight, generateLightweightFeedback, formatLightweightSources } from "./contentVerifier";
+import { verifyContentLightweight, formatLightweightSources } from "./contentVerifier";
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
 
@@ -577,6 +577,7 @@ Instructions:
 
         // --- 4.5. VALIDATION LAYER (Context Grounding) ---
         // Validate the AI response against known context to prevent hallucinations
+        // NOTE: Only reject CRITICAL errors (wrong URLs), not uncertain answers!
         try {
             const validationResult = await validateResponse({
                 query: normalizedQuestion,
@@ -585,21 +586,23 @@ Instructions:
                 entityRegistry
             });
 
-            // Check for critical validation failures
+            // Check for CRITICAL validation failures ONLY (hallucinated URLs/facts)
             const criticalIssues = validationResult.issues.filter(i => i.severity === 'critical');
 
-            if (criticalIssues.length > 0 || validationResult.confidence < 0.5) {
+            // ONLY reject if there are actual hallucinations (wrong URLs, etc.)
+            // Don't reject just because confidence is low!
+            if (criticalIssues.length > 0) {
                 // Generate clarification prompt
                 const clarification = generateClarificationPrompt(validationResult);
 
                 if (clarification) {
-                    // Return clarification instead of potentially hallucinated response
+                    // Return clarification instead of hallucinated response
                     return clarification;
                 }
             }
 
             // If validation passed, optionally add citations
-            if (validationResult.citations.length > 0 && validationResult.confidence > 0.8) {
+            if (validationResult.citations.length > 0 && validationResult.confidence > 0.7) {
                 const citations = formatCitations(validationResult.citations);
                 // Only add citations for complex queries
                 if (normalizedQuestion.length > 20 && !initialAnswer.includes('**Sources:**')) {
@@ -613,25 +616,16 @@ Instructions:
 
         // --- 4.6. CONTENT VERIFICATION LAYER (Semantic Validation - NO API CALLS!) ---
         // Verify long-form content using embeddings and similarity
+        // NOTE: Validation ONLY adds sources, NEVER blocks answers!
         try {
             const contentVerification = await verifyContentLightweight({
                 response: initialAnswer,
                 context: finalNotesToProcess.map(item => item.n)
             });
 
-            // Check if content is accurate
-            if (!contentVerification.isAccurate || contentVerification.confidence < 0.65) {
-                // Generate detailed feedback
-                const feedback = generateLightweightFeedback(contentVerification);
-
-                if (feedback) {
-                    // Return feedback instead of potentially inaccurate response
-                    return feedback;
-                }
-            }
-
             // If content verification passed, add verified sources
-            if (contentVerification.matchedNotes.length > 0 && contentVerification.confidence >= 0.8) {
+            // We DON'T reject low-confidence answers - we let AI respond anyway
+            if (contentVerification.matchedNotes.length > 0 && contentVerification.confidence >= 0.7) {
                 const sources = formatLightweightSources(contentVerification.matchedNotes);
                 // Add sources for complex queries
                 if (normalizedQuestion.length > 20 && !initialAnswer.includes('**Sources')) {
