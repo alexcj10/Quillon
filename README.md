@@ -87,6 +87,14 @@ Quickly translate any note into 100+ languages without leaving Quillon:
 - **Visual Feedback**: Shows a loading indicator while the translation is in progress.
 - **Note-Specific**: Only translates the content of the current note you are editing.
 
+### 🧠 AI Brain (Summarize & Elaborate)
+Quickly transform long notes into concise summaries or simple explanations:
+- **Usage**: Type `@summary` or `@elaboration` anywhere in a note and press **Enter**.
+- **Full Rewrite**: The AI replaces the **entire** note with the generated content.
+.
+- **Plain Text**: Output is optimized for the Quillon editor (bullet points and paragraphs, no markdown headers).
+- **Labels**: Generates explicit `SUMMARY:` or `ELABORATION:` labels at the start for clarity.
+
 ### 🔍 Quick Insight Lookup
 Instantly fetch factual information and definitions directly into your note:
 - **Wikipedia Summary**: Type `@wiki-[topic]` (e.g., `@wiki-Quantum Physics`) and press **Enter**.
@@ -278,6 +286,8 @@ npm run dev
 | `@c-[expression]` | Solve math/algebra | `@c-2x+5=15` |
 | `@wiki-[topic]` | Wikipedia summary | `@wiki-Tesla` |
 | `@def-[word]` | Dictionary definition | `@def-logic` |
+| `@summary` | Full Rewrite: Generate Summary | `@summary` |
+| `@elaboration` | Full Rewrite: Simple Terms | `@elaboration` |
 | `@t-[lang]` | Translate current note | `@t-es` / `@t-hi` |
 | `@pomo` | Pomodoro (25 min default) | `@pomo` |
 | `@pomo-[time]` | Custom timer (h/m/s) | `@pomo-1h 30m 45s` |

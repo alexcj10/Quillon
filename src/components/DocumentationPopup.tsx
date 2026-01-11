@@ -210,6 +210,21 @@ Instantly fetch factual information and definitions directly into your note.
 
 ---
 
+## 🧠 AI Brain: Summarize & Elaborate
+
+Quickly transform long notes into concise summaries or simple explanations.
+
+### ⚡ Usage
+- **Summarize**: Type \`@summary\` anywhere in a note and press **Enter**
+- **Elaborate**: Type \`@elaboration\` anywhere in a note and press **Enter**
+
+### ✨ Smart Features
+- **Full Rewrite**: Replaces the **entire** note content with the AI's output.
+- **Clean Format**: Uses plain text and bullet points (no complex markdown) for perfect editing.
+- **Explicit Labels**: Prepends \`SUMMARY:\` or \`ELABORATION:\` for deep clarity.
+
+---
+
 ## ⏱️ Pomodoro Timer
 
 Focus on your work with a built-in Pomodoro timer.

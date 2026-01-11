@@ -123,6 +123,10 @@ Speed up your writing with instant lookups directly in the note editor. Type the
     - Gets summaries for one or many topics (e.g., \`@wiki-Elon Musk and Jeff Bezos\`).
 - **Dictionary Definition**: \`@def-[word]\`
     - Gets meanings, phonetics, and usage examples.
+- **Note Summarization**: \`@summary\`
+    - Replaces entire content with a concise, bullet-point summary. Auto-updates the Note Title.
+- **Elaboration**: \`@elaboration\`
+    - Replaces entire content with a simplified explanation. Auto-updates the Note Title.
 - **Math Calculator**: \`@c-[expression]\`
     - Example: \`@c-120*5\` calculates the result instantly.
 - **Translation**: \`@t-[lang_code]\`
