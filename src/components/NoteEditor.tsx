@@ -184,15 +184,16 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     if (!contentRef.current) return;
     const el = contentRef.current;
 
-    // We need to preserve the scroll position of the PARENT container
-    // because shrinking the textarea momentarily can cause the parent to scroll up
-    const scrollParent = el.parentElement;
+    // We need to preserve the scroll position of the ACTUAL SCROLLING container
+    // Because shrinking the textarea momentarily can cause the parent to scroll up.
+    // The immediate parent is just a relative wrapper; the real scroller has class 'note-editor-scrollbar'
+    const scrollParent = el.closest('.note-editor-scrollbar');
     const currentScroll = scrollParent?.scrollTop;
 
     el.style.height = '0px';
     el.style.height = `${el.scrollHeight}px`;
 
-    // Restore scroll position if we have a parent
+    // Restore scroll position
     if (scrollParent && typeof currentScroll === 'number') {
       scrollParent.scrollTop = currentScroll;
     }
