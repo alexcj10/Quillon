@@ -826,6 +826,90 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                         }
                       }
                     }
+
+                    // Handle Summary Command: @summary + Enter
+                    const lastAtSignIndexSummary = textBeforeCursor.lastIndexOf('@summary');
+                    if (lastAtSignIndexSummary !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexSummary);
+                      if (!potentialCommand.includes('\n') && potentialCommand.trim() === '@summary') {
+                        e.preventDefault();
+                        setIsLookingUp(true);
+                        setLookupMessage('Generating summary...');
+
+                        const textToSummarize = content.substring(0, lastAtSignIndexSummary) + content.substring(cursorStart);
+
+                        if (!textToSummarize.trim()) {
+                          setIsLookingUp(false);
+                          return;
+                        }
+
+                        import('../utils/summaryService').then(async ({ fetchSummary }) => {
+                          try {
+                            const summary = await fetchSummary(textToSummarize);
+                            if (summary) {
+                              const textAfterCursor = content.substring(cursorStart);
+                              const formattedSummary = `\n\nSUMMARY:\n${summary}\n`;
+                              const newContent = content.substring(0, lastAtSignIndexSummary) + formattedSummary + textAfterCursor;
+                              setContent(newContent);
+                              setTimeout(() => {
+                                if (contentRef.current) {
+                                  const newCursorPos = lastAtSignIndexSummary + formattedSummary.length;
+                                  contentRef.current.selectionStart = newCursorPos;
+                                  contentRef.current.selectionEnd = newCursorPos;
+                                }
+                              }, 0);
+                            }
+                          } catch (err) {
+                            console.error('Summary failed:', err);
+                          } finally {
+                            setIsLookingUp(false);
+                          }
+                        });
+                        return;
+                      }
+                    }
+
+                    // Handle Elaboration Command: @elaboration + Enter
+                    const lastAtSignIndexElaborate = textBeforeCursor.lastIndexOf('@elaboration');
+                    if (lastAtSignIndexElaborate !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexElaborate);
+                      if (!potentialCommand.includes('\n') && potentialCommand.trim() === '@elaboration') {
+                        e.preventDefault();
+                        setIsLookingUp(true);
+                        setLookupMessage('Elaborating in simple words...');
+
+                        const textToElaborate = content.substring(0, lastAtSignIndexElaborate) + content.substring(cursorStart);
+
+                        if (!textToElaborate.trim()) {
+                          setIsLookingUp(false);
+                          return;
+                        }
+
+                        import('../utils/summaryService').then(async ({ fetchElaboration }) => {
+                          try {
+                            const elaboration = await fetchElaboration(textToElaborate);
+                            if (elaboration) {
+                              const textAfterCursor = content.substring(cursorStart);
+                              const formattedElaboration = `\n\nELABORATION:\n${elaboration}\n`;
+                              const newContent = content.substring(0, lastAtSignIndexElaborate) + formattedElaboration + textAfterCursor;
+                              setContent(newContent);
+                              setTimeout(() => {
+                                if (contentRef.current) {
+                                  const newCursorPos = lastAtSignIndexElaborate + formattedElaboration.length;
+                                  contentRef.current.selectionStart = newCursorPos;
+                                  contentRef.current.selectionEnd = newCursorPos;
+                                }
+                              }, 0);
+                            }
+                          } catch (err) {
+                            console.error('Elaboration failed:', err);
+                          } finally {
+                            setIsLookingUp(false);
+                          }
+                        });
+                        return;
+                      }
+                    }
                   }
                 }}
                 placeholder="Start writing your note..."
