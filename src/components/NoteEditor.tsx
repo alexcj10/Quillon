@@ -848,6 +848,11 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           try {
                             const summary = await fetchSummary(textToSummarize);
                             if (summary) {
+                              if (summary.startsWith("ERROR:")) {
+                                setLookupMessage(summary.replace("ERROR:", "🛑").trim());
+                                setTimeout(() => setIsLookingUp(false), 3000);
+                                return;
+                              }
                               // REPLACE entire content with the summary, prefixed with label
                               const finalContent = `SUMMARY:\n${summary}`;
                               setContent(finalContent);
@@ -861,7 +866,10 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           } catch (err) {
                             console.error('Summary failed:', err);
                           } finally {
-                            setIsLookingUp(false);
+                            // If it wasn't an error showing a message, clear it immediately
+                            if (!lookupMessage.includes("🛑")) {
+                              setIsLookingUp(false);
+                            }
                           }
                         });
                         return;
@@ -888,6 +896,11 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           try {
                             const elaboration = await fetchElaboration(textToElaborate);
                             if (elaboration) {
+                              if (elaboration.startsWith("ERROR:")) {
+                                setLookupMessage(elaboration.replace("ERROR:", "🛑").trim());
+                                setTimeout(() => setIsLookingUp(false), 3000);
+                                return;
+                              }
                               // REPLACE entire content with the elaboration, prefixed with label
                               const finalContent = `ELABORATION:\n${elaboration}`;
                               setContent(finalContent);
@@ -901,7 +914,9 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           } catch (err) {
                             console.error('Elaboration failed:', err);
                           } finally {
-                            setIsLookingUp(false);
+                            if (!lookupMessage.includes("🛑")) {
+                              setIsLookingUp(false);
+                            }
                           }
                         });
                         return;

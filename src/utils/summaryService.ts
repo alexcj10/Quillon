@@ -32,16 +32,25 @@ async function callGroq(messages: { role: string, content: string }[], maxTokens
         });
 
         if (!res.ok) {
+            if (res.status === 429) {
+                return "ERROR: API Rate limit reached. Groq's free tier is busy. Please try again in 1-2 minutes.";
+            }
             const errorData = await res.json().catch(() => ({}));
             console.error("Groq Summary API Error:", errorData);
-            return `Error: ${errorData.error?.message || res.statusText}`;
+            return `ERROR: ${errorData.error?.message || res.statusText}`;
         }
 
         const data = await res.json();
-        return data?.choices?.[0]?.message?.content || "Could not generate content.";
+        const content = data?.choices?.[0]?.message?.content;
+
+        if (!content || content.toLowerCase().includes("error:")) {
+            return "ERROR: AI could not generate a valid response. Please try again.";
+        }
+
+        return content;
     } catch (error) {
         console.error("Summary request failed:", error);
-        return "Error calling API. Please check your connection and keys.";
+        return "ERROR: Connection failed. Please check your internet and API keys.";
     }
 }
 
