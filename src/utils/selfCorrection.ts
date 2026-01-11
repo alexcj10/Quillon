@@ -137,20 +137,7 @@ function removeHallucinations(
     return { fixed, corrections };
 }
 
-/**
- * Add disclaimer for low-confidence answers
- */
-function addConfidenceDisclaimer(
-    answer: string,
-    confidence: number
-): string {
-    if (confidence < 0.5) {
-        return `I found some information, but I'm not entirely certain: ${answer}`;
-    } else if (confidence < 0.7) {
-        return `Based on your notes: ${answer}`;
-    }
-    return answer;
-}
+
 
 /**
  * Main local correction function - NO API CALLS!
@@ -180,8 +167,8 @@ export function correctLocally(
     corrected = hallucinationFix.fixed;
     allCorrections.push(...hallucinationFix.corrections);
 
-    // Step 4: Add confidence disclaimer if needed
-    corrected = addConfidenceDisclaimer(corrected, validationResult.confidence);
+    // Step 4: (Removed confidence disclaimer to sound more human/confident)
+    // corrected = addConfidenceDisclaimer(corrected, validationResult.confidence);
 
     const wasCorrected = allCorrections.length > 0;
 
