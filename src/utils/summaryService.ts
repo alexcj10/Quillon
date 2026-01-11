@@ -1,13 +1,14 @@
 
-// Initialize keys
+// Initialize keys with strict priority for the "New" Summary Key
 const getApiKey = () => {
     const summaryKey = import.meta.env.VITE_SUMMARY_KEY;
     const mainKey = import.meta.env.VITE_GROQ_KEY;
 
-    const apiKey = summaryKey || mainKey;
+    // Use summaryKey if it exists and is not just an empty string
+    const apiKey = (summaryKey && summaryKey.trim() !== "") ? summaryKey : mainKey;
 
     if (!apiKey) {
-        throw new Error('Missing API Key: VITE_SUMMARY_KEY or VITE_GROQ_KEY is required');
+        throw new Error('Missing API Key: Please add VITE_SUMMARY_KEY or VITE_GROQ_KEY to your .env');
     }
 
     return apiKey;
