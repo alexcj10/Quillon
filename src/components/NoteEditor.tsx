@@ -475,8 +475,20 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center sm:p-8 md:p-12">
       <div
         ref={modalRef}
-        className={`w-full max-w-4xl h-full sm:h-[75vh] lg:h-[85vh] sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col ${selectedColorClass}`}
+        className={`w-full max-w-4xl h-full sm:h-[75vh] lg:h-[85vh] sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col relative ${selectedColorClass}`}
       >
+        {(isTranslating || isLookingUp) && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[100]">
+            <div className="flex flex-col items-center gap-2">
+              {!lookupMessage.includes('Retry') && !lookupMessage.includes('Error') && (
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              )}
+              <span className={`text-sm font-medium ${lookupMessage.includes('Retry') ? 'text-red-500' : 'text-blue-500 dark:text-blue-400 animate-pulse'}`}>
+                {isTranslating ? 'Translating...' : lookupMessage}
+              </span>
+            </div>
+          </div>
+        )}
         {/* TOP BAR */}
         <div className="flex items-center justify-between px-5 py-4 backdrop-blur-sm">
           <button
@@ -1031,19 +1043,6 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     );
                   });
                 })()}
-              </div>
-            </div>
-          )}
-
-          {(isTranslating || isLookingUp) && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="flex flex-col items-center gap-2">
-                {!lookupMessage.includes('Retry') && !lookupMessage.includes('Error') && (
-                  <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                )}
-                <span className={`text-sm font-medium ${lookupMessage.includes('Retry') ? 'text-red-500' : 'text-blue-500 dark:text-blue-400 animate-pulse'}`}>
-                  {isTranslating ? 'Translating...' : lookupMessage}
-                </span>
               </div>
             </div>
           )}
