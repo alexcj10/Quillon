@@ -27,6 +27,16 @@ export const AVAILABLE_FONTS: Font[] = [
     { index: 14, name: 'Montserrat', family: "'Montserrat', sans-serif" },
     { index: 15, name: 'Comic Neue', family: "'Comic Neue', cursive" },
     { index: 16, name: 'Caveat', family: "'Caveat', cursive" },
+    { index: 17, name: 'Outfit', family: "'Outfit', sans-serif" },
+    { index: 18, name: 'Lexend', family: "'Lexend', sans-serif" },
+    { index: 19, name: 'Space Mono', family: "'Space Mono', monospace" },
+    { index: 20, name: 'Fraunces', family: "'Fraunces', serif" },
+    { index: 21, name: 'Syne', family: "'Syne', sans-serif" },
+    { index: 22, name: 'Bebas Neue', family: "'Bebas Neue', display" },
+    { index: 23, name: 'Pacifico', family: "'Pacifico', cursive" },
+    { index: 24, name: 'Cinzel', family: "'Cinzel', serif" },
+    { index: 25, name: 'Urbanist', family: "'Urbanist', sans-serif" },
+    { index: 26, name: 'Quicksand', family: "'Quicksand', sans-serif" },
 ];
 
 export const DEFAULT_FONT = AVAILABLE_FONTS[0];
