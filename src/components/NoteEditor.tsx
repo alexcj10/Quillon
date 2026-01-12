@@ -498,7 +498,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
         // Calculate position only on first open to keep it anchored
         if (isFirstOpen && contentRef.current) {
           const pos = getTextareaCursorXY(contentRef.current, lastAt);
-          const explorerWidth = 300; // Width of the explorer panel (w-72 = 18rem = 288px, rounded to 300)
+          const explorerWidth = 260; // Width of the explorer panel (w-64 = 16rem = 256px, rounded to 260)
           const textareaWidth = contentRef.current.clientWidth;
 
           // Smart horizontal positioning: check if there's space on the right

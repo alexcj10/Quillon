@@ -125,7 +125,7 @@ export const CommandExplorer: React.FC<CommandExplorerProps> = ({
     return (
         <div
             ref={explorerRef}
-            className="absolute z-[100] w-72 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className="absolute z-[100] w-64 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             style={position ? { top: position.top, left: position.left } : { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
         >
             <div className="p-2 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
