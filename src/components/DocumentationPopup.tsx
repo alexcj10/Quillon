@@ -267,14 +267,17 @@ Personalize your notes with custom fonts for better readability and style.
 - **One-Time Selection**: Fonts selected in the search bar apply only to the next new note, then reset to default
 
 ### 🎯 Available Fonts
-26 carefully curated fonts including:
+Exactly **33** carefully curated fonts including:
 - **System Default**, **Inter**, **Roboto**, **Open Sans**
 - **Outfit**, **Lexend**, **Urbanist**, **Quicksand** (Modern Sans)
 - **Lora**, **Playfair Display**, **Merriweather**, **Fraunces** (Serif)
 - **Fira Code**, **JetBrains Mono**, **Space Mono** (Monospace)
 - **Syne**, **Cinzel**, **Bebas Neue** (Artistic/Display)
-- **Comic Neue**, **Caveat**, **Pacifico** (Handwritten/Script)
-- And more!
+- **Handwritten / Script Favorites**:
+  - \`Pacifico\`, \`Dancing Script\`, \`Indie Flower\`
+  - \`Caveat\`, \`Satisfy\`, \`Shadows Into Light\`
+  - \`Gloria Hallelujah\`, \`Permanent Marker\`, \`Amatic SC\`
+- **Mystery Number**: Why 33? It is the number of master organization and creative power.
 
 ---
 

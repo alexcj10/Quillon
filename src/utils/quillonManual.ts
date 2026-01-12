@@ -145,13 +145,13 @@ Speed up your writing with instant lookups directly in the note editor. Type the
     - Example: \`@cc-100usd to eur\`. Fetches **daily market rates**.
 - **Unit Conversion**: \`@u-[value][unit] to [unit]\`
     - Example: \`@u-10kg to lbs\` or \`@u-5km to miles\`. Supports weight, length, and temp.
-- **Font Selection**: Change the note editor font with these commands:
     - \`@fonts\` — View all available fonts with live preview. In the note editor, each font name renders in its actual typeface. In the search bar, shows a graphical popup.
-    - \`@font-[index]\` — Change font by index (e.g., \`@font-3\` for Roboto, \`@font-17\` for Outfit, \`@font-21\` for Syne).
-    - \`@font-[name]\` — Change font by name (e.g., \`@font-Space Mono\`, \`@font-Pacifico\`). Case-insensitive.
+    - \`@font-[index]\` — Change font by index (e.g., \`@font-17\` for Outfit, \`@font-27\` for Dancing Script, \`@font-33\` for Satisfy).
+    - \`@font-[name]\` — Change font by name (e.g., \`@font-Space Mono\`, \`@font-Permanent Marker\`). Case-insensitive.
     - \`@font-d\` — Reset to the default system font.
     - **Per-Note Persistence**: Each note remembers its own font choice independently.
     - **One-Time Selection**: Fonts selected in the search bar apply only to the next new note, then reset to default.
+    - **Magic Number**: Quillon features exactly **33** curated fonts—a number chosen for its balanced and mysterious aesthetic.
 
 ## 9. INTERACTIVE SOUND SYSTEM
 Quillon includes a global audio feedback system for a professional, tactile feel.

@@ -37,6 +37,13 @@ export const AVAILABLE_FONTS: Font[] = [
     { index: 24, name: 'Cinzel', family: "'Cinzel', serif" },
     { index: 25, name: 'Urbanist', family: "'Urbanist', sans-serif" },
     { index: 26, name: 'Quicksand', family: "'Quicksand', sans-serif" },
+    { index: 27, name: 'Dancing Script', family: "'Dancing Script', cursive" },
+    { index: 28, name: 'Indie Flower', family: "'Indie Flower', cursive" },
+    { index: 29, name: 'Shadows Into Light', family: "'Shadows Into Light', cursive" },
+    { index: 30, name: 'Gloria Hallelujah', family: "'Gloria Hallelujah', cursive" },
+    { index: 31, name: 'Permanent Marker', family: "'Permanent Marker', cursive" },
+    { index: 32, name: 'Amatic SC', family: "'Amatic SC', cursive" },
+    { index: 33, name: 'Satisfy', family: "'Satisfy', cursive" },
 ];
 
 export const DEFAULT_FONT = AVAILABLE_FONTS[0];
