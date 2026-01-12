@@ -444,30 +444,36 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     const cursor = e.target.selectionStart;
     setContent(val);
 
-    const lastChar = val.charAt(cursor - 1);
+    // Find the last @ symbol before the cursor
+    const lastAt = val.lastIndexOf('@', cursor - 1);
 
-    if (lastChar === '@') {
-      const lastAt = val.lastIndexOf('@', cursor - 1);
+    // Check if we're in a valid @ command context
+    if (lastAt !== -1 && (lastAt === 0 || val[lastAt - 1] === ' ' || val[lastAt - 1] === '\n')) {
+      // Extract the text between @ and cursor
+      const query = val.substring(lastAt + 1, cursor);
 
-      if (lastAt !== -1 && (lastAt === 0 || val[lastAt - 1] === ' ' || val[lastAt - 1] === '\n')) {
-        const query = val.substring(lastAt + 1, cursor);
-        if (!query.includes(' ')) {
-          setShowExplorer(true);
-          setExplorerQuery(query);
-          setAtIndex(lastAt);
+      // Keep explorer open as long as there's no space or newline in the query
+      if (!query.includes(' ') && !query.includes('\n')) {
+        // Only calculate position when first opening (when @ is typed)
+        const isFirstOpen = !showExplorer || atIndex !== lastAt;
 
-          // Calculate position relative to the textarea wrapper
-          if (contentRef.current) {
-            const pos = getTextareaCursorXY(contentRef.current, lastAt);
-            setExplorerPosition({
-              top: pos.top + pos.lineHeight - 4, // 10px below the line
-              left: Math.min(pos.left + 35, contentRef.current.clientWidth - 300) // 5px to the right
-            });
-          }
-          return;
+        setShowExplorer(true);
+        setExplorerQuery(query);
+        setAtIndex(lastAt);
+
+        // Calculate position only on first open to keep it anchored
+        if (isFirstOpen && contentRef.current) {
+          const pos = getTextareaCursorXY(contentRef.current, lastAt);
+          setExplorerPosition({
+            top: pos.top + pos.lineHeight - 4,
+            left: Math.min(pos.left + 35, contentRef.current.clientWidth - 300)
+          });
         }
+        return;
       }
     }
+
+    // Close explorer if we're no longer in a valid @ command context
     setShowExplorer(false);
   };
 
