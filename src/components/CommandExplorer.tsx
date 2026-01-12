@@ -33,6 +33,7 @@ export const AVAILABLE_COMMANDS: Command[] = [
     { id: 'math', label: 'Calculator', description: 'Dynamic math & equations', icon: Calculator, template: '@c-', color: 'text-pink-500' },
     { id: 'translate', label: 'Translate', description: 'Translate to any language', icon: Languages, template: '@t-', color: 'text-indigo-500' },
     { id: 'pomo', label: 'Pomodoro', description: 'Focus timer (default 25m)', icon: Timer, template: '@pomo', color: 'text-orange-500' },
+    { id: 'pomo_custom', label: 'Custom Timer', description: 'Set duration (e.g., 1h 30m 45s)', icon: Timer, template: '@pomo-', color: 'text-orange-600' },
     { id: 'quiz', label: 'Quiz Mode', description: 'Study with standard order', icon: Info, template: '@quiz', color: 'text-cyan-500' },
     { id: 'quiz_s', label: 'Quiz Shuffle', description: 'Study with random order', icon: Brain, template: '@quiz-s', color: 'text-pink-600' },
     { id: 'weather', label: 'Weather', description: 'Real-time city weather', icon: Cloud, template: '@w-', color: 'text-sky-400' },
