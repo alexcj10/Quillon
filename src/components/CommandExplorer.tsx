@@ -13,8 +13,7 @@ import {
     Volume2,
     Share2,
     Brain,
-    Search,
-    CheckCircle2
+    Search
 } from 'lucide-react';
 
 export interface Command {
@@ -34,13 +33,15 @@ export const AVAILABLE_COMMANDS: Command[] = [
     { id: 'math', label: 'Calculator', description: 'Dynamic math & equations', icon: Calculator, template: '@c-', color: 'text-pink-500' },
     { id: 'translate', label: 'Translate', description: 'Translate to any language', icon: Languages, template: '@t-', color: 'text-indigo-500' },
     { id: 'pomo', label: 'Pomodoro', description: 'Focus timer (default 25m)', icon: Timer, template: '@pomo', color: 'text-orange-500' },
-    { id: 'quiz', label: 'Quiz Mode', description: 'Interactive flashcard study', icon: Info, template: '@quiz', color: 'text-cyan-500' },
+    { id: 'quiz', label: 'Quiz Mode', description: 'Study with standard order', icon: Info, template: '@quiz', color: 'text-cyan-500' },
+    { id: 'quiz_s', label: 'Quiz Shuffle', description: 'Study with random order', icon: Brain, template: '@quiz-s', color: 'text-pink-600' },
     { id: 'weather', label: 'Weather', description: 'Real-time city weather', icon: Cloud, template: '@w-', color: 'text-sky-400' },
     { id: 'currency', label: 'Currency', description: 'Live exchange rates', icon: Share2, template: '@cc-', color: 'text-green-500' },
     { id: 'units', label: 'Units', description: 'Smart unit conversion', icon: Hash, template: '@u-', color: 'text-violet-500' },
-    { id: 'fonts', label: 'Fonts', description: 'Change note typeface', icon: Type, template: '@fonts', color: 'text-rose-500' },
+    { id: 'fonts_list', label: 'View All Fonts', description: 'Preview all 33 styles', icon: Search, template: '@fonts', color: 'text-rose-500' },
+    { id: 'font_select', label: 'Apply Font', description: 'Use @font-[index]', icon: Type, template: '@font-', color: 'text-blue-500' },
+    { id: 'font_default', label: 'Reset Font', description: 'Back to system default', icon: Search, template: '@font-d', color: 'text-gray-400' },
     { id: 'sound', label: 'Sound', description: 'Toggle haptic feedback', icon: Volume2, template: '@sound-on', color: 'text-gray-500' },
-    { id: 'nodes', label: 'Nodes', description: 'Quick task management', icon: CheckCircle2, template: '@nodes-', color: 'text-blue-600' },
 ];
 
 interface CommandExplorerProps {
