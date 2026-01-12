@@ -133,7 +133,7 @@ export const CommandExplorer: React.FC<CommandExplorerProps> = ({
                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Command Explorer</span>
             </div>
 
-            <div ref={scrollRef} className="max-h-[230px] overflow-y-auto p-1.5 custom-scrollbar">
+            <div ref={scrollRef} className="max-h-[275px] overflow-y-auto p-1.5 custom-scrollbar">
                 {filteredCommands.map((cmd, index) => (
                     <button
                         key={cmd.id}
