@@ -103,6 +103,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const colorPickerRef = useRef<HTMLDivElement | null>(null);
   const tagSuggestionsRef = useRef<HTMLDivElement | null>(null);
   const tagInputRef = useRef<HTMLInputElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Get all notes to extract file tag history
   const { notes: allNotes } = useNotes();
@@ -277,6 +278,39 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     }
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
+
+  // Auto-scroll to show Command Explorer when it opens near the bottom
+  useEffect(() => {
+    if (showExplorer && contentRef.current && scrollContainerRef.current) {
+      setTimeout(() => {
+        if (!contentRef.current || !scrollContainerRef.current) return;
+
+        const container = scrollContainerRef.current;
+
+        // The explorerPosition.top is relative to the textarea's content (not viewport)
+        // We need to find where this is within the scrollable container
+        const cursorY = explorerPosition.top;
+        const explorerHeight = 350;
+
+        // The bottom of the explorer relative to the container's scrollable content
+        const explorerBottom = cursorY + explorerHeight;
+
+        // Current visible area within the container
+        const containerHeight = container.clientHeight;
+        const currentScroll = container.scrollTop;
+        const visibleBottom = currentScroll + containerHeight;
+
+        // If the explorer bottom is below the visible area, scroll to show it
+        if (explorerBottom > visibleBottom) {
+          const neededScroll = explorerBottom - containerHeight + 40; // 40px padding
+          container.scrollTo({
+            top: neededScroll,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
+  }, [showExplorer, explorerPosition]);
 
   // Toggle privacy manually and sync all current tags to that state
   const togglePrivacy = () => {
@@ -620,7 +654,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pt-4 pb-2 note-editor-scrollbar">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden px-6 pt-4 pb-2 note-editor-scrollbar">
           {/* Pomodoro Timer Bar (Always on top if active) */}
           {isPomodoroActive && (
             <div className="sticky top-0 left-0 right-0 h-1 bg-gray-100 dark:bg-gray-800 z-50 mb-6">
