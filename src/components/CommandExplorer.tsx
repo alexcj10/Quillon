@@ -41,7 +41,9 @@ export const AVAILABLE_COMMANDS: Command[] = [
     { id: 'fonts_list', label: 'View All Fonts', description: 'Preview all 33 styles', icon: Search, template: '@fonts', color: 'text-rose-500' },
     { id: 'font_select', label: 'Apply Font', description: 'Use @font-[index]', icon: Type, template: '@font-', color: 'text-blue-500' },
     { id: 'font_default', label: 'Reset Font', description: 'Back to system default', icon: Search, template: '@font-d', color: 'text-gray-400' },
-    { id: 'sound', label: 'Sound', description: 'Toggle haptic feedback', icon: Volume2, template: '@sound-on', color: 'text-gray-500' },
+    { id: 'sound_on', label: 'Sound On', description: 'Enable digital feedback', icon: Volume2, template: '@sound-on', color: 'text-gray-500' },
+    { id: 'sound_vol', label: 'Sound Volume', description: 'Set level @sound-on-50', icon: Volume2, template: '@sound-on-', color: 'text-blue-400' },
+    { id: 'sound_off', label: 'Sound Mute', description: 'Silence all digital taps', icon: Volume2, template: '@sound-off', color: 'text-red-400' },
 ];
 
 interface CommandExplorerProps {

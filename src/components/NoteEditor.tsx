@@ -19,6 +19,8 @@ import { Note, isFileTag } from '../types';
 import { NOTE_COLORS } from '../constants/colors';
 import { useNotes } from '../context/NoteContext';
 import { useFont } from '../context/FontContext';
+import { useSound } from '../context/SoundContext';
+import { playSuccess } from '../hooks/useClickSound';
 import { evaluateMathCommand } from '../utils/mathCommandParser';
 import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchWikiSummary, fetchDefinition, parseInsightCommand } from '../utils/insightService';
@@ -103,6 +105,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   // Get all notes to extract file tag history
   const { notes: allNotes } = useNotes();
   const { currentFont: globalFont, setCurrentFont } = useFont();
+  const { setSoundEnabled, setVolume } = useSound();
 
   // Local state for the current note's font, initialized from note or global preference
   const [noteFont, setNoteFont] = useState(() => {
@@ -993,6 +996,37 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           }
                         });
                         return;
+                      }
+                    }
+
+                    // Handle Sound Commands: @sound-on, @sound-on-[PERCENT], @sound-off + Enter
+                    const lastAtSignIndexSound = textBeforeCursor.lastIndexOf('@sound-');
+                    if (lastAtSignIndexSound !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexSound);
+                      if (!potentialCommand.includes('\n')) {
+                        if (potentialCommand.toLowerCase().startsWith('@sound-on')) {
+                          e.preventDefault();
+                          let newVol = 1.0;
+                          const volMatch = potentialCommand.match(/@sound-on[- :]*(\d+)/i);
+                          if (volMatch) {
+                            const percent = parseInt(volMatch[1], 10);
+                            if (!isNaN(percent)) {
+                              newVol = Math.min(100, Math.max(0, percent)) / 100;
+                              setVolume(newVol);
+                            }
+                          }
+                          setSoundEnabled(true);
+                          playSuccess(0.3 * (newVol * newVol));
+                          const textAfterCursor = content.substring(cursorStart);
+                          setContent(content.substring(0, lastAtSignIndexSound) + textAfterCursor);
+                          return;
+                        } else if (potentialCommand.toLowerCase() === '@sound-off') {
+                          e.preventDefault();
+                          setSoundEnabled(false);
+                          const textAfterCursor = content.substring(cursorStart);
+                          setContent(content.substring(0, lastAtSignIndexSound) + textAfterCursor);
+                          return;
+                        }
                       }
                     }
                   }
