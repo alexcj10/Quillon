@@ -460,8 +460,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           if (contentRef.current) {
             const pos = getTextareaCursorXY(contentRef.current, lastAt);
             setExplorerPosition({
-              top: pos.top + pos.lineHeight + 10, // 10px below the line
-              left: Math.min(pos.left + 5, contentRef.current.clientWidth - 300) // 5px to the right
+              top: pos.top + pos.lineHeight - 4, // 10px below the line
+              left: Math.min(pos.left + 35, contentRef.current.clientWidth - 300) // 5px to the right
             });
           }
           return;
