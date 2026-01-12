@@ -14,6 +14,7 @@ import {
   Trash2,
   Timer,
 } from 'lucide-react';
+import { CommandExplorer, Command } from './CommandExplorer';
 import { Note, isFileTag } from '../types';
 import { NOTE_COLORS } from '../constants/colors';
 import { useNotes } from '../context/NoteContext';
@@ -69,6 +70,11 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [isQuizShuffled, setIsQuizShuffled] = useState(false);
   const [revealedQuizItems, setRevealedQuizItems] = useState<number[]>([]);
   const [quizUserAnswers, setQuizUserAnswers] = useState<Record<number, string>>({});
+
+  // Command Explorer State
+  const [showExplorer, setShowExplorer] = useState(false);
+  const [explorerQuery, setExplorerQuery] = useState('');
+  const [atIndex, setAtIndex] = useState(-1);
 
   // Tag suggestion state
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
@@ -428,6 +434,52 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     }
   };
 
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    const cursor = e.target.selectionStart;
+    setContent(val);
+
+    const lastChar = val.charAt(cursor - 1);
+
+    if (lastChar === '@') {
+      setShowExplorer(true);
+      setAtIndex(cursor - 1);
+      setExplorerQuery('');
+    } else if (showExplorer) {
+      if (cursor <= atIndex || val.charAt(atIndex) !== '@') {
+        setShowExplorer(false);
+      } else {
+        const query = val.substring(atIndex + 1, cursor);
+        if (query.includes(' ') || query.includes('\n')) {
+          setShowExplorer(false);
+        } else {
+          setExplorerQuery(query);
+        }
+      }
+    }
+  };
+
+  const handleCommandSelect = (cmd: Command) => {
+    if (!contentRef.current) return;
+    const cursor = contentRef.current.selectionStart;
+    const before = content.substring(0, atIndex);
+    const after = content.substring(cursor);
+
+    const newContent = before + cmd.template + after;
+    setContent(newContent);
+    setShowExplorer(false);
+
+    // Restore focus and position cursor
+    setTimeout(() => {
+      if (contentRef.current) {
+        contentRef.current.focus();
+        const newPos = atIndex + cmd.template.length;
+        contentRef.current.selectionStart = newPos;
+        contentRef.current.selectionEnd = newPos;
+      }
+    }, 0);
+  };
+
   const handleTagKey = (e: React.KeyboardEvent) => {
     // Handle keyboard navigation in suggestions
     if (showTagSuggestions && filteredSuggestions.length > 0) {
@@ -603,8 +655,17 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
               <textarea
                 ref={contentRef}
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={handleContentChange}
                 onKeyDown={(e) => {
+                  if (showExplorer) {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === 'Escape') {
+                      // These are handled by the CommandExplorer component context-wide window listener
+                      // But we prevent default here to avoid textarea actions
+                      e.preventDefault();
+                      return;
+                    }
+                  }
+
                   if (e.key === 'Enter') {
                     const textarea = e.currentTarget;
                     const cursorStart = textarea.selectionStart;
@@ -1316,6 +1377,13 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             </div>
           </div>
         </div>
+
+        <CommandExplorer
+          isVisible={showExplorer}
+          searchTerm={explorerQuery}
+          onSelect={handleCommandSelect}
+          onClose={() => setShowExplorer(false)}
+        />
       </div>
     </div>
   );
