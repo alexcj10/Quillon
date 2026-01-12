@@ -64,6 +64,7 @@ export const CommandExplorer: React.FC<CommandExplorerProps> = ({
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const explorerRef = useRef<HTMLDivElement>(null);
 
     const filteredCommands = AVAILABLE_COMMANDS.filter(cmd =>
         cmd.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,6 +99,20 @@ export const CommandExplorer: React.FC<CommandExplorerProps> = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isVisible, selectedIndex, filteredCommands, onSelect, onClose]);
 
+    // Close explorer when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (!isVisible) return;
+
+            if (explorerRef.current && !explorerRef.current.contains(e.target as Node)) {
+                onClose();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isVisible, onClose]);
+
     useEffect(() => {
         const selectedElement = scrollRef.current?.children[selectedIndex] as HTMLElement;
         if (selectedElement) {
@@ -109,6 +124,7 @@ export const CommandExplorer: React.FC<CommandExplorerProps> = ({
 
     return (
         <div
+            ref={explorerRef}
             className="absolute z-[100] w-72 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             style={position ? { top: position.top, left: position.left } : { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
         >
