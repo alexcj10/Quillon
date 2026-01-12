@@ -660,15 +660,8 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                 value={content}
                 onChange={handleContentChange}
                 onKeyDown={(e) => {
-                  if (showExplorer) {
-                    if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === 'Escape') {
-                      // These are handled by the CommandExplorer component context-wide window listener
-                      // But we prevent default here to avoid textarea actions
-                      e.preventDefault();
-                      return;
-                    }
-                  }
-
+                  // Check for commands on Enter press
+                  // We do this BEFORE the explorer check so exact manual matches work even if explorer is filtered out
                   if (e.key === 'Enter') {
                     const textarea = e.currentTarget;
                     const cursorStart = textarea.selectionStart;
@@ -682,6 +675,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                         const result = evaluateMathCommand(potentialCommand);
                         if (result !== null) {
                           e.preventDefault();
+                          setShowExplorer(false);
                           const textAfterCursor = content.substring(cursorStart);
                           const newContent = content.substring(0, lastAtSignIndexMath) + result + textAfterCursor;
                           setContent(newContent);
@@ -705,6 +699,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                         const langCode = extractLangCode(potentialCommand);
                         if (langCode) {
                           e.preventDefault();
+                          setShowExplorer(false);
                           const contentToTranslate = (content.substring(0, lastAtSignIndexTrans) + content.substring(cursorStart)).trim();
                           if (contentToTranslate) {
                             setIsTranslating(true);
@@ -742,6 +737,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                         const insightCmd = parseInsightCommand(potentialCommand);
                         if (insightCmd && insightCmd.query) {
                           e.preventDefault();
+                          setShowExplorer(false);
                           setIsLookingUp(true);
                           setLookupMessage(insightCmd.type === 'wiki' ? 'Searching Wikipedia...' : 'Looking up definition...');
 
@@ -788,6 +784,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                         const utilCmd = parseUtilityCommand(potentialCommand);
                         if (utilCmd) {
                           e.preventDefault();
+                          setShowExplorer(false);
                           setIsLookingUp(true);
                           setLookupMessage('Processing command...');
 
@@ -831,6 +828,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       const potentialCommand = textBeforeCursor.substring(lastAtSignIndexPomo);
                       if (!potentialCommand.includes('\n')) {
                         e.preventDefault();
+                        setShowExplorer(false);
                         let timeStr = '';
                         if (potentialCommand.startsWith('@pomo-')) {
                           timeStr = potentialCommand.slice(6).trim();
@@ -849,6 +847,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     // Handle Quiz Mode Command: @quiz or @quiz-s + Enter
                     if (textBeforeCursor.endsWith('@quiz') || textBeforeCursor.endsWith('@quiz-s')) {
                       e.preventDefault();
+                      setShowExplorer(false);
                       const isShuffle = textBeforeCursor.endsWith('@quiz-s');
                       const lastIndex = textBeforeCursor.lastIndexOf(isShuffle ? '@quiz-s' : '@quiz');
                       const textAfterCursor = content.substring(cursorStart);
@@ -869,6 +868,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                         // @fonts - Insert font list as text
                         if (isFontsListCommand(potentialCommand)) {
                           e.preventDefault();
+                          setShowExplorer(false);
                           const fontsList = getFontsListText();
                           const textAfterCursor = content.substring(cursorStart);
                           const newContent = content.substring(0, lastAtSignIndexFont) + fontsList + textAfterCursor;
@@ -886,6 +886,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                         // @font-d - Reset to default font
                         if (isDefaultFontCommand(potentialCommand)) {
                           e.preventDefault();
+                          setShowExplorer(false);
                           setNoteFont(DEFAULT_FONT); // Update local note font state
                           const textAfterCursor = content.substring(cursorStart);
                           setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
@@ -896,6 +897,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                         const font = parseFontCommand(potentialCommand);
                         if (font) {
                           e.preventDefault();
+                          setShowExplorer(false);
                           setNoteFont(font); // Update local note font state
                           const textAfterCursor = content.substring(cursorStart);
                           setContent(content.substring(0, lastAtSignIndexFont) + textAfterCursor);
@@ -910,6 +912,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       const potentialCommand = textBeforeCursor.substring(lastAtSignIndexSummary);
                       if (!potentialCommand.includes('\n') && potentialCommand.trim() === '@summary') {
                         e.preventDefault();
+                        setShowExplorer(false);
                         setIsLookingUp(true);
                         setLookupMessage('Rewriting with summary...');
 
@@ -958,6 +961,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       const potentialCommand = textBeforeCursor.substring(lastAtSignIndexElaborate);
                       if (!potentialCommand.includes('\n') && potentialCommand.trim() === '@elaboration') {
                         e.preventDefault();
+                        setShowExplorer(false);
                         setIsLookingUp(true);
                         setLookupMessage('Rewriting in simple words...');
 
@@ -999,13 +1003,15 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                       }
                     }
 
-                    // Handle Sound Commands: @sound-on, @sound-on-[PERCENT], @sound-off + Enter
-                    const lastAtSignIndexSound = textBeforeCursor.lastIndexOf('@sound-');
+                    // Handle Sound Commands: @sound-on, @sound-on-[PERCENT], @sound-off
+                    const lastAtSignIndexSound = textBeforeCursor.lastIndexOf('@sound');
                     if (lastAtSignIndexSound !== -1) {
-                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexSound);
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexSound).trim();
                       if (!potentialCommand.includes('\n')) {
-                        if (potentialCommand.toLowerCase().startsWith('@sound-on')) {
+                        const lowerCmd = potentialCommand.toLowerCase();
+                        if (lowerCmd.startsWith('@sound-on')) {
                           e.preventDefault();
+                          setShowExplorer(false);
                           let newVol = 1.0;
                           const volMatch = potentialCommand.match(/@sound-on[- :]*(\d+)/i);
                           if (volMatch) {
@@ -1018,17 +1024,47 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                           setSoundEnabled(true);
                           playSuccess(0.3 * (newVol * newVol));
                           const textAfterCursor = content.substring(cursorStart);
-                          setContent(content.substring(0, lastAtSignIndexSound) + textAfterCursor);
+                          const newContent = content.substring(0, lastAtSignIndexSound) + textAfterCursor;
+                          setContent(newContent);
+                          setTimeout(() => {
+                            if (contentRef.current) {
+                              contentRef.current.selectionStart = lastAtSignIndexSound;
+                              contentRef.current.selectionEnd = lastAtSignIndexSound;
+                            }
+                          }, 0);
                           return;
-                        } else if (potentialCommand.toLowerCase() === '@sound-off') {
+                        } else if (lowerCmd === '@sound-off') {
                           e.preventDefault();
+                          setShowExplorer(false);
                           setSoundEnabled(false);
                           const textAfterCursor = content.substring(cursorStart);
-                          setContent(content.substring(0, lastAtSignIndexSound) + textAfterCursor);
+                          const newContent = content.substring(0, lastAtSignIndexSound) + textAfterCursor;
+                          setContent(newContent);
+                          setTimeout(() => {
+                            if (contentRef.current) {
+                              contentRef.current.selectionStart = lastAtSignIndexSound;
+                              contentRef.current.selectionEnd = lastAtSignIndexSound;
+                            }
+                          }, 0);
                           return;
                         }
                       }
                     }
+
+                    // If NO command matched above, but explorer is open, let explorer handle selection
+                    if (showExplorer) {
+                      if (e.key === 'Enter') {
+                        // We actually don't want to prevent default if NO command matched 
+                        // UNLESS the explorer has a filtered match.
+                        // But that logic is complex here. Let's just return if it's a key the explorer cares about.
+                        return;
+                      }
+                    }
+                  }
+
+                  // Handle explorer navigation if no Enter command matched
+                  if (showExplorer && (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Escape')) {
+                    e.preventDefault();
                   }
                 }}
                 placeholder="Start writing your note..."
