@@ -498,9 +498,24 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
         // Calculate position only on first open to keep it anchored
         if (isFirstOpen && contentRef.current) {
           const pos = getTextareaCursorXY(contentRef.current, lastAt);
+          const explorerWidth = 300; // Width of the explorer panel (w-72 = 18rem = 288px, rounded to 300)
+          const textareaWidth = contentRef.current.clientWidth;
+
+          // Smart horizontal positioning: check if there's space on the right
+          let leftPosition;
+          const spaceOnRight = textareaWidth - pos.left;
+
+          if (spaceOnRight >= explorerWidth + 40) {
+            // Enough space on the right, position to the right of cursor
+            leftPosition = pos.left + 10; // Reduced from 35 to 10 for closer positioning
+          } else {
+            // Not enough space on right, position to the left of cursor
+            leftPosition = Math.max(10, pos.left - explorerWidth + 20); // Adjusted to be closer
+          }
+
           setExplorerPosition({
-            top: pos.top + pos.lineHeight - 4,
-            left: Math.min(pos.left + 35, contentRef.current.clientWidth - 300)
+            top: pos.top + pos.lineHeight + 2, // Reduced from -4 to +2 for closer vertical positioning
+            left: leftPosition
           });
         }
         return;
