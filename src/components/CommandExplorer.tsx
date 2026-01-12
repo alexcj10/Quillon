@@ -52,13 +52,15 @@ interface CommandExplorerProps {
     onSelect: (command: Command) => void;
     onClose: () => void;
     searchTerm: string;
+    position?: { top: number; left: number };
 }
 
 export const CommandExplorer: React.FC<CommandExplorerProps> = ({
     isVisible,
     onSelect,
     onClose,
-    searchTerm
+    searchTerm,
+    position
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -107,7 +109,8 @@ export const CommandExplorer: React.FC<CommandExplorerProps> = ({
 
     return (
         <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-2/3 z-[100] w-72 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className="absolute z-[100] w-72 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            style={position ? { top: position.top, left: position.left } : { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
         >
             <div className="p-2 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
                 <Search className="w-4 h-4 text-gray-400" />

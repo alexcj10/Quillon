@@ -26,6 +26,7 @@ import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchWikiSummary, fetchDefinition, parseInsightCommand } from '../utils/insightService';
 import { fetchWeather, fetchCurrencyExchange, convertUnits, parseUtilityCommand, parsePomoTime } from '../utils/utilityService';
 import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, getFontsListText, DEFAULT_FONT, getFontByName, parseFontsListFromContent } from '../utils/fontService';
+import { getTextareaCursorXY } from '../utils/cursorUtils';
 
 interface NoteEditorProps {
   note?: Note;
@@ -77,6 +78,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [showExplorer, setShowExplorer] = useState(false);
   const [explorerQuery, setExplorerQuery] = useState('');
   const [atIndex, setAtIndex] = useState(-1);
+  const [explorerPosition, setExplorerPosition] = useState({ top: 0, left: 0 });
 
   // Tag suggestion state
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
@@ -445,21 +447,28 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     const lastChar = val.charAt(cursor - 1);
 
     if (lastChar === '@') {
-      setShowExplorer(true);
-      setAtIndex(cursor - 1);
-      setExplorerQuery('');
-    } else if (showExplorer) {
-      if (cursor <= atIndex || val.charAt(atIndex) !== '@') {
-        setShowExplorer(false);
-      } else {
-        const query = val.substring(atIndex + 1, cursor);
-        if (query.includes(' ') || query.includes('\n')) {
-          setShowExplorer(false);
-        } else {
+      const lastAt = val.lastIndexOf('@', cursor - 1);
+
+      if (lastAt !== -1 && (lastAt === 0 || val[lastAt - 1] === ' ' || val[lastAt - 1] === '\n')) {
+        const query = val.substring(lastAt + 1, cursor);
+        if (!query.includes(' ')) {
+          setShowExplorer(true);
           setExplorerQuery(query);
+          setAtIndex(lastAt);
+
+          // Calculate position relative to the textarea wrapper
+          if (contentRef.current) {
+            const pos = getTextareaCursorXY(contentRef.current, lastAt);
+            setExplorerPosition({
+              top: pos.top + pos.lineHeight + 10, // 10px below the line
+              left: Math.min(pos.left + 5, contentRef.current.clientWidth - 300) // 5px to the right
+            });
+          }
+          return;
         }
       }
     }
+    setShowExplorer(false);
   };
 
   const handleCommandSelect = (cmd: Command) => {
@@ -1075,6 +1084,13 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                 }}
                 className={`w-full resize-none overflow-hidden bg-transparent outline-none placeholder-gray-500 dark:placeholder-gray-400 text-lg leading-relaxed min-h-[260px] transition-opacity duration-300 ${isTranslating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
               />
+              <CommandExplorer
+                isVisible={showExplorer}
+                searchTerm={explorerQuery}
+                onSelect={handleCommandSelect}
+                onClose={() => setShowExplorer(false)}
+                position={explorerPosition}
+              />
             </div>
           )}
 
@@ -1447,13 +1463,6 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             </div>
           </div>
         </div>
-
-        <CommandExplorer
-          isVisible={showExplorer}
-          searchTerm={explorerQuery}
-          onSelect={handleCommandSelect}
-          onClose={() => setShowExplorer(false)}
-        />
       </div>
     </div>
   );
