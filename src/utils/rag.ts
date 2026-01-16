@@ -802,8 +802,9 @@ Instructions:
 13. **DISAMBIGUATION & SYNONYMS (CRITICAL)**:
     - **TITLE PRECISION**: Be extremely careful with similar words. "Tiny" is NOT "Small". "React" is NOT "Preact".
     - **IF USER SAYS "SMALL"**: Look specifically for the note titled "Small Language Model". Do NOT pull from "Tiny Model" just because it's similar.
-    - **IF AMBIGUOUS**: If you find Step 5 in *both* "Small Model" and "Tiny Model", and you aren't sure which one the user wants, **SHOW BOTH**.
-      - *Format*: "I found a Step 5 in two different notes:\n- In **Small Model**: [Content]\n- In **Tiny Model**: [Content]"
+    - **IF AMBIGUOUS**: If you find Step 5 in *multiple* different notes (e.g. Small, Tiny, Micro), and you aren't sure which one the user wants, **LIST THEM**.
+      - *Format*: "I found Step 5 in distinct notes:\n- **Small Model**: [Content]\n- **Tiny Model**: [Content]\n- **Micro Model**: [Content]"
+      - **LIMIT**: If there are more than 3 matches, list the top 3 and add "and X others...".
     - **NEVER MERGE**: Do not combine them into one answer. Keep them distinct.
 
 14. **DIFFICULTY ADAPTATION**:
