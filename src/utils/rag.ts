@@ -9,6 +9,124 @@ import { correctLocally } from "./selfCorrection";
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
 
+// --- ORDINAL QUERY DETECTION ---
+interface OrdinalQuery {
+    isOrdinal: boolean;
+    position?: number;
+    isLast?: boolean;
+    topic?: string;
+}
+
+function detectOrdinalQuery(query: string): OrdinalQuery {
+    const lowerQuery = query.toLowerCase();
+
+    // Ordinal patterns
+    const ordinalPatterns = [
+        { regex: /\b(\d+)(?:st|nd|rd|th)\s+(.+?)(?:\s+of\s+(.+))?$/i, type: 'numeric' },
+        { regex: /\bfirst\s+(.+?)(?:\s+of\s+(.+))?$/i, position: 1 },
+        { regex: /\bsecond\s+(.+?)(?:\s+of\s+(.+))?$/i, position: 2 },
+        { regex: /\bthird\s+(.+?)(?:\s+of\s+(.+))?$/i, position: 3 },
+        { regex: /\bfourth\s+(.+?)(?:\s+of\s+(.+))?$/i, position: 4 },
+        { regex: /\bfifth\s+(.+?)(?:\s+of\s+(.+))?$/i, position: 5 },
+        { regex: /\blast\s+(.+?)(?:\s+of\s+(.+))?$/i, type: 'last' }
+    ];
+
+    for (const pattern of ordinalPatterns) {
+        const match = lowerQuery.match(pattern.regex);
+        if (match) {
+            if (pattern.type === 'numeric') {
+                return {
+                    isOrdinal: true,
+                    position: parseInt(match[1]),
+                    topic: match[2] || match[3] || query
+                };
+            } else if (pattern.type === 'last') {
+                return {
+                    isOrdinal: true,
+                    isLast: true,
+                    topic: match[1] || match[2] || query
+                };
+            } else {
+                return {
+                    isOrdinal: true,
+                    position: pattern.position,
+                    topic: match[1] || match[2] || query
+                };
+            }
+        }
+    }
+
+    return { isOrdinal: false };
+}
+
+// --- LIST STRUCTURE PARSER ---
+interface ListItem {
+    position: number;
+    content: string;
+    rawText: string;
+}
+
+function parseListStructure(text: string): ListItem[] {
+    const lines = text.split('\n');
+    const items: ListItem[] = [];
+    let currentPosition = 0;
+
+    for (const line of lines) {
+        const trimmedLine = line.trim();
+        if (!trimmedLine) continue;
+
+        // Try numbered patterns first (they give us explicit position)
+        const numberedMatch = trimmedLine.match(/^\s*(\d+)[\.\)]\s+(.+)$/);
+        if (numberedMatch) {
+            const position = parseInt(numberedMatch[1]);
+            items.push({
+                position,
+                content: numberedMatch[2].trim(),
+                rawText: line
+            });
+            currentPosition = position;
+            continue;
+        }
+
+        // Try bullet points (sequential position)
+        const bulletMatch = trimmedLine.match(/^\s*[•\-\*]\s+(.+)$/);
+        if (bulletMatch) {
+            currentPosition++;
+            items.push({
+                position: currentPosition,
+                content: bulletMatch[1].trim(),
+                rawText: line
+            });
+            continue;
+        }
+
+        // Try lettered lists
+        const letterMatch = trimmedLine.match(/^\s*([a-z])[\.\)]\s+(.+)$/i);
+        if (letterMatch) {
+            const letter = letterMatch[1].toLowerCase();
+            const position = letter.charCodeAt(0) - 'a'.charCodeAt(0) + 1;
+            items.push({
+                position,
+                content: letterMatch[2].trim(),
+                rawText: line
+            });
+            currentPosition = position;
+        }
+    }
+
+    return items;
+}
+
+// Helper to get ordinal suffix (1st, 2nd, 3rd, 4th, etc.)
+function getOrdinalSuffix(num: number): string {
+    const j = num % 10;
+    const k = num % 100;
+    if (j === 1 && k !== 11) return "st";
+    if (j === 2 && k !== 12) return "nd";
+    if (j === 3 && k !== 13) return "rd";
+    return "th";
+}
+
 export async function ragQuery(
     question: string,
     allNotes: Note[],
@@ -17,6 +135,11 @@ export async function ragQuery(
 ) {
     // Normalize the question
     const normalizedQuestion = question.trim();
+
+    // --- ORDINAL QUERY DETECTION ---
+    // Detect if user is asking for a specific position (e.g., "3rd method", "first step")
+    const ordinalInfo = detectOrdinalQuery(normalizedQuestion);
+
     // NOTE: We no longer short-circuit with personalized responses here.
     // The LLM (AI) will intelligently decide if it's conversational or note-related.
 
@@ -76,14 +199,15 @@ export async function ragQuery(
                            Output: JSON object with:
                            - "queries": string[] (1-3 atomic string search queries)
                            - "hypothetical_answer": string (A short, ideal paragraph that WOULD answer the user's question. Hallucinate facts if needed to generate keywords.)
+                           - "is_ordinal": boolean (true if user asks for specific position like "3rd method", "first step", "last item")
                            
                            Rules:
                            1. Resolve pronouns ("it", "he") using History.
                            2. If the user asks "What is [X]" or mentions a specific name, include "[X]" as a search query to catch titles.
-                           2. If the user asks "What is [X]" or mentions a specific name, include "[X]" as a search query to catch titles.
                            3. If complex (e.g. "Compare X and Y"), output ["X", "Y"] in queries.
-                           4. **QUANTITY/LISTS**: If user asks for "3 methods" or "steps", include queries like "methods of X", "steps for X", "list of X".
-                           5. If simple, Just output ["query"].`
+                           4. **ORDINAL/POSITIONAL**: If user asks for "3rd method", "first step", "last item", set is_ordinal=true and search for the TOPIC (e.g., "methods of X", "steps for X").
+                           5. **QUANTITY/LISTS**: If user asks for "3 methods" or "steps", include queries like "methods of X", "steps for X", "list of X".
+                           6. If simple, Just output ["query"].`
                         },
                         ...history.slice(0, -1).slice(-3).map(m => ({
                             role: m.role === 'ai' ? 'assistant' : 'user',
@@ -398,6 +522,44 @@ ${memoryNote.content}
         }
     }
 
+    // --- ORDINAL EXTRACTION (Positional Query Handler) ---
+    // If user asked for a specific position (e.g., "3rd method"), extract that exact item
+    let ordinalExtractedContent: string | null = null;
+
+    if (ordinalInfo.isOrdinal && finalNotesToProcess.length > 0) {
+        // Parse lists from the top-ranked notes
+        for (const item of finalNotesToProcess.slice(0, 5)) {
+            const listItems = parseListStructure(item.n.content || "");
+
+            if (listItems.length > 0) {
+                let targetItem: ListItem | undefined;
+
+                if (ordinalInfo.isLast) {
+                    // Get the last item
+                    targetItem = listItems[listItems.length - 1];
+                } else if (ordinalInfo.position) {
+                    // Get the item at the specific position
+                    targetItem = listItems.find(li => li.position === ordinalInfo.position);
+                }
+
+                if (targetItem) {
+                    // Found the requested item!
+                    ordinalExtractedContent = `**${targetItem.content}**\n\n(This is the ${ordinalInfo.isLast ? 'last' : ordinalInfo.position + getOrdinalSuffix(ordinalInfo.position!)} item from the note "${item.n.title || 'Untitled'}")`;
+
+                    // Also include context: show all items for reference
+                    const allItems = listItems.map(li => `${li.position}. ${li.content}`).join('\n');
+                    ordinalExtractedContent += `\n\n**Full list for context:**\n${allItems}`;
+                    break;
+                }
+            }
+        }
+
+        // If we couldn't find the specific position, note that
+        if (!ordinalExtractedContent && ordinalInfo.position) {
+            ordinalExtractedContent = `I couldn't find a list with a ${ordinalInfo.position}${getOrdinalSuffix(ordinalInfo.position)} item in your notes about "${ordinalInfo.topic}".`;
+        }
+    }
+
     // Dynamic Context Construction
     const MAX_TOKENS = 4000; // REDUCED for Safety with 70b model
     let currentTokens = 0;
@@ -429,6 +591,11 @@ ${memoryNote.content}
     }
 
     const context = selectedNotes.join("\n\n");
+
+    // If we extracted a specific ordinal item, prepend it to the context
+    const finalContext = ordinalExtractedContent
+        ? `*** ORDINAL QUERY RESULT ***\n${ordinalExtractedContent}\n\n*** FULL NOTES CONTEXT ***\n${context}`
+        : context;
 
     const systemPromptExtras = `
 Notes labeled [Linked Context] were automatically retrieved because they are mentioned in the Direct Match notes. 
@@ -500,7 +667,7 @@ ${QUILLON_USER_MANUAL}
 *** END KNOWLEDGE BASE ***
 
 Relevant Notes (Top Matches):
-${context}
+${finalContext}
 
 Instructions:
 1. **Analyze the Request**: 
@@ -570,7 +737,14 @@ Instructions:
     - **DO NOT INVENT**: If the note only has 2 methods, say "I only found 2 methods: [List them].". Do NOT make up a 3rd one.
     - **DO NOT PARAPHRASE**: If the note lists "1. A, 2. B", output "1. A, 2. B". Do not turn it into "First, do A...". Keep the user's structure.
     - If a link or key is in the notes, provide it accurately.
-    - **UI CLARITY**: When listing multiple items (like API keys, URLs, or tasks), **ALWAYS use Markdown bullets** (- or *) to make them stand out. Never put multiple keys on the same line. 
+    - **UI CLARITY**: When listing multiple items (like API keys, URLs, or tasks), **ALWAYS use Markdown bullets** (- or *) to make them stand out. Never put multiple keys on the same line.
+    
+11.5. **ORDINAL/POSITIONAL QUERIES (CRITICAL)**:
+    - **EXACT POSITION**: If the user asks for "3rd method", "first step", or "last item", you MUST return ONLY that specific item.
+    - **NO SEMANTIC GUESSING**: Don't return what you think is the "3rd most important" - return the item at position 3 in the list.
+    - **VERIFY POSITION**: Count carefully. If the note lists "1. A, 2. B, 3. C, 4. D, 5. E" and user asks for "3rd", return "C" (the item at position 3).
+    - **CONTEXT OPTIONAL**: You may show the full list for context, but CLEARLY highlight which item is the requested position.
+    - **NOT FOUND**: If the position doesn't exist (e.g., asking for "5th" when only 3 items exist), say "I only found 3 items" and list them.
 
 12. **DEEP ANALYSIS (MESSY NOTES)**:
     - **READ EVERYTHING**: "Messy" notes (bullet points, brain dumps, unformatted text) are standard. Treat every line as potential fact.
