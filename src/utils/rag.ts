@@ -117,6 +117,7 @@ function parseListStructure(text: string): ListItem[] {
     return items;
 }
 
+
 // Helper to get ordinal suffix (1st, 2nd, 3rd, 4th, etc.)
 function getOrdinalSuffix(num: number): string {
     const j = num % 10;
@@ -125,6 +126,49 @@ function getOrdinalSuffix(num: number): string {
     if (j === 2 && k !== 12) return "nd";
     if (j === 3 && k !== 13) return "rd";
     return "th";
+}
+
+// --- CONTEXT AWARE EXTRACTION ---
+function findRelevantContentSubsection(content: string, topic: string): string {
+    if (!topic) return content;
+    const lines = content.split('\n');
+    // Filter out generic terms like "the", "give", "me"
+    const parsedTopic = topic.replace(/\b(give|me|Show|List|Tell|about|the|a|an)\b/gi, "");
+    const topicTerms = parsedTopic.toLowerCase().split(/\s+/).filter(t => t.length > 2);
+
+    if (topicTerms.length === 0) return content;
+
+    let bestLineIndex = -1;
+    let maxMatches = 0;
+
+    // Look for headers or bold lines that act as titles
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].toLowerCase();
+        // Check if it's a header or bold line or just a label line
+        const isHeader = line.trim().startsWith('#') || line.trim().startsWith('**') || line.trim().endsWith(':') || /^[A-Z\s]+$/.test(lines[i].trim());
+
+        if (isHeader) {
+            let matches = 0;
+            topicTerms.forEach(term => {
+                // Strict word boundary check to avoid partial matches if possible, but relax for now
+                if (line.includes(term)) matches++;
+            });
+
+            // Prioritize headers that match MORE terms
+            if (matches > maxMatches) {
+                maxMatches = matches;
+                bestLineIndex = i;
+            }
+        }
+    }
+
+    if (bestLineIndex !== -1 && maxMatches > 0) {
+        // Return content starting from this header.
+        // We include the header itself as it might be part of the list intro.
+        return lines.slice(bestLineIndex).join('\n');
+    }
+
+    return content;
 }
 
 export async function ragQuery(
@@ -529,7 +573,13 @@ ${memoryNote.content}
     if (ordinalInfo.isOrdinal && finalNotesToProcess.length > 0) {
         // Parse lists from the top-ranked notes
         for (const item of finalNotesToProcess.slice(0, 5)) {
-            const listItems = parseListStructure(item.n.content || "");
+            // CONTEXT AWARE LOGIC: Slice content based on topic keyword
+            let contentToParse = item.n.content || "";
+            if (ordinalInfo.topic) {
+                contentToParse = findRelevantContentSubsection(contentToParse, ordinalInfo.topic);
+            }
+
+            const listItems = parseListStructure(contentToParse);
 
             if (listItems.length > 0) {
                 let targetItem: ListItem | undefined;
