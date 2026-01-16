@@ -399,7 +399,7 @@ ${memoryNote.content}
     }
 
     // Dynamic Context Construction
-    const MAX_TOKENS = 6000; // REDUCED for Safety with 70b model
+    const MAX_TOKENS = 4000; // REDUCED for Safety with 70b model
     let currentTokens = 0;
     let isTruncated = false;
     const selectedNotes: string[] = [];
