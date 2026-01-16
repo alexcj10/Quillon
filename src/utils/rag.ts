@@ -298,7 +298,8 @@ export async function ragQuery(
 
     // Run Expander Function (New Feature)
     // This handles "messy" queries like "tht note abt mtg" -> "meeting note"
-    const expanderPromise = USE_COMPLEX_RAG ? expandQuery(normalizedQuestion) : Promise.resolve([]);
+    // ALWAYS run this, even for small vaults, to catch critical typos (e.g. "langauge" -> "language")
+    const expanderPromise = expandQuery(normalizedQuestion);
 
     // Await both
     const [plannedQueries, expandedQueries] = await Promise.all([plannerPromise, expanderPromise]);
@@ -391,6 +392,30 @@ ${memoryNote.content}
         return matrix[b.length][a.length];
     };
 
+    // Helper: Title Pinning Score
+    const calculateTitleMatchScore = (qTerms: string[], noteTitle: string): number => {
+        const title = noteTitle.toLowerCase();
+        // Safety: Ignore generic titles
+        if (title.includes('untitled') || title.includes('new note')) return 0;
+
+        const titleTokens = title.split(/\s+/).filter(t => t.length > 2);
+        // Safety: Don't pin single-word titles (too generic)
+        if (titleTokens.length < 2) return 0;
+
+        let matchCount = 0;
+        titleTokens.forEach(tToken => {
+            if (qTerms.some(qToken => {
+                const dist = levenshtein(qToken, tToken);
+                const similarityThreshold = tToken.length > 4 ? 2 : 1;
+                return dist <= similarityThreshold || qToken.includes(tToken) || tToken.includes(qToken);
+            })) {
+                matchCount++;
+            }
+        });
+
+        return matchCount / titleTokens.length;
+    };
+
     const finalQuestion = searchQueries.join(" / ");
     const queryEmbeds = searchQueries.map(q => embedText(q));
 
@@ -417,7 +442,11 @@ ${memoryNote.content}
     queryTerms.forEach(term => {
         allKnownTags.forEach(tag => {
             const t = tag.toLowerCase();
-            if (t === term || t === term + 's' || t + 's' === term || (levenshtein(term, t) <= 1)) {
+            const dist = levenshtein(term, t);
+            // Relaxed check: Allow distance 2 for words > 4 chars
+            const similarityThreshold = term.length > 4 ? 2 : 1;
+
+            if (t === term || t === term + 's' || t + 's' === term || dist <= similarityThreshold) {
                 relevantTags.add(tag);
             }
         });
@@ -440,7 +469,11 @@ ${memoryNote.content}
 
             queryTerms.forEach(term => {
                 // Title Match
-                if (titleTokens.some(t => t === term || levenshtein(t, term) <= 1)) {
+                if (titleTokens.some(t => {
+                    const dist = levenshtein(t, term);
+                    const similarityThreshold = term.length > 4 ? 2 : 1;
+                    return t === term || dist <= similarityThreshold;
+                })) {
                     lexicalScore += 2.0;
                 }
                 // Content TF
@@ -469,7 +502,11 @@ ${memoryNote.content}
             let matches = 0;
             if (tTokens.length > 0) {
                 tTokens.forEach(tt => {
-                    if (queryTerms.some(qt => qt === tt || levenshtein(qt, tt) <= 1)) {
+                    if (queryTerms.some(qt => {
+                        const dist = levenshtein(qt, tt);
+                        const similarityThreshold = qt.length > 4 ? 2 : 1;
+                        return qt === tt || dist <= similarityThreshold;
+                    })) {
                         matches++;
                     }
                 });
@@ -483,8 +520,17 @@ ${memoryNote.content}
             const hasExactMatch = searchQueries.some(q => contentLower.includes(q.toLowerCase()));
             if (hasExactMatch) lexicalScore += 4.0;
 
-            const finalScore = vectorScore * 10 + lexicalScore + tagBoost + recencyScore;
-            return { n, score: finalScore, debug: { vectorScore, lexicalScore, tagBoost, recencyScore } };
+            // G. TITLE PINNING (The "Named Note" Fix)
+            // If the user explicitly names the note (e.g. "Small Language Model"), we FORCE it to the top.
+            // This overrides vector search confusion (e.g. Tiny vs Small).
+            const titleMatchScore = calculateTitleMatchScore(queryTerms, n.title || "");
+            let titlePinBoost = 0;
+            if (titleMatchScore >= 0.6) { // 60% of title words present in query
+                titlePinBoost = 1000.0; // FORCE TO TOP
+            }
+
+            const finalScore = vectorScore * 10 + lexicalScore + tagBoost + recencyScore + titlePinBoost;
+            return { n, score: finalScore, debug: { vectorScore, lexicalScore, tagBoost, recencyScore, titlePinBoost } };
         })
         .sort((a, b) => b.score - a.score);
 
@@ -509,7 +555,7 @@ ${memoryNote.content}
             return {
                 n,
                 score: 999,
-                debug: original?.debug ?? { vectorScore: 0, lexicalScore: 0, tagBoost: 0, recencyScore: 0 }
+                debug: original?.debug ?? { vectorScore: 0, lexicalScore: 0, tagBoost: 0, recencyScore: 0, titlePinBoost: 0 }
             };
         });
         const followers = ranked.filter(r => !rerankedIds.has(r.n.id));
