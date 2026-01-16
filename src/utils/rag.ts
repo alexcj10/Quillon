@@ -6,7 +6,6 @@ import { buildEntityRegistry, EntityRegistry } from "./entityRegistry";
 import { validateResponse, formatCitations } from "./contextValidator";
 import { verifyContentLightweight, formatLightweightSources } from "./contentVerifier";
 import { correctLocally } from "./selfCorrection";
-import { handlePositionalQuery, generatePositionalContext } from "./positionalQueryHandler";
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_KEY;
 
@@ -429,15 +428,7 @@ ${memoryNote.content}
 
     const context = selectedNotes.join("\n\n");
 
-    // --- POSITIONAL QUERY HANDLING (Fixes "3rd method", "Step 5" queries) ---
-    const positionalResult = handlePositionalQuery(
-        normalizedQuestion,
-        finalNotesToProcess.map(item => item.n)
-    );
-    const positionalContext = generatePositionalContext(positionalResult);
-
     const systemPromptExtras = `
-${positionalContext}
 Notes labeled [Linked Context] were automatically retrieved because they are mentioned in the Direct Match notes. 
 Use them to provide a more complete answer, following the connections between notes.
 ${isTruncated ? `
