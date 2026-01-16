@@ -113,90 +113,162 @@ export function detectPositionalQuery(question: string): { isPositional: boolean
 
 /**
  * Parse numbered/bulleted lists from note content
+ * Enhanced to capture FULL multi-line content under each step
  */
 export function parseNumberedLists(content: string): ParsedList[] {
     const lists: ParsedList[] = [];
     const lines = content.split(/\r?\n/);
 
-    let currentList: ParsedListItem[] = [];
-    let currentType: 'numbered' | 'step' | 'bullet' = 'numbered';
-    let inList = false;
+    // First pass: identify all step/numbered headers and their line positions
+    interface StepMarker {
+        lineIndex: number;
+        position: number;
+        title: string;
+        type: 'numbered' | 'step';
+    }
+
+    const stepMarkers: StepMarker[] = [];
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
-        if (!line) {
-            // Empty line might end a list
-            if (currentList.length >= 2) {
-                lists.push({ items: [...currentList], listType: currentType });
-            }
-            currentList = [];
-            inList = false;
-            continue;
-        }
+        if (!line) continue;
 
         // Pattern: "1. Item" or "1) Item" or "1: Item"
         const numberedMatch = line.match(/^(\d+)[.):]\s*(.+)/);
         if (numberedMatch) {
-            const pos = parseInt(numberedMatch[1]);
-            currentList.push({
-                position: pos,
-                content: numberedMatch[2].trim(),
-                rawLine: line
+            stepMarkers.push({
+                lineIndex: i,
+                position: parseInt(numberedMatch[1]),
+                title: numberedMatch[2].trim(),
+                type: 'numbered'
             });
-            inList = true;
-            currentType = 'numbered';
             continue;
         }
 
         // Pattern: "Step 1 - Item" or "STEP 1 — Item" or "Step 1: Item"
         const stepMatch = line.match(/^(?:step|STEP)\s*(\d+)\s*[-—:]\s*(.+)/i);
         if (stepMatch) {
-            const pos = parseInt(stepMatch[1]);
-            currentList.push({
-                position: pos,
-                content: stepMatch[2].trim(),
-                rawLine: line
-            });
-            inList = true;
-            currentType = 'step';
-            continue;
-        }
-
-        // Pattern: "- Item" or "* Item" or "• Item" (bullet list - use index)
-        const bulletMatch = line.match(/^[-*•]\s+(.+)/);
-        if (bulletMatch && !inList) {
-            // Start a new bullet list
-            currentList.push({
-                position: currentList.length + 1,
-                content: bulletMatch[1].trim(),
-                rawLine: line
-            });
-            currentType = 'bullet';
-            inList = true;
-            continue;
-        } else if (bulletMatch && inList && currentType === 'bullet') {
-            // Continue bullet list
-            currentList.push({
-                position: currentList.length + 1,
-                content: bulletMatch[1].trim(),
-                rawLine: line
+            stepMarkers.push({
+                lineIndex: i,
+                position: parseInt(stepMatch[1]),
+                title: stepMatch[2].trim(),
+                type: 'step'
             });
             continue;
-        }
-
-        // If we're in a list and get a non-list line, check if it's a continuation
-        if (inList && line.length > 0 && !line.match(/^[\d\-*•]/)) {
-            // Might be a multi-line list item continuation
-            if (currentList.length > 0) {
-                // Append to previous item
-                currentList[currentList.length - 1].content += ' ' + line;
-            }
         }
     }
 
-    // Don't forget the last list
-    if (currentList.length >= 2) {
-        lists.push({ items: [...currentList], listType: currentType });
+    // If we found step markers, extract full content for each
+    if (stepMarkers.length >= 2) {
+        const items: ParsedListItem[] = [];
+
+        for (let i = 0; i < stepMarkers.length; i++) {
+            const currentMarker = stepMarkers[i];
+            const nextMarker = stepMarkers[i + 1];
+
+            // Get all lines from current marker to next marker (or end of content)
+            const startLine = currentMarker.lineIndex;
+            const endLine = nextMarker ? nextMarker.lineIndex : lines.length;
+
+            // Collect all content lines
+            const contentLines: string[] = [];
+            for (let j = startLine + 1; j < endLine; j++) {
+                const line = lines[j];
+                // Skip completely empty lines at the end
+                if (line.trim() || contentLines.length > 0) {
+                    contentLines.push(line);
+                }
+            }
+
+            // Trim trailing empty lines
+            while (contentLines.length > 0 && !contentLines[contentLines.length - 1].trim()) {
+                contentLines.pop();
+            }
+
+            // Build full content: title + all sub-content
+            let fullContent = currentMarker.title;
+            if (contentLines.length > 0) {
+                fullContent += '\n' + contentLines.join('\n');
+            }
+
+            items.push({
+                position: currentMarker.position,
+                content: fullContent,
+                rawLine: lines[currentMarker.lineIndex]
+            });
+        }
+
+        if (items.length >= 2) {
+            lists.push({
+                items,
+                listType: stepMarkers[0].type
+            });
+        }
+    }
+
+    // Fallback: Simple list parsing for notes without step markers
+    // (e.g., just "1. A\n2. B\n3. C" without sub-content)
+    if (lists.length === 0) {
+        let currentList: ParsedListItem[] = [];
+        let currentType: 'numbered' | 'step' | 'bullet' = 'numbered';
+        let inList = false;
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) {
+                if (currentList.length >= 2) {
+                    lists.push({ items: [...currentList], listType: currentType });
+                }
+                currentList = [];
+                inList = false;
+                continue;
+            }
+
+            // Pattern: "1. Item" or "1) Item" or "1: Item"
+            const numberedMatch = line.match(/^(\d+)[.):]\s*(.+)/);
+            if (numberedMatch) {
+                const pos = parseInt(numberedMatch[1]);
+                currentList.push({
+                    position: pos,
+                    content: numberedMatch[2].trim(),
+                    rawLine: line
+                });
+                inList = true;
+                currentType = 'numbered';
+                continue;
+            }
+
+            // Pattern: "- Item" or "* Item" or "• Item" (bullet list)
+            const bulletMatch = line.match(/^[-*•]\s+(.+)/);
+            if (bulletMatch && !inList) {
+                currentList.push({
+                    position: currentList.length + 1,
+                    content: bulletMatch[1].trim(),
+                    rawLine: line
+                });
+                currentType = 'bullet';
+                inList = true;
+                continue;
+            } else if (bulletMatch && inList && currentType === 'bullet') {
+                currentList.push({
+                    position: currentList.length + 1,
+                    content: bulletMatch[1].trim(),
+                    rawLine: line
+                });
+                continue;
+            }
+
+            // Continuation line
+            if (inList && line.length > 0 && !line.match(/^[\d\-*•]/)) {
+                if (currentList.length > 0) {
+                    currentList[currentList.length - 1].content += ' ' + line;
+                }
+            }
+        }
+
+        if (currentList.length >= 2) {
+            lists.push({ items: [...currentList], listType: currentType });
+        }
     }
 
     return lists;
