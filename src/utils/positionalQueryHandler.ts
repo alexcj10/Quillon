@@ -46,11 +46,48 @@ const ORDINAL_WORDS: Record<string, number> = {
     'twelfth': 12, '12th': 12
 };
 
+// Text number words to number mapping
+const TEXT_NUMBERS: Record<string, number> = {
+    'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+    'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+    'eleven': 11, 'twelve': 12
+};
+
+// Emoji numbers mapping
+const EMOJI_NUMBERS: Record<string, number> = {
+    '1️⃣': 1, '2️⃣': 2, '3️⃣': 3, '4️⃣': 4, '5️⃣': 5,
+    '6️⃣': 6, '7️⃣': 7, '8️⃣': 8, '9️⃣': 9, '🔟': 10,
+    '①': 1, '②': 2, '③': 3, '④': 4, '⑤': 5,
+    '⑥': 6, '⑦': 7, '⑧': 8, '⑨': 9, '⑩': 10
+};
+
+/**
+ * Normalize query - replace emojis and text numbers with digits
+ */
+function normalizeNumbers(text: string): string {
+    let normalized = text;
+
+    // Replace emoji numbers
+    for (const [emoji, num] of Object.entries(EMOJI_NUMBERS)) {
+        normalized = normalized.replace(new RegExp(emoji, 'g'), num.toString());
+    }
+
+    // Replace text numbers (with word boundaries)
+    for (const [word, num] of Object.entries(TEXT_NUMBERS)) {
+        normalized = normalized.replace(new RegExp(`\\b${word}\\b`, 'gi'), num.toString());
+    }
+
+    return normalized;
+}
+
 /**
  * Detect if a query is asking for a specific numbered/positioned item
+ * Enhanced to support: ordinals, text numbers, emojis, and flexible patterns
  */
 export function detectPositionalQuery(question: string): { isPositional: boolean; position: number | null; topic: string | null } {
-    const q = question.toLowerCase().trim();
+    // Normalize emojis and text numbers first
+    const normalized = normalizeNumbers(question);
+    const q = normalized.toLowerCase().trim();
 
     // Pattern 1: "3rd method of X", "5th step of Y"
     const ordinalMatch = q.match(/(\d+)(?:st|nd|rd|th)\s+(?:method|step|point|item|way|technique|rule|principle|type|kind|example|part|section|chapter|element|component|feature|tip|trick|hack|strategy|approach|phase|stage)(?:\s+(?:of|in|from|for))?\s*(.+)?/i);
@@ -108,6 +145,26 @@ export function detectPositionalQuery(question: string): { isPositional: boolean
         }
     }
 
+    // Pattern 6: Just a number with topic "give me 4 of ML", "4 of machine learning", "number 4 of"
+    const justNumberMatch = q.match(/(?:give|show|tell|get|number|no\.?|num\.?|#)?\s*(\d+)\s+(?:of|in|from|for)\s+(.+)/i);
+    if (justNumberMatch) {
+        return {
+            isPositional: true,
+            position: parseInt(justNumberMatch[1]),
+            topic: justNumberMatch[2]?.trim() || null
+        };
+    }
+
+    // Pattern 7: "the 4 step" or "4 method" (number before keyword without ordinal suffix)
+    const numberBeforeKeyword = q.match(/(?:the\s+)?(\d+)\s*(?:step|method|point|item|way|technique|rule|principle|part|phase|stage)(?:\s+(?:of|in|from|for))?\s*(.+)?/i);
+    if (numberBeforeKeyword) {
+        return {
+            isPositional: true,
+            position: parseInt(numberBeforeKeyword[1]),
+            topic: numberBeforeKeyword[2]?.trim() || null
+        };
+    }
+
     return { isPositional: false, position: null, topic: null };
 }
 
@@ -153,6 +210,20 @@ export function parseNumberedLists(content: string): ParsedList[] {
                 position: parseInt(stepMatch[1]),
                 title: stepMatch[2].trim(),
                 type: 'step'
+            });
+            continue;
+        }
+
+        // Pattern: Sub-steps like "2.1", "2.2", "1.1.1" - store as decimal
+        const subStepMatch = line.match(/^(\d+(?:\.\d+)+)[.):\s]\s*(.+)/);
+        if (subStepMatch) {
+            // Convert "2.1" to 2.1, "1.2.3" to 1.23
+            const subNum = parseFloat(subStepMatch[1]);
+            stepMarkers.push({
+                lineIndex: i,
+                position: subNum,
+                title: subStepMatch[2].trim(),
+                type: 'numbered'
             });
             continue;
         }
