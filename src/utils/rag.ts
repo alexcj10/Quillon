@@ -80,8 +80,10 @@ export async function ragQuery(
                            Rules:
                            1. Resolve pronouns ("it", "he") using History.
                            2. If the user asks "What is [X]" or mentions a specific name, include "[X]" as a search query to catch titles.
+                           2. If the user asks "What is [X]" or mentions a specific name, include "[X]" as a search query to catch titles.
                            3. If complex (e.g. "Compare X and Y"), output ["X", "Y"] in queries.
-                           4. If simple, Just output ["query"].`
+                           4. **QUANTITY/LISTS**: If user asks for "3 methods" or "steps", include queries like "methods of X", "steps for X", "list of X".
+                           5. If simple, Just output ["query"].`
                         },
                         ...history.slice(0, -1).slice(-3).map(m => ({
                             role: m.role === 'ai' ? 'assistant' : 'user',
@@ -397,7 +399,7 @@ ${memoryNote.content}
     }
 
     // Dynamic Context Construction
-    const MAX_TOKENS = 4000; // REDUCED for Safety with 70b model
+    const MAX_TOKENS = 6000; // REDUCED for Safety with 70b model
     let currentTokens = 0;
     let isTruncated = false;
     const selectedNotes: string[] = [];
@@ -476,8 +478,12 @@ ${longTermMemoryContext}
    - TRASH Stats (Public): ${allNotes.filter(n => !n.isPrivate && n.isDeleted).length} notes, ${new Set(allNotes.filter(n => !n.isPrivate && n.isDeleted).flatMap(n => n.tags || []).filter(t => t !== '@hide')).size} tags.
    - TRASH Stats (Private): ${allNotes.filter(n => n.isPrivate && n.isDeleted).length} notes, ${new Set(allNotes.filter(n => n.isPrivate && n.isDeleted).flatMap(n => n.tags || []).filter(t => t !== '@hide')).size} tags.
 1. **USER NOTES (ABSOLUTE FIRST PRIORITY)**: ALWAYS check the notes context below. If the answer exists in notes, USE IT. Override everything else.
-   - **STATS RULE**: If user asks "How many tags/notes?" without saying "public" or "private", answer based on **[CURRENT VIEW]** only.
-   - If user explicitly asks for "Both" or "Private from Public", you may use the System Stats above to answer.
+    - **STATS RULE**: If user asks "How many tags/notes?" without saying "public" or "private", answer based on **[CURRENT VIEW]** only.
+    - If user explicitly asks for "Both" or "Private from Public", you may use the System Stats above to answer.
+    - **STRICT GROUNDING & ACCURACY (THE GOLDEN RULE)**: 
+      - **NOTES > EVERYTHING**: If the information is in the notes (even a messy scratchpad), USE IT. It overrides your general knowledge.
+      - **NO HALLUCINATION**: If the user asks for "3 methods" and you don't see them in the notes, **DO NOT MAKER THEM UP**. Say "I couldn't find a note listing 3 methods."
+      - **EXACT MATCHING**: If the user asks for "The 3 methods of X", look for a list in the notes that resembles that. Don't just give generic advice about X.
 2. **CONVERSATIONAL INTELLIGENCE (Second Priority)**: If the question is purely conversational (greeting, farewell, thanks, casual chat) AND no notes are relevant, respond naturally like a friendly assistant.
    - Greetings (hi, hello, hey, yo, sup, wsg) → Respond warmly
    - Farewells (bye, later, yup later, k bye, ttyl, peace) → Say goodbye nicely
@@ -559,9 +565,22 @@ Instructions:
 
 10. **Confidence**: Don't apologize for being an AI. Don't say "As an AI...". Confidently state what you find or know.
 
-11. **Literalness & Lists**: 
+11. **Literalness & Lists (STRICT QUANTITY)**: 
+    - **Methods & Steps**: If the user asks for "3 methods" or "5 steps", you MUST find EXACTLY that number in the notes. 
+    - **DO NOT INVENT**: If the note only has 2 methods, say "I only found 2 methods: [List them].". Do NOT make up a 3rd one.
+    - **DO NOT PARAPHRASE**: If the note lists "1. A, 2. B", output "1. A, 2. B". Do not turn it into "First, do A...". Keep the user's structure.
     - If a link or key is in the notes, provide it accurately.
-    - **UI CLARITY**: When listing multiple items (like API keys, URLs, or tasks), **ALWAYS use Markdown bullets** (- or *) to make them stand out. Never put multiple keys on the same line. `
+    - **UI CLARITY**: When listing multiple items (like API keys, URLs, or tasks), **ALWAYS use Markdown bullets** (- or *) to make them stand out. Never put multiple keys on the same line. 
+
+12. **DEEP ANALYSIS (MESSY NOTES)**:
+    - **READ EVERYTHING**: "Messy" notes (bullet points, brain dumps, unformatted text) are standard. Treat every line as potential fact.
+    - **IGNORE FORMATTING ISSUES**: A note doesn't need to be pretty to be true. Extract the core information regardless of how it looks.
+    - **HIDDEN GEMS**: Look for keywords buried in long paragraphs.
+
+13. **DIFFICULTY ADAPTATION**:
+    - **SIMPLE**: If the question is "What is X?", give a direct definition from the notes.
+    - **COMPLEX**: If the question is "Compare X and Y" or "Why does Z happen?", use your reasoning to synthesize information from multiple notes.
+    - **TRICKY**: If the question seems ambiguous, look for specific keywords in the notes that match the "spirit" of the question. `
             },
             ...historyMessages,
             { role: "user", content: finalQuestion }
@@ -786,7 +805,8 @@ async function rerankNotes(query: string, candidates: Note[]): Promise<Note[]> {
                     CRITICAL:
                     - IGNORE bad titles. Populated "Content Snippet" is what matters.
                     - **TITLE OVERLAP**: If the query shares words with a note's TITLE, that note is extremely likely to be the one the user wants. Prioritize title matches even if the snippet is short.
-                    - If a note looks like a "messy thought", a "key list", or a "link collection", SELECT IT.
+                    - **MESSY NOTES**: If a note looks like a "messy thought", a "key list", or a "link collection", SELECT IT. Unformatted text is often the most valuable.
+                    - **DEEP CONTENT**: Look for lists, steps, or methods inside the content. If the user asks for "methods", find notes that contain lists.
                     - Technical strings (keys, long tokens, URLs) are highly relevant if the user query contains technical acronyms (API, GSK, KEY, URL).
                     - Be strict: only select if it actually seems related.`
                 },
