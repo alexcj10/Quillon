@@ -1,7 +1,7 @@
 import { embedText } from "./embed";
 import { cosineSimilarity } from "./similarity";
 import { isFileTag, getFileTagDisplayName, Note } from "../types";
-import { QUILLON_USER_MANUAL } from "./quillonManual";
+
 import { buildEntityRegistry, EntityRegistry } from "./entityRegistry";
 import { validateResponse, formatCitations } from "./contextValidator";
 import { verifyContentLightweight, formatLightweightSources } from "./contentVerifier";
@@ -658,13 +658,9 @@ ${longTermMemoryContext}
    - Affirmations (yep, yup, ok, cool, bet, aight) → Acknowledge casually
    - Negations (nope, nah, im good) → Accept gracefully
    - Humor/Reactions (lol, haha, wow) → Respond playfully
-3. **APP KNOWLEDGE BASE (Third Priority)**: If no notes exist AND it's about Quillon/the app, use the manual below.
-4. **GENERAL KNOWLEDGE (Fourth Priority)**: Only use for questions unrelated to app/notes (e.g., "capital of France").
-5. **NOT FOUND (Last Resort)**: If user asks for specific personal data that doesn't exist in notes, say: "I couldn't find that in your notes. Try adding a note about this!"
+3. **GENERAL KNOWLEDGE (Third Priority)**: Only use for questions unrelated to app/notes (e.g., "capital of France").
+4. **NOT FOUND (Last Resort)**: If user asks for specific personal data that doesn't exist in notes, say: "I couldn't find that in your notes. Try adding a note about this!"
 
-*** APP KNOWLEDGE BASE (MANUAL) ***
-${QUILLON_USER_MANUAL}
-*** END KNOWLEDGE BASE ***
 
 Relevant Notes (Top Matches):
 ${finalContext}
@@ -672,7 +668,7 @@ ${finalContext}
 Instructions:
 1. **Analyze the Request**: 
    - Is it about the **User's Data**? (e.g. "my ideas", "next feature", "A1 link") -> **TARGET: NOTES**
-   - Is it about the **App Itself**? (e.g. "what is Quillon?", "how to tag") -> **TARGET: MANUAL + NOTES** (Check if user notes have custom info, otherwise use Manual).
+   - Is it about the **App Itself**? (e.g. "what is Quillon?", "how to tag") -> **TARGET: GENERAL KNOWLEDGE** (Since Manual is removed, rely on training or suggest checking UI docs).
    - Is it **General Knowledge**? (e.g. "capital of France", "what is AI") -> **TARGET: GENERAL KNOWLEDGE**
    - Is it **Casual Conversation**? (e.g. greetings, farewells, affirmations) -> **TARGET: CONVERSATIONAL**
 
@@ -680,7 +676,7 @@ Instructions:
    - **Step 1**: Look at "Relevant Notes". Do they answer the question?
      - **YES**: Answer using the notes. Blend in Manual info ONLY if it helps explain the note.
      - **NO (Notes Not Found)**: 
-       - Is the question about Quillon/App features? -> Answer from the **APP KNOWLEDGE BASE**.
+       - Is the question about Quillon/App features? -> Answer from your general knowledge or suggest checking the in-app documentation.
        - Is it a **Follow-up**? (e.g. "which ones?", "how many?") -> **CHECK CHAT HISTORY**. If user asked about Tags, "how many" means "how many tags".
        - Is the question seeking specific personal data (e.g. "what's my password") AND context implies it's a new topic? -> **SAY**: "I couldn't find any notes about that."
        - Is the question general knowledge? -> Answer from your general knowledge confidently.
@@ -690,7 +686,7 @@ Instructions:
    - **NEVER** use phrases like: "I'm not entirely certain", "It appears that", "I found some info but...", "This might be".
    - **DIRECTNESS**: If the user asks for "Selling Technique" and you see a note titled "Selling Strategies", THAT IS THE ANSWER. Assume the user's query is imprecise and your context is correct.
    - **Example**: User asks "What is the capital?", Note says "London". You say: "The capital is London." (NOT "According to this note...")
-   - If asking "What is Quillon", **CHECK NOTES FIRST**. If the user has defined "Quillon" differently (e.g., "Quillon is my secret project"), use THE NOTE. Only if no notes definition exists, use the Manual's definition.
+   - If asking "What is Quillon", **CHECK NOTES FIRST**. If the user has defined "Quillon" differently (e.g., "Quillon is my secret project"), use THE NOTE.
    - **If NO relevant notes exist**: ONLY THEN say "I couldn't find that in your notes."
 
 4. **Slang & Casual Language Understanding (SUPER IMPORTANT)**:
