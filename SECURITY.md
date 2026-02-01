@@ -4,8 +4,22 @@
 
 | Version  | Status           |
 |----------|----------------|
+| *QX7*  | Supported  |
+| *QX6*  | Supported  |
+| *QX5*  | Supported  |
+| *QX4*  | Supported  |
+| *QX3*  | Supported  |
+| *QX2*  | Supported  |
+| *QX1*  | Supported  |
+| *QX*  | Supported  |
+| *Q9*  | Supported  |
+| *Q8*  | Supported  |
+| *Q7*  | Supported  |
+| *Q6*  | Supported  |
+| *Q5*  | Supported  |
+| *Q4*  | Supported  |
+| *Q3*  | Supported  |
 | *Tutorial*  | Supported  |
-| *Documentation*  | Supported  |
 | *Q2*  | Supported  |
 | *Q1*  | Supported  |
 | *< Q1*  | Not Supported |
@@ -32,4 +46,5 @@ Submit your findings via a [GitHub Security Advisory](https://github.com/alexcj1
 > *Transparency:* All major security fixes will be announced with version releases.  
 
 Stay secure & happy coding! 
+
 
