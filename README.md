@@ -1,13 +1,13 @@
 <div align="center">
 
-# 📝 Quillon – Tag it. Find it. Done.
+# Quillon – Tag it. Find it. Done.
 
 <img width="1920" height="1080" alt="790shots_so" src="https://github.com/user-attachments/assets/25d764ff-8c78-4cb5-99c6-176986f5baf3" />
 
 
-🚀 **Quillon** is a modern, lightweight, and intuitive note-taking application built with **Vite, React, and TypeScript**. Designed for speed and efficiency, it uses **Smart RAG**, **Commands** and **Intelligent Tags** to **capture, manage, and structure your notes effortlessly**.
+**Quillon** is a modern, lightweight, and intuitive note-taking application built with **Vite, React, and TypeScript**. Designed for speed and efficiency, it uses **Smart RAG**, **Commands** and **Intelligent Tags** to **capture, manage, and structure your notes effortlessly**.
 
-🔗 **[Live Demo](https://quillon.netlify.app/)** | 🌟 **[Star on GitHub](https://github.com/alexcj10/Quillon)**  
+**[Live Demo](https://quillon.netlify.app/)** | **[Star on GitHub](https://github.com/alexcj10/Quillon)**  
 <p align="center">
   <strong>Scan the QR Code to open the application</strong><br><br>
   <img src="https://github.com/user-attachments/assets/8bc29b88-d5fc-411c-afc2-7eca587eb05a" alt="QR Code" width="100"/>
@@ -17,9 +17,9 @@
 
 ---
 
-## ✨ Features That Make Quillon Stand Out  
+## Features That Make Quillon Stand Out  
 
-### 🧠 Pownin AI (Smart RAG 2.0)
+### Pownin AI (Smart RAG 2.0)
 The heart of Quillon is **Pownin**, an Advanced AI powered by a 5-stage retrieval pipeline:
 1. **Query Expansion**: Automatically expands messy queries (e.g., "mtg w/ sarah") into strict search terms ("meeting", "Sarah").
 2. **Oracle Reranking**: Reads your notes like a human to find relevant content even in "Untitled" or messy files.
@@ -27,7 +27,7 @@ The heart of Quillon is **Pownin**, an Advanced AI powered by a 5-stage retrieva
 4. **Keyword Sniper**: Instantly boosts exact Title matches for precision retrieval.
 5. **Reflection Core**: The AI self-corrects and rewrites answers if they aren't perfect.
 
-### 🏷️ Intelligent Tagging System
+### Intelligent Tagging System
 Forget manual color codes. Quillon organizes tags automatically:
 - **Blue Tags (Folders)**: Tags starting with **`file`** (e.g., `fileProject`) create a main folder named **Project**.  
  > _Case-sensitive: `project` and `Project` are treated as different folders._
@@ -35,12 +35,12 @@ Forget manual color codes. Quillon organizes tags automatically:
 - **Grey Tags**: Standard tags for loose categorization.
 *No commands needed. Just tag it, and Quillon sorts it.*
 
-### 💾 Data & Storage
+### Data & Storage
 - **Local-First**: All notes and documents are stored locally on your device using **IndexedDB** (disk-backed browser storage).
 - **Capacity**: No artificial limits are imposed by Quillon. Storage capacity scales with available device space and browser-managed quotas, making it effectively unlimited for personal use.
 - **Privacy**: No cloud servers. Your data never leaves your device.
 
-### ⚙️ Advanced Tag Management
+### Advanced Tag Management
 Powerful tag editing and deletion via the **All Tags** button or **+more** icon:
 - **Access**: Click "All Tags" button or "+X more" when you have many tags
 - **Edit Tag Names**:
@@ -55,7 +55,7 @@ Powerful tag editing and deletion via the **All Tags** button or **+more** icon:
   - Press Enter to confirm
 - **Smart Validation**: Real-time feedback on command validity and tag availability
 
-### 🌐 Nodes – Quick Task Management
+### Nodes – Quick Task Management
 **Nodes** is Quillon's built-in task management system for capturing quick to-dos and reminders:
 - **Access via Search**: Type `@nodes` in the search bar (works in both public and private spaces) to open the Nodes widget
 - **Quick Node Creation**:
@@ -73,21 +73,21 @@ Powerful tag editing and deletion via the **All Tags** button or **+more** icon:
   - Separate sections for pinned, active, and completed nodes
 - **Smart Validation**: Real-time feedback on command validity
 
-### 🧮 Smart Calculator
+### Smart Calculator
 Perform instant symbolic calculations anywhere in Quillon:
 - **Search Bar**: Type `@c-expression` for instant results. The result is automatically copied to your clipboard.
 - **Note Editor**: Type `@c-expression` and press **Enter** to replace the command with the result.
 - **Symbolic Solving**: Handles everything from basic arithmetic (`@c-25*4`) to advanced functions (`@c-log(100, 10)`) and trig (`@c-sin(45 deg)`).
 - **Smart Cleanup**: Automatic wiping of the search bar and popup on click-away, `Escape`, or UI interaction.
 
-### 🌍 Instant Translation
+### Instant Translation
 Quickly translate any note into 100+ languages without leaving Quillon:
 - **Usage**: Type `@t-[lang]` (e.g., `@t-es`, `@t-hindi`, `@t-fr`) anywhere in a note and press **Enter**.
 - **Free & Unlimited**: Uses a robust backend to provide instant, large-scale translations for free.
 - **Visual Feedback**: Shows a loading indicator while the translation is in progress.
 - **Note-Specific**: Only translates the content of the current note you are editing.
 
-### 🧠 AI Brain (Summarize & Elaborate)
+### AI Brain (Summarize & Elaborate)
 Quickly transform long notes into concise summaries or simple explanations:
 - **Usage**: Type `@summary` or `@elaboration` anywhere in a note and press **Enter**.
 - **Full Rewrite**: The AI replaces the **entire** note with the generated content.
@@ -95,21 +95,21 @@ Quickly transform long notes into concise summaries or simple explanations:
 - **Plain Text**: Output is optimized for the Quillon editor (bullet points and paragraphs, no markdown headers).
 - **Labels**: Generates explicit `SUMMARY:` or `ELABORATION:` labels at the start for clarity.
 
-### 🔍 Quick Insight Lookup
+### Quick Insight Lookup
 Instantly fetch factual information and definitions directly into your note:
 - **Wikipedia Summary**: Type `@wiki-[topic]` (e.g., `@wiki-Quantum Physics`) and press **Enter**.
 - **Multi-Topic Support**: Use "and", "&", or commas to fetch multiple summaries at once (e.g., `@wiki-Sam Altman and Mira Murati`).
 - **Dictionary Definitions**: Type `@def-[word]` (e.g., `@def-serendipity`) to get meanings, phonetics, and usage examples.
 - **Purely Factual**: Uses direct Wikipedia and Dictionary APIs to ensure 100% accuracy without AI hallucinations.
 
-### ⏱️ Pomodoro Timer
+### Pomodoro Timer
 Focus on your work with a built-in Pomodoro timer:
 - **Usage**: Type `@pomo-[time]` anywhere in a note and press **Enter**.
 - **Flexible Formats**: Supports `@pomo-1h`, `@pomo-15m`, `@pomo-1m 30s`, `@pomo-3h 4m 5s`.
 - **Default**: Simply type `@pomo` for a standard 25-minute session.
 - **Action**: Starts a countdown with a visual progress bar and time badge at the top of the editor.
 
-### 🌤️ External Utilities
+### External Utilities
 Fetch real-time data and perform conversions directly in your note:
 - **Weather**: Type `@w-[city]` (e.g., `@w-London`) for instant local weather.
 - **Currency**: Type `@cc-[amount][from] to [to]` (e.g., `@cc-100usd to eur`). 
@@ -118,7 +118,7 @@ Fetch real-time data and perform conversions directly in your note:
 - **Units**: Type `@u-[value][unit] to [unit]` (e.g., `@u-5kg to lbs`).
   - Supports: `kg/lbs`, `km/miles`, `m/ft`, `cm/inch`, `c/f` (temperature).
 
-### ✍️ Font Customization
+### Font Customization
 Personalize your notes with custom fonts for better readability and style:
 - **Live Preview**: Type `@fonts` to see all available fonts. In the note editor, each font name renders in its actual typeface for instant visual comparison.
 - **Quick Selection**: Use `@font-[index]` (e.g., `@font-15` for Comic Neue) or `@font-[name]` (e.g., `@font-Caveat`) to change fonts.
@@ -126,8 +126,8 @@ Personalize your notes with custom fonts for better readability and style:
 - **One-Time Selection**: Fonts selected in the search bar apply only to the next new note, then automatically reset to default.
 - **16 Curated Fonts**: Including system fonts, elegant serifs (Playfair Display, Lora), monospace options (Fira Code, JetBrains Mono), and handwritten styles (Comic Neue, Caveat).
 
-### ⚡ Study & Productivity (Deep Dive)
-#### 🧘‍♂️ Zen Quiz Mode
+### Study & Productivity (Deep Dive)
+#### Zen Quiz Mode
 Turn any note into a professional study session with one command.
 
 **1. Note Structure**
@@ -152,7 +152,7 @@ Don't worry about formatting! The app handles it:
 - **Reveal Hints**: Click **Reveal** to see the answer neutrally without marking it as resolved.
 
 
-#### 📚 Supported Language Reference
+#### Supported Language Reference
 | Language | Shortcut | Command |
 | :--- | :---: | :--- |
 | **Spanish** | `es` | `@t-spanish` |
@@ -172,7 +172,7 @@ Don't worry about formatting! The app handles it:
 > [!IMPORTANT]
 > Full names work for common languages. For all other countries, use the standard **ISO shortcut code** (e.g., `@t-ta` for Tamil, `@t-fi` for Finnish). Shortcuts work for **every country** supported by Google Translate.
 
-### 🗑️ Smart Trash & Bulk Actions
+### Smart Trash & Bulk Actions
 Efficient note management with powerful bulk operations:
 - **Energy Sphere Icon**: A beautiful animated orb that serves as your bulk actions hub
 - **In Main View**:
@@ -185,12 +185,12 @@ Efficient note management with powerful bulk operations:
   - Permanently delete notes forever
 - **Auto-Cleanup**: Notes automatically deleted after 30 days in trash
 
-### 📝 Refined Note Editor
+### Refined Note Editor
 - **Distraction-Free**: Full-screen, edge-to-edge editing experience.
 - **Responsive**: Perfectly optimized for Desktop, Tablet, and Mobile.
 - **Whitespace Preservation**: All formatting and spacing is preserved exactly as you type.
 
-### 👁️ Hide/Show Notes
+### Hide/Show Notes
 A specialized command-based system to keep your workspace clutter-free:
 - **Hide Notes**: Add the `@hide` tag to any note to hide it from your workspace.
 - **Visual Identity**: Hidden notes feature a unique **Amber/Gold** tag with an `EyeOff` icon.
@@ -199,13 +199,13 @@ A specialized command-based system to keep your workspace clutter-free:
     - Type `@show-return` to exit and return to your main workspace.
 - **Exclusive Privacy**: The `@hide` tag is restricted—notes must have all other tags removed before they can be hidden, ensuring a clean and purposeful hidden state.
 
-### 🔒 Dual Workspace System
+### Dual Workspace System
 - **Public Space**: Your main workspace for general notes
 - **Private Space**: Password-protected space for sensitive information
 - **Seamless Switching**: Toggle between spaces with a single click
 - **Independent Organization**: Each space has its own tags, starred notes, and trash
 
-### 🔊 Interactive Sound System
+### Interactive Sound System
 Quillon features a global, real-time audio feedback system for a more tactile experience:
 - **Haptic Feedback**: Every button and clickable element triggers a premium **Digital Felt Tap** (a high-frequency, ultra-short texture).
 - **Audio Unlock**: Optimized for mobile; audio wakes up on your first interaction.
@@ -231,47 +231,47 @@ Quillon features a global, real-time audio feedback system for a more tactile ex
 
 ---
 
-## 🚀 Getting Started – Run Quillon on Your Machine  
+## Getting Started – Run Quillon on Your Machine  
 
-### 🔥 **Clone & Set Up the Project**  
+### **Clone & Set Up the Project**  
 
-#### 1⃣ Clone the Repository  
+#### 1. Clone the Repository  
 ```bash
 git clone https://github.com/alexcj10/Quillon.git
 ```
 
-#### 2⃣ Navigate to Project Directory  
+#### 2. Navigate to Project Directory  
 ```bash
 cd Quillon
 ```
 
-#### 3⃣ Install Dependencies  
+#### 3. Install Dependencies  
 ```bash
 npm install
 ```
 
-#### 4⃣ Start the Development Server  
+#### 4. Start the Development Server  
 ```bash
 npm run dev
 ```
-📌 The app will be available at ```http://localhost:5173``` 
+The app will be available at ```http://localhost:5173``` 
 
 ---
 
-## 🏠 Core Functionalities  
+## Core Functionalities  
 
-📌 **Note Management** – Add, edit, delete, and organize notes effortlessly.  
-🧠 **Ask Pownin** – Chat with your notes using the "Smart RAG" AI assistant.  
-🔒 **Private & Favorite Notes** – Secure sensitive notes and highlight important ones.  
-🌂 **Smart Tags** – Automatic blue/green/grey hierarchy for effortless structure.  
-✅ **Nodes (Tasks)** – Quick task management accessible via `@nodes` command.  
-🧮 **Smart Calculator** – Instant symbolic math and algebra solving with `@c-` command.  
-🗑️ **Smart Trash** – Bulk delete, recover, or permanently remove notes with animated Energy Sphere.  
-🌟 **Adaptive UI** – Seamless experience across devices with a responsive design.  
+**Note Management** – Add, edit, delete, and organize notes effortlessly.  
+**Ask Pownin** – Chat with your notes using the "Smart RAG" AI assistant.  
+**Private & Favorite Notes** – Secure sensitive notes and highlight important ones.  
+**Smart Tags** – Automatic blue/green/grey hierarchy for effortless structure.  
+**Nodes (Tasks)** – Quick task management accessible via `@nodes` command.  
+**Smart Calculator** – Instant symbolic math and algebra solving with `@c-` command.  
+**Smart Trash** – Bulk delete, recover, or permanently remove notes with animated Energy Sphere.  
+**Adaptive UI** – Seamless experience across devices with a responsive design.  
 
 ---
 
-## 🎯 Quick Command Reference
+## Quick Command Reference
 
 ### Nodes Commands
 | Command | Description | Space |
@@ -336,7 +336,7 @@ Access via **All Tags** button or **+more** icon:
 
 ---
 
-## 🤝 Contributing  
+## Contributing  
 
 We welcome contributions to **Quillon**! To get started:
 
@@ -350,24 +350,25 @@ We welcome contributions to **Quillon**! To get started:
 🔹 Write meaningful commit messages.  
 🔹 Test changes thoroughly before submitting.  
 
-📜 See detailed contribution guidelines in the **[CONTRIBUTING.md](https://github.com/alexcj10/Quillon/blob/main/CONTRIBUTING.md)** file.
+See detailed contribution guidelines in the **[CONTRIBUTING.md](https://github.com/alexcj10/Quillon/blob/main/CONTRIBUTING.md)** file.
 
 ---
 
-## 🐝 License  
+## License  
 
 This project is licensed under the **Quillon Exclusive License**. See **[LICENSE](https://github.com/alexcj10/Quillon/blob/main/Quillon%20Exclusive%20License)** for details.
 
 ---
 
-## 🎉 Acknowledgements  
+## Acknowledgements  
 
-💙 Thanks to **Vite, React**, and the open-source community for making development seamless!  
-🙌 Special thanks to **YOU** for checking out **Quillon**! 🚀  
+Thanks to **Vite, React**, and the open-source community for making development seamless!  
+Special thanks to **YOU** for checking out **Quillon**!   
 
 ---
 
-📌 **Follow the project, give it a** ⭐ **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!** 🎯  
+**Follow the project, give it a** **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!**   
+
 
 
 
