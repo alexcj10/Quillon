@@ -1,18 +1,18 @@
-# 🛡 Security Policy
+# Security Policy
 
 ## 🔹 Supported Versions
 
 | Version  | Status           |
 |----------|----------------|
-| *Tutorial*  | ✅ Supported  |
-| *Documentation*  | ✅ Supported  |
-| *Q2*  | ✅ Supported  |
-| *Q1*  | ✅ Supported  |
-| *< Q1*  | ❌ Not Supported |
+| *Tutorial*  | Supported  |
+| *Documentation*  | Supported  |
+| *Q2*  | Supported  |
+| *Q1*  | Supported  |
+| *< Q1*  | Not Supported |
 
 ---
 
-## 🚨 Reporting a Vulnerability
+## Reporting a Vulnerability
 
 If you discover a security vulnerability, *report it immediately* to help keep Quillon secure.  
 
@@ -21,14 +21,15 @@ If you discover a security vulnerability, *report it immediately* to help keep Q
 - *Steps to reproduce* the vulnerability  
 - The *potential impact* on users  
 
-📩 *How to report?*  
+*How to report?*  
 Submit your findings via a [GitHub Security Advisory](https://github.com/alexcj10/Quillon/security/advisories) or email us at *alexchandarjoshva@gmail.com* (if applicable).  
 
-🔔 *What happens next?*  
+*What happens next?*  
 - We’ll *acknowledge* your report and begin assessment.  
 - Security patches will be *prioritized and released* in future updates.  
 - You’ll receive *progress updates* on the resolution.  
 
 > *Transparency:* All major security fixes will be announced with version releases.  
 
-Stay secure & happy coding! 🚀
+Stay secure & happy coding! 
+
