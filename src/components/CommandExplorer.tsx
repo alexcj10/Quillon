@@ -26,6 +26,7 @@ export interface Command {
 }
 
 export const AVAILABLE_COMMANDS: Command[] = [
+    { id: 'new', label: 'Architect', description: 'Create notes: Title || Content || Flags', icon: Zap, template: '@new-', color: 'text-yellow-500' },
     { id: 'wiki', label: 'Wikipedia', description: 'Instant knowledge lookup', icon: Globe, template: '@wiki-', color: 'text-blue-500' },
     { id: 'def', label: 'Dictionary', description: 'Word definitions & phonetics', icon: Book, template: '@def-', color: 'text-emerald-500' },
     { id: 'summary', label: 'Summarize', description: 'AI-powered concise summary', icon: Zap, template: '@summary', color: 'text-amber-500' },

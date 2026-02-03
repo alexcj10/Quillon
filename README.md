@@ -101,12 +101,24 @@ Quickly transform long notes into concise summaries or simple explanations:
 ### 🏛️ Hyper-Architect Command (`@new-`)
 The most powerful command in Quillon. Create fully-featured notes directly from the search bar with intelligence and style.
 
-**Syntax**: `@new-[Title] | [Content or Command] [Flags/Tags]`
+**Syntax**: `@new-[Title] || [Content or Command] || [Attributes]`
+
+#### 📐 Delimiter Rules (`||`)
+*   **For Title Separation**: `||` is **compulsory** if you want a custom title.
+    *   `@new-Meeting || Discussion notes` → Title: "Meeting"
+    *   `@new-Just some text` → Title: "Untitled Note" (no `||` used)
+*   **For Attributes**: `||` is **optional** between content and attributes.
+    *   `@new-Title || Content || #tag || is:fav` → Works ✅
+    *   `@new-Title || Content #tag is:fav` → Works ✅ (spaces work too)
+*   **Spacing Flexibility**: Works with or without spaces around `||`.
+    *   `@new-Title||Content||#tag` → Works ✅
+    *   `@new-Title || Content || #tag` → Works ✅
 
 #### 🧠 Intelligence Commands (Nested)
 You can nest these inside the content to fetch data before saving:
 *   **`@pai-[query]`**: Ask Pownin AI for a detailed, plain-text response (sanitized).
 *   **`@wiki-[topic]`**: Fetches a comprehensive summary from Wikipedia.
+*   **`@def-[word]`**: Fetches dictionary definition and phonetics.
 *   **`@t-[lang] [text]`**: Translates content into any language (e.g., `@t-es`).
 *   **`@c-[math]`**: Solves complex equations and puts the result in your note.
 *   **`@summary`**: Takes your text and shrinks it into a bulleted summary.
@@ -116,15 +128,23 @@ You can nest these inside the content to fetch data before saving:
 Mix these anywhere in the content section (unordered):
 *   **Color**: `c:blue`, `c:pink`, `c:purple`, `c:green`, `c:yellow`, `c:orange`
 *   **Font**: `f:Caveat`, `f:Inter`, etc.
-*   **Flags**: `*` (Favorite), `^` (Pin), `!` (Private), `?` (Hide)
+*   **Flags**: 
+    *   `is:fav` or `is:star` — Mark as Favorite (⭐️)
+    *   `is:pin` — Pin to top (📌)
+    *   `is:vault` or `is:private` — Save to Private Space (🔒)
+    *   `is:hide` — Hide from Main View (👁️‍🗨️)
 *   **Tag Logic**: 
     *   `#tag` — Standard (**Grey**)
     *   `#fileFolder` — Folders (**Blue**)
     *   **Green tags** are automatic inside folders!
-    *   **Amber tags** appear when using `?` or `@hide`.
+    *   **Amber tags** appear when using `is:hide` or `@hide`.
 
 > [!TIP]
-> **The Ultimate Command**: `@new-Einstein | @wiki-Albert Einstein #science #fileWork c:purple * ^`
+> **Full Example**: `@new-Einstein || @wiki-Albert Einstein || #science #fileWork || c:purple || is:fav || is:pin`
+> 
+> **Compact Style**: `@new-Notes||Content here||#work||is:star`
+> 
+> **Direct AI**: `@new-@pai-Explain quantum computing||is:fav` (skips title, creates "Untitled Note")
 
 ### Quick Insight Lookup
 Instantly fetch factual information and definitions:
