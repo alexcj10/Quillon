@@ -186,8 +186,8 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
 
 
       {/* SEARCH + STARRED + ALL TAGS */}
-      <div className="flex gap-2 items-center relative z-20">
-        <div ref={searchBarRef} className="relative flex-1">
+      <div ref={searchBarRef} className="flex gap-2 items-center relative z-20">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <input
             type="text"

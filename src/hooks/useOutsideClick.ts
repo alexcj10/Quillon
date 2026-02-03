@@ -22,12 +22,12 @@ export function useOutsideClick({ onOutsideClick, isOpen }: UseOutsideClickProps
     }
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('pointerdown', handleClickOutside);
       document.addEventListener('keydown', handleEscapeKey);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('pointerdown', handleClickOutside);
       document.removeEventListener('keydown', handleEscapeKey);
     };
   }, [onOutsideClick, isOpen]);
