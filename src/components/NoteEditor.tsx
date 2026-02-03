@@ -24,6 +24,7 @@ import { playSuccess } from '../hooks/useClickSound';
 import { evaluateMathCommand } from '../utils/mathCommandParser';
 import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchWikiSummary, fetchDefinition, parseInsightCommand } from '../utils/insightService';
+import { askPowninAI } from '../utils/aiService';
 import { fetchWeather, fetchCurrencyExchange, convertUnits, parseUtilityCommand, parsePomoTime } from '../utils/utilityService';
 import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, getFontsListText, DEFAULT_FONT, getFontByName, parseFontsListFromContent } from '../utils/fontService';
 import { getTextareaCursorXY } from '../utils/cursorUtils';
@@ -798,39 +799,73 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     if (lastAtSignIndexInsight !== -1) {
                       const potentialCommand = textBeforeCursor.substring(lastAtSignIndexInsight);
                       if (!potentialCommand.includes('\n') && potentialCommand.length > 5) {
-                        const insightCmd = parseInsightCommand(potentialCommand);
-                        if (insightCmd && insightCmd.query) {
+                        const insightData = parseInsightCommand(potentialCommand);
+                        if (insightData) {
                           e.preventDefault();
                           setShowExplorer(false);
                           setIsLookingUp(true);
-                          setLookupMessage(insightCmd.type === 'wiki' ? 'Searching Wikipedia...' : 'Looking up definition...');
+                          setLookupMessage(`Searching ${insightData.type === 'wiki' ? 'Wikipedia' : 'Dictionary'}...`);
 
                           (async () => {
                             try {
-                              let result = '';
-                              if (insightCmd.type === 'wiki') {
-                                result = await fetchWikiSummary(insightCmd.query);
-                              } else {
-                                result = await fetchDefinition(insightCmd.query);
-                              }
+                              const result = insightData.type === 'wiki'
+                                ? await fetchWikiSummary(insightData.query)
+                                : await fetchDefinition(insightData.query);
 
-                              if (result) {
-                                const textAfterCursor = content.substring(cursorStart);
-                                // Replace the command with the result
-                                const newContent = content.substring(0, lastAtSignIndexInsight) + result + textAfterCursor;
-                                setContent(newContent);
+                              const textAfterCursor = content.substring(cursorStart);
+                              const newContent = content.substring(0, lastAtSignIndexInsight) + result + textAfterCursor;
+                              setContent(newContent);
 
-                                // Set cursor at the end of inserted result
-                                setTimeout(() => {
-                                  if (contentRef.current) {
-                                    const newCursorPos = lastAtSignIndexInsight + result.length;
-                                    contentRef.current.selectionStart = newCursorPos;
-                                    contentRef.current.selectionEnd = newCursorPos;
-                                  }
-                                }, 0);
-                              }
+                              setTimeout(() => {
+                                if (contentRef.current) {
+                                  const newCursorPos = lastAtSignIndexInsight + result.length;
+                                  contentRef.current.selectionStart = newCursorPos;
+                                  contentRef.current.selectionEnd = newCursorPos;
+                                }
+                              }, 0);
                             } catch (err) {
                               console.error('Insight lookup failed:', err);
+                              setLookupMessage('Lookup failed. Check connection.');
+                              setTimeout(() => setLookupMessage(''), 3000);
+                            } finally {
+                              setIsLookingUp(false);
+                            }
+                          })();
+                          return;
+                        }
+                      }
+                    }
+
+                    // Handle Pownin AI Command: @pai- + Enter
+                    const lastAtSignIndexPAI = textBeforeCursor.lastIndexOf('@pai-');
+                    if (lastAtSignIndexPAI !== -1) {
+                      const potentialCommand = textBeforeCursor.substring(lastAtSignIndexPAI);
+                      if (!potentialCommand.includes('\n') && potentialCommand.length > 5) {
+                        const query = potentialCommand.slice(5).trim();
+                        if (query) {
+                          e.preventDefault();
+                          setShowExplorer(false);
+                          setIsLookingUp(true);
+                          setLookupMessage('Thinking...');
+
+                          (async () => {
+                            try {
+                              const result = await askPowninAI(query);
+                              const textAfterCursor = content.substring(cursorStart);
+                              const newContent = content.substring(0, lastAtSignIndexPAI) + result + textAfterCursor;
+                              setContent(newContent);
+
+                              setTimeout(() => {
+                                if (contentRef.current) {
+                                  const newCursorPos = lastAtSignIndexPAI + result.length;
+                                  contentRef.current.selectionStart = newCursorPos;
+                                  contentRef.current.selectionEnd = newCursorPos;
+                                }
+                              }, 0);
+                            } catch (err) {
+                              console.error('Pownin AI failed:', err);
+                              setLookupMessage('AI error. Check API key.');
+                              setTimeout(() => setLookupMessage(''), 3000);
                             } finally {
                               setIsLookingUp(false);
                             }
@@ -1118,7 +1153,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                     // If NO command matched above, but explorer is open, let explorer handle selection
                     if (showExplorer) {
                       if (e.key === 'Enter') {
-                        // We actually don't want to prevent default if NO command matched 
+                        // We actually don't want to prevent default if NO command matched
                         // UNLESS the explorer has a filtered match.
                         // But that logic is complex here. Let's just return if it's a key the explorer cares about.
                         return;

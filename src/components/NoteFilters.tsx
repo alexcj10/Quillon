@@ -13,9 +13,11 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { EnergySphere } from './EnergySphere';
 import { evaluateMathCommand, isMathCommand } from '../utils/mathCommandParser';
 import { MathResultPopup } from './MathResultPopup';
+import { AIResultPopup } from './AIResultPopup';
 import { FontsPopup } from './FontsPopup';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, DEFAULT_FONT } from '../utils/fontService';
+import { askPowninAI } from '../utils/aiService';
 
 export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const {
@@ -60,14 +62,21 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   // Fonts Popup State
   const [isFontsPopupVisible, setIsFontsPopupVisible] = useState(false);
 
+  // AI Result State
+  const [aiResult, setAiResult] = useState<string | null>(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isAiPopupVisible, setIsAiPopupVisible] = useState(false);
+
   const searchBarRef = useOutsideClick({
     onOutsideClick: () => {
       setSearchTerm('');
       setMathResult(null);
       setIsMathPopupVisible(false);
       setIsFontsPopupVisible(false);
+      setAiResult(null);
+      setIsAiPopupVisible(false);
     },
-    isOpen: isMathPopupVisible || isFontsPopupVisible
+    isOpen: isMathPopupVisible || isFontsPopupVisible || isAiPopupVisible
   });
 
   // Close popups and clear selection whenever view changes (Trash <-> Main)
@@ -208,6 +217,10 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
               if (mathResult) {
                 setIsMathPopupVisible(true);
               }
+              // Show AI popup if there is a result
+              if (aiResult) {
+                setIsAiPopupVisible(true);
+              }
               // Close bulk popups and exit selection mode when user focuses search bar
               setIsBulkPopupOpen(false);
               setIsMainBulkPopupOpen(false);
@@ -294,6 +307,25 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                     setCurrentFont(font);
                     setSearchTerm('');
                   }
+                } else if (term.toLowerCase().startsWith('@pai-')) {
+                  // @pai- - Ask AI
+                  const query = term.slice(5).trim();
+                  if (query) {
+                    setIsAiPopupVisible(true);
+                    setIsAiLoading(true);
+                    setAiResult(null);
+
+                    (async () => {
+                      try {
+                        const response = await askPowninAI(query);
+                        setAiResult(response);
+                      } catch (err) {
+                        setAiResult("AI Error. Please try again.");
+                      } finally {
+                        setIsAiLoading(false);
+                      }
+                    })();
+                  }
                 }
               }
             }}
@@ -324,6 +356,14 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
               setCurrentFont(font);
             }}
             currentFont={currentFont}
+          />
+
+          {/* AI Result Popup */}
+          <AIResultPopup
+            input={searchTerm}
+            result={aiResult}
+            isLoading={isAiLoading}
+            isVisible={isAiPopupVisible}
           />
         </div>
 

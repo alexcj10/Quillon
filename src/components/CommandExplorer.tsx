@@ -30,6 +30,7 @@ export const AVAILABLE_COMMANDS: Command[] = [
     { id: 'def', label: 'Dictionary', description: 'Word definitions & phonetics', icon: Book, template: '@def-', color: 'text-emerald-500' },
     { id: 'summary', label: 'Summarize', description: 'AI-powered concise summary', icon: Zap, template: '@summary', color: 'text-amber-500' },
     { id: 'elaborate', label: 'Elaborate', description: 'AI-powered detailed explanation', icon: Brain, template: '@elaboration', color: 'text-purple-500' },
+    { id: 'pai', label: 'Pownin AI', description: 'Ask anything to AI', icon: Brain, template: '@pai-', color: 'text-indigo-600' },
     { id: 'math', label: 'Calculator', description: 'Dynamic math & equations', icon: Calculator, template: '@c-', color: 'text-pink-500' },
     { id: 'translate', label: 'Translate', description: 'Translate to any language', icon: Languages, template: '@t-', color: 'text-indigo-500' },
     { id: 'pomo', label: 'Pomodoro', description: 'Focus timer (default 25m)', icon: Timer, template: '@pomo', color: 'text-orange-500' },
