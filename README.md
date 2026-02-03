@@ -269,7 +269,7 @@ Quillon features a global, real-time audio feedback system for a more tactile ex
 
 ---
 
-## 🛠 Tech Stack  
+## Tech Stack  
 
 | Category  | Technology |
 |-----------|------------|
@@ -420,6 +420,7 @@ Special thanks to **YOU** for checking out **Quillon**!
 ---
 
 **Follow the project, give it a** **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!**   
+
 
 
 
