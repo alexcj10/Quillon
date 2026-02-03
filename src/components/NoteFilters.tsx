@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Search, Star, Folder, MoreHorizontal, Tag } from 'lucide-react';
+import { Search, Star, Folder, MoreHorizontal, Tag, Globe, Book } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { useNodesWidget } from '../context/NodesContext';
 import { useSound } from '../context/SoundContext';
@@ -19,7 +19,7 @@ import { useOutsideClick } from '../hooks/useOutsideClick';
 import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, DEFAULT_FONT } from '../utils/fontService';
 import { askPowninAI } from '../utils/aiService';
 import { parseHyperCommand } from '../utils/hyperParser';
-import { fetchWikiSummary } from '../utils/insightService';
+import { fetchWikiSummary, fetchDefinition } from '../utils/insightService';
 import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchSummary, fetchElaboration } from '../utils/summaryService';
 
@@ -71,6 +71,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const [aiResult, setAiResult] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isAiPopupVisible, setIsAiPopupVisible] = useState(false);
+  const [aiPopupType, setAiPopupType] = useState<'ai' | 'wiki' | 'def'>('ai');
 
   const searchBarRef = useOutsideClick({
     onOutsideClick: () => {
@@ -312,6 +313,46 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                     setCurrentFont(font);
                     setSearchTerm('');
                   }
+                } else if (term.toLowerCase().startsWith('@wiki-')) {
+                  // @wiki- - Wikipedia lookup
+                  const query = term.slice(6).trim();
+                  if (query) {
+                    setIsAiPopupVisible(true);
+                    setIsAiLoading(true);
+                    setAiResult(null);
+                    setAiPopupType('wiki');
+
+                    (async () => {
+                      try {
+                        const response = await fetchWikiSummary(query, 'markdown');
+                        setAiResult(response);
+                      } catch (err) {
+                        setAiResult("Wikipedia Error. Please try again.");
+                      } finally {
+                        setIsAiLoading(false);
+                      }
+                    })();
+                  }
+                } else if (term.toLowerCase().startsWith('@def-')) {
+                  // @def- - Dictionary lookup
+                  const query = term.slice(5).trim();
+                  if (query) {
+                    setIsAiPopupVisible(true);
+                    setIsAiLoading(true);
+                    setAiResult(null);
+                    setAiPopupType('def');
+
+                    (async () => {
+                      try {
+                        const response = await fetchDefinition(query, 'markdown');
+                        setAiResult(response);
+                      } catch (err) {
+                        setAiResult("Dictionary Error. Please try again.");
+                      } finally {
+                        setIsAiLoading(false);
+                      }
+                    })();
+                  }
                 } else if (term.toLowerCase().startsWith('@pai-')) {
                   // @pai- - Ask AI
                   const query = term.slice(5).trim();
@@ -319,6 +360,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                     setIsAiPopupVisible(true);
                     setIsAiLoading(true);
                     setAiResult(null);
+                    setAiPopupType('ai');
 
                     (async () => {
                       try {
@@ -407,6 +449,16 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
             result={aiResult}
             isLoading={isAiLoading}
             isVisible={isAiPopupVisible}
+            titleLabel={
+              aiPopupType === 'wiki' ? 'Wikipedia Summary' :
+                aiPopupType === 'def' ? 'Dictionary Definition' :
+                  'Pownin AI Response'
+            }
+            logo={
+              aiPopupType === 'wiki' ? Globe :
+                aiPopupType === 'def' ? Book :
+                  undefined // Defaults to Pownin logo
+            }
           />
         </div>
 

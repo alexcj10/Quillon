@@ -2,7 +2,7 @@
  * Wikipedia API: Fetches summaries for given topic(s).
  * Supports multiple topics separated by " and ", " & ", or commas.
  */
-export async function fetchWikiSummary(topic: string): Promise<string> {
+export async function fetchWikiSummary(topic: string, mode: 'markdown' | 'text' = 'text'): Promise<string> {
     // Split by " and ", " & ", or "," (with surrounding whitespace)
     const topics = topic.split(/\s+and\s+|\s*&\s*|\s*,\s*/i).filter(t => t.trim().length > 0);
 
@@ -23,8 +23,6 @@ export async function fetchWikiSummary(topic: string): Promise<string> {
             const correctTitle = searchResult ? searchResult.title : trimmedTopic;
 
             // Step 2: Fetch detailed introduction (extracts)
-            // exintro=true: Get only the content before the first section
-            // explaintext=true: Get plain text instead of HTML
             const extractUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=${encodeURIComponent(correctTitle)}&format=json&origin=*`;
             const extractResponse = await fetch(extractUrl);
 
@@ -39,7 +37,11 @@ export async function fetchWikiSummary(topic: string): Promise<string> {
             const extract = pages?.[pageId]?.extract;
 
             if (extract) {
-                results.push(`Wikipedia (${correctTitle}):\n${extract}`);
+                if (mode === 'markdown') {
+                    results.push(`# Wikipedia: ${correctTitle}\n\n${extract}`);
+                } else {
+                    results.push(`Wikipedia (${correctTitle}):\n${extract}`);
+                }
             } else {
                 results.push(`Wikipedia (${correctTitle}): No summary available.`);
             }
@@ -56,7 +58,7 @@ export async function fetchWikiSummary(topic: string): Promise<string> {
 /**
  * Dictionary API: Fetches definition for a given word.
  */
-export async function fetchDefinition(word: string): Promise<string> {
+export async function fetchDefinition(word: string, mode: 'markdown' | 'text' = 'text'): Promise<string> {
     try {
         const url = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`;
         const response = await fetch(url);
@@ -69,7 +71,13 @@ export async function fetchDefinition(word: string): Promise<string> {
         const data = await response.json();
         if (Array.isArray(data) && data[0]) {
             const entry = data[0];
-            let result = `Definition: ${entry.word}\n`;
+            let result = '';
+
+            if (mode === 'markdown') {
+                result = `# Dictionary: ${entry.word}\n`;
+            } else {
+                result = `Definition: ${entry.word}\n`;
+            }
 
             if (entry.phonetic) result += `[${entry.phonetic}]\n`;
 

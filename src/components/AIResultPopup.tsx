@@ -1,7 +1,6 @@
-
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRef } from 'react';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, LucideIcon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useState } from 'react';
 
@@ -12,9 +11,18 @@ interface AIResultPopupProps {
     result: string | null;
     isLoading: boolean;
     isVisible: boolean;
+    titleLabel?: string;
+    logo?: string | LucideIcon;
 }
 
-export function AIResultPopup({ input, result, isLoading, isVisible }: AIResultPopupProps) {
+export function AIResultPopup({
+    input,
+    result,
+    isLoading,
+    isVisible,
+    titleLabel = "Pownin AI Response",
+    logo = powninLogo
+}: AIResultPopupProps) {
     const [copied, setCopied] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -28,7 +36,12 @@ export function AIResultPopup({ input, result, isLoading, isVisible }: AIResultP
 
     if (!isVisible) return null;
 
-    const query = input.startsWith('@pai-') ? input.slice(5) : input;
+    let query = input;
+    if (input.startsWith('@pai-')) query = input.slice(5);
+    else if (input.startsWith('@wiki-')) query = input.slice(6);
+    else if (input.startsWith('@def-')) query = input.slice(5);
+
+    const LogoIcon = typeof logo !== 'string' ? logo : null;
 
     return (
         <AnimatePresence>
@@ -43,8 +56,12 @@ export function AIResultPopup({ input, result, isLoading, isVisible }: AIResultP
                     {/* Header */}
                     <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
                         <div className="flex items-center gap-2">
-                            <img src={powninLogo} alt="Pownin AI" className="w-5 h-5 rounded-md object-cover animate-pulse" />
-                            <span className="text-[10px] font-bold tracking-widest text-gray-500 dark:text-gray-400">Pownin AI Response</span>
+                            {LogoIcon ? (
+                                <LogoIcon className="w-5 h-5 text-blue-500 animate-pulse" />
+                            ) : (
+                                <img src={logo as string} alt={titleLabel} className="w-5 h-5 rounded-md object-cover animate-pulse" />
+                            )}
+                            <span className="text-[10px] font-bold tracking-widest text-gray-500 dark:text-gray-400 uppercase">{titleLabel}</span>
                         </div>
                         {result && !isLoading && (
                             <button

@@ -234,18 +234,17 @@ Translate any note into 100+ languages without leaving Quillon.
 
 ## 🔍 Quick Insight Lookup
 
-Instantly fetch factual information and definitions directly into your note.
+Instantly fetch factual information and definitions from reliable sources.
 
-### 📖 Wikipedia Summary
-- **Usage**: Type \`@wiki-[topic]\` and press **Enter**
-- **Multi-Topic**: Supports multiple topics (e.g., \`@wiki-Sam Altman and Mira Murati\`)
-- **Action**: Appends a concise summary for each detected entity
+### 🏠 Search Bar
+Type \`@wiki-[topic]\` or \`@def-[word]\` and press **Enter** to see a rich **Markdown Popup** with icons and formatted headers.
 
-### 🔤 Dictionary Definitions
-- **Usage**: Type \`@def-[word]\` and press **Enter**
-- **Action**: Provides meanings, phonetics, and usage examples
+### 📝 Note Editor
+Type the same commands inside your note to insert the results as **Clean Plain Text** directly at your cursor.
 
-> **Accuracy**: Uses direct Wikipedia and professional Dictionary APIs for 100% factual accuracy without AI hallucinations.
+### 🧞 Features
+- **Multi-Topic**: Use "and", "&", or commas (e.g., \`@wiki-React, Vue\`).
+- **Accuracy**: Direct API connection ensures no AI hallucinations.
 
 ---
 

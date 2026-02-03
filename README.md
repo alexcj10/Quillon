@@ -127,11 +127,11 @@ Mix these anywhere in the content section (unordered):
 > **The Ultimate Command**: `@new-Einstein | @wiki-Albert Einstein #science #fileWork c:purple * ^`
 
 ### Quick Insight Lookup
-Instantly fetch factual information and definitions directly into your note:
-- **Wikipedia Summary**: Type `@wiki-[topic]` (e.g., `@wiki-Quantum Physics`) and press **Enter**.
-- **Multi-Topic Support**: Use "and", "&", or commas to fetch multiple summaries at once (e.g., `@wiki-Sam Altman and Mira Murati`).
-- **Dictionary Definitions**: Type `@def-[word]` (e.g., `@def-serendipity`) to get meanings, phonetics, and usage examples.
-- **Purely Factual**: Uses direct Wikipedia and Dictionary APIs to ensure 100% accuracy without AI hallucinations.
+Instantly fetch factual information and definitions:
+- **Search Bar**: Type `@wiki-[topic]` or `@def-[word]` and press **Enter** to see a rich, scrollable **Markdown Popup** with icons and formatted headers.
+- **Note Editor**: Type the same commands inside your note to insert the result as **Clean Plain Text**.
+- **Multi-Topic Support**: Use "and", "&", or commas (e.g., `@wiki-Sam Altman and Mira Murati`).
+- **Accuracy**: Uses direct Wikipedia and Dictionary APIs to ensure 100% accuracy without AI hallucinations.
 
 ### Pomodoro Timer
 Focus on your work with a built-in Pomodoro timer:
