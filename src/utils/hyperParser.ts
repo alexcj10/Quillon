@@ -57,17 +57,21 @@ export function parseHyperCommand(input: string): HyperParsedData {
     let isHidden = false;
     let fontFamily = '';
 
-    // Extract Tags: #tag or #fileTag
-    // Refinement: Enforce tags to start with a letter or underscore to avoid hex codes (#fff) or numbers (#1)
-    const tagMatches = body.match(/(?:^|\s|\|\|)#([a-zA-Z_][a-zA-Z0-9\-_]*)/g);
+    // Extract Tags: ##tag or ##fileTag
+    // Refinement: Enforce tags to start with a letter or underscore to avoid hex codes (##fff) or numbers (##1)
+    const tagMatches = body.match(/(?:^|\s|\|\|)##([a-zA-Z_][a-zA-Z0-9\-_]*)/g);
     if (tagMatches) {
         tagMatches.forEach(m => {
             // Remove the possible leading separator (space or ||)
-            const tag = m.trim().replace(/^\|\|/, '').slice(1);
-            if (tag) tags.push(tag);
+            // Then remove the two ## characters
+            const tag = m.trim().replace(/^\|\|/, '').trim();
+            // tag is now "##tagName" or "##tagName"
+            if (tag.startsWith('##')) {
+                tags.push(tag.slice(2));
+            }
         });
         // Remove from body
-        body = body.replace(/(?:^|\s|\|\|)#([a-zA-Z_][a-zA-Z0-9\-_]*)/g, ' ');
+        body = body.replace(/(?:^|\s|\|\|)##([a-zA-Z_][a-zA-Z0-9\-_]*)/g, ' ');
     }
 
 

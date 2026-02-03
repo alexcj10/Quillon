@@ -108,11 +108,11 @@ The most powerful command in Quillon. Create fully-featured notes directly from 
     *   `@new-Meeting || Discussion notes` → Title: "Meeting"
     *   `@new-Just some text` → Title: "Untitled Note" (no `||` used)
 *   **For Attributes**: `||` is **optional** between content and attributes.
-    *   `@new-Title || Content || #tag || is:fav` → Works 
-    *   `@new-Title || Content #tag is:fav` → Works (spaces work too)
+    *   `@new-Title || Content || ##tag || is:fav` → Works 
+    *   `@new-Title || Content ##tag is:fav` → Works (spaces work too)
 *   **Spacing Flexibility**: Works with or without spaces around `||`.
-    *   `@new-Title||Content||#tag` → Works 
-    *   `@new-Title || Content || #tag` → Works 
+    *   `@new-Title||Content||##tag` → Works 
+    *   `@new-Title || Content || ##tag` → Works 
 
 #### Intelligence Commands (Nested)
 You can nest these inside the content to fetch data before saving:
@@ -134,15 +134,15 @@ Mix these anywhere in the content section (unordered):
     *   `is:vault` or `is:private` — Save to Private Space
     *   `is:hide` — Hide from Main View
 *   **Tag Logic**: 
-    *   `#tag` — Standard (**Grey**)
-    *   `#fileFolder` — Folders (**Blue**)
+    *   `##tag` — Standard (**Grey**)
+    *   `##fileFolder` — Folders (**Blue**)
     *   **Green tags** are automatic inside folders!
     *   **Amber tags** appear when using `is:hide` or `@hide`.
 
 > [!TIP]
-> **Full Example**: `@new-Einstein || @wiki-Albert Einstein || #science #fileWork || c:purple || is:fav || is:pin`
+> **Full Example**: `@new-Einstein || @wiki-Albert Einstein || ##science ##fileWork || c:purple || is:fav || is:pin`
 > 
-> **Compact Style**: `@new-Notes||Content here||#work||is:star`
+> **Compact Style**: `@new-Notes||Content here||##work||is:star`
 > 
 > **Direct AI**: `@new-@pai-Explain quantum computing||is:fav` (skips title, creates "Untitled Note")
 
