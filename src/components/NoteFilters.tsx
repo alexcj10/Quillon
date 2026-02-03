@@ -427,11 +427,6 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
           )}
 
           {/* Math Result Popup attached to Search Bar */}
-          <MathResultPopup
-            input={searchTerm}
-            result={mathResult}
-            isVisible={isMathPopupVisible}
-          />
 
           {/* Fonts Popup */}
           <FontsPopup
@@ -443,23 +438,6 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
             currentFont={currentFont}
           />
 
-          {/* AI Result Popup */}
-          <AIResultPopup
-            input={searchTerm}
-            result={aiResult}
-            isLoading={isAiLoading}
-            isVisible={isAiPopupVisible}
-            titleLabel={
-              aiPopupType === 'wiki' ? 'Wikipedia Summary' :
-                aiPopupType === 'def' ? 'Dictionary Definition' :
-                  'Pownin AI Response'
-            }
-            logo={
-              aiPopupType === 'wiki' ? Globe :
-                aiPopupType === 'def' ? Book :
-                  undefined // Defaults to Pownin logo
-            }
-          />
         </div>
 
         <button
@@ -486,6 +464,31 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
           <Tag className="h-5 w-5" />
           <span className="hidden sm:inline">All Tags</span>
         </button>
+
+        {/* AI Result Popup moved here for full-width display */}
+        <AIResultPopup
+          input={searchTerm}
+          result={aiResult}
+          isLoading={isAiLoading}
+          isVisible={isAiPopupVisible}
+          titleLabel={
+            aiPopupType === 'wiki' ? 'Wikipedia Summary' :
+              aiPopupType === 'def' ? 'Dictionary Definition' :
+                'Pownin AI Response'
+          }
+          logo={
+            aiPopupType === 'wiki' ? Globe :
+              aiPopupType === 'def' ? Book :
+                undefined // Defaults to Pownin logo
+          }
+        />
+
+        {/* Math Result Popup moved here for full-width display */}
+        <MathResultPopup
+          input={searchTerm}
+          result={mathResult}
+          isVisible={isMathPopupVisible}
+        />
       </div>
 
 

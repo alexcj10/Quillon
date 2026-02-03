@@ -22,7 +22,7 @@ export function MathResultPopup({ input, result, isVisible }: MathResultPopupPro
 
     // Clean input display and truncate if too long
     const cleanInput = input.startsWith('@c-') ? input.slice(3) : input;
-    const displayInput = cleanInput.length > 60 ? cleanInput.slice(0, 60) + '...' : cleanInput;
+    const displayInput = cleanInput.length > 200 ? cleanInput.slice(0, 200) + '...' : cleanInput;
 
     return (
         <AnimatePresence>
