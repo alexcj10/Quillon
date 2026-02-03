@@ -79,26 +79,47 @@ Access the power of AI directly from your workflow:
 
 The most powerful command in Quillon. Create fully-featured notes directly from the search bar.
 
+**Syntax**: \`@new-[Title] || [Content or Command] || [Attributes]\`
+
+### 📐 Delimiter Rules (||)
+*   **For Title Separation**: \`||\` is **compulsory** if you want a custom title.
+    *   \`@new-Meeting || Discussion notes\` → Title: "Meeting"
+    *   \`@new-Just some text\` → Title: "Untitled Note" (no \`||\` used)
+*   **For Attributes**: \`||\` is **optional** between content and attributes.
+    *   \`@new-Title || Content || #tag || is:fav\` → Works ✅
+    *   \`@new-Title || Content #tag is:fav\` → Works ✅ (spaces work too)
+*   **Spacing Flexibility**: Works with or without spaces around \`||\`.
+    *   \`@new-Title||Content||#tag\` → Works ✅
+    *   \`@new-Title || Content || #tag\` → Works ✅
+
 ### 🧠 Intelligence Commands (Nested)
 You can nest these inside the content to fetch data before saving:
-*   **\`@pai-[query]\`**: Ask Pownin AI for a detailed response.
-*   **\`@wiki-[topic]\`**: Fetches a summary from Wikipedia.
-*   **\`@t-[lang]\`**: Translates content (e.g., \`@t-es\`).
-*   **\`@c-[math]\`**: Solves equations instantly.
-*   **\`@summary / @elaboration\`**: AI rewrites of your text.
+*   \`@pai-[query]\`: Ask Pownin AI for a detailed response.
+*   \`@wiki-[topic]\`: Fetches a summary from Wikipedia.
+*   \`@def-[word]\`: Fetches dictionary definition and phonetics.
+*   \`@t-[lang]\`: Translates content (e.g., \`@t-es\`).
+*   \`@c-[math]\`: Solves equations instantly.
+*   \`@summary / @elaboration\`: AI rewrites of your text.
 
 ### 🛠️ Attribute Flags (Unordered)
 Mix these anywhere in the content section:
 *   **Color**: \`c:blue\`, \`c:pink\`, \`c:purple\`, \`c:green\`, \`c:yellow\`, \`c:orange\`
 *   **Style**: \`f:Caveat\`, \`f:Inter\`, etc.
-*   **Flags**: \`*\` (Favorite), \`^\` (Pin), \`!\` (Private), \`?\` (Hide)
+*   **Flags**: 
+    *   \`is:fav\` or \`is:star\` — Mark as Favorite (⭐️)
+    *   \`is:pin\` — Pin to top (📌)
+    *   \`is:vault\` or \`is:private\` — Save to Private Space (🔒)
+    *   \`is:hide\` — Hide from Main View (👁️‍🗨️)
 *   **Tags**: \`#tag\` (Grey) or \`#fileFolder\` (Blue).
 
 > [!TIP]
-> **The Ultimate Command**: \`@new-Einstein | @wiki-Albert Einstein #science #fileWork c:purple * ^\`
+> **Full Example**: \`@new-Einstein || @wiki-Albert Einstein || #science #fileWork || c:purple || is:fav || is:pin\`
+> 
+> **Compact Style**: \`@new-Notes||Content here||#work||is:star\`
+> 
+> **Direct AI**: \`@new-@pai-Explain quantum computing||is:fav\` (skips title, creates "Untitled Note")
 
 ---
-
 
 ## ⚙️ Advanced Tag Management
 
