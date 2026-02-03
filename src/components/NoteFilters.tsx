@@ -204,6 +204,12 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                 contentLength = term.slice(7).trim().length;
               }
 
+              // Hide AI popup if command is cleared or changed
+              const isAICommand = term.startsWith('@pai-') || term.startsWith('@wiki-') || term.startsWith('@def-');
+              if (!isAICommand || term === '') {
+                setIsAiPopupVisible(false);
+              }
+
               // Evaluate math command dynamically
               if (isMathCommand(term)) {
                 setMathResult(evaluateMathCommand(term));
