@@ -520,7 +520,7 @@ Quillon features a global audio feedback system for a professional, tactile expe
                             </div>
 
                             {/* Search Bar - Sticky */}
-                            <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                            <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 pr-12">
                                 <div className="max-w-2xl mx-auto relative">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                     <input
