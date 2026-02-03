@@ -1,8 +1,12 @@
 
 const GROQ_KEY = import.meta.env.VITE_PAI_KEY || import.meta.env.VITE_GROQ_KEY;
 
-export async function askPowninAI(query: string): Promise<string> {
+export async function askPowninAI(query: string, mode: 'markdown' | 'text' = 'markdown'): Promise<string> {
     if (!query.trim()) return 'Pownin AI: No query provided.';
+
+    const systemPrompt = mode === 'text'
+        ? "You are Pownin, a helpful and concise AI assistant for the Quillon note-taking app. Provide clear, accurate, and direct information. DO NOT use markdown formatting (no bold **, no headers #). Use plain text structure with simple spacing and indentation."
+        : "You are Pownin, a helpful and concise AI assistant for the Quillon note-taking app. Provide clear, accurate, and direct information. Use markdown for structure if needed, but keep it readable.";
 
     try {
         const body = {
@@ -10,7 +14,7 @@ export async function askPowninAI(query: string): Promise<string> {
             messages: [
                 {
                     role: "system",
-                    content: "You are Pownin, a helpful and concise AI assistant for the Quillon note-taking app. Provide clear, accurate, and direct information. Use markdown for structure if needed, but keep it readable."
+                    content: systemPrompt
                 },
                 { role: "user", content: query }
             ],

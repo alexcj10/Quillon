@@ -850,7 +850,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
                           (async () => {
                             try {
-                              const result = await askPowninAI(query);
+                              const result = await askPowninAI(query, 'text');
                               const textAfterCursor = content.substring(cursorStart);
                               const newContent = content.substring(0, lastAtSignIndexPAI) + result + textAfterCursor;
                               setContent(newContent);
