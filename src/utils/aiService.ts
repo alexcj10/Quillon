@@ -41,7 +41,16 @@ export async function askPowninAI(query: string, mode: 'markdown' | 'text' = 'ma
         }
 
         const data = await res.json();
-        return data?.choices?.[0]?.message?.content || "No response received from AI.";
+        let content = data?.choices?.[0]?.message?.content || "No response received from AI.";
+
+        if (mode === 'text') {
+            // Remove excessive markdown headers and bolding that might leak
+            content = content.replace(/#{1,6}\s+/g, ''); // Remove headers
+            content = content.replace(/\*\*(.*?)\*\*/g, '$1'); // Remove bold
+            content = content.replace(/__(.*?)__/g, '$1'); // Remove alternative bold
+        }
+
+        return content;
     } catch (error: any) {
         console.error('Pownin AI error:', error);
         return `Error: ${error.message || "Network error or lookup failed."}`;

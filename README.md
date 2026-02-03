@@ -97,6 +97,14 @@ Quickly translate any note into 100+ languages without leaving Quillon:
 Quickly transform long notes into concise summaries or simple explanations:
 - **Usage**: Type `@summary` or `@elaboration` anywhere in a note and press **Enter**.
 - **Full Rewrite**: The AI replaces the **entire** note with the generated content.
+
+### 🏛️ Hyper-Architect Command (`@new-`)
+Create fully-featured notes directly from the search bar. This is the ultimate power-user command.
+- **Syntax**: `@new-[Title] | [Content/Command] #[tags] c:[color] f:[font] * ^ ! ?`
+- **Recursive Intelligence**: If you write `@pai-`, `@wiki-`, or `@t-` *inside* the content, Quillon resolves it and saves the result!
+- **Tag Logic**: Use `#tag` (Grey) or `#file[Name]` (Blue). Green tags are automatic whenever regular tags are used inside folder notes.
+- **Shorthand Flags**: `*` (Star), `^` (Pin), `!` (Private), `?` (Hide).
+- **Example**: `@new-Research | @wiki-SpaceX #science #fileWork c:blue * ^`
 .
 - **Plain Text**: Output is optimized for the Quillon editor (bullet points and paragraphs, no markdown headers).
 - **Labels**: Generates explicit `SUMMARY:` or `ELABORATION:` labels at the start for clarity.

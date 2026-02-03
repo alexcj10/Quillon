@@ -18,12 +18,17 @@ import { FontsPopup } from './FontsPopup';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { isFontsListCommand, isDefaultFontCommand, parseFontCommand, DEFAULT_FONT } from '../utils/fontService';
 import { askPowninAI } from '../utils/aiService';
+import { parseHyperCommand } from '../utils/hyperParser';
+import { fetchWikiSummary } from '../utils/insightService';
+import { translateText, extractLangCode } from '../utils/translationService';
+import { fetchSummary, fetchElaboration } from '../utils/summaryService';
 
 export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
   const {
     searchTerm,
     setSearchTerm,
     notes,
+    addNote,
     selectedTags,
     setSelectedTags,
     showStarredOnly,
@@ -326,6 +331,44 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                       }
                     })();
                   }
+                } else if (term.toLowerCase().startsWith('@new-')) {
+                  const data = parseHyperCommand(term);
+                  (async () => {
+                    let finalContent = data.content;
+                    if (data.nestedCommand) {
+                      const { type, query } = data.nestedCommand;
+                      try {
+                        switch (type) {
+                          case 'pai': finalContent = await askPowninAI(query, 'text'); break;
+                          case 'wiki': finalContent = await fetchWikiSummary(query); break;
+                          case 'math': finalContent = evaluateMathCommand(query) || ''; break;
+                          case 'translate':
+                            const langCode = extractLangCode(query);
+                            const textToTranslate = query.slice(langCode.length).trim();
+                            const translated = await translateText(textToTranslate, langCode);
+                            finalContent = translated || textToTranslate;
+                            break;
+                          case 'summary': finalContent = await fetchSummary(finalContent); break;
+                          case 'elaborate': finalContent = await fetchElaboration(finalContent); break;
+                        }
+                      } catch (err) {
+                        console.error('Nested command resolution failed:', err);
+                      }
+                    }
+
+                    addNote({
+                      title: data.title,
+                      content: finalContent,
+                      tags: data.tags,
+                      color: data.color || '',
+                      isPinned: data.isPinned,
+                      isFavorite: data.isFavorite,
+                      isPrivate: data.isPrivate,
+                      fontFamily: data.fontFamily
+                    });
+                    setSearchTerm('');
+                    playSuccess(0.3);
+                  })();
                 }
               }
             }}
