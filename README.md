@@ -175,7 +175,7 @@ Personalize your notes with custom fonts for better readability and style:
 - **Quick Selection**: Use `@font-[index]` (e.g., `@font-15` for Comic Neue) or `@font-[name]` (e.g., `@font-Caveat`) to change fonts.
 - **Per-Note Persistence**: Each note remembers its own font independently, allowing different fonts for different types of content.
 - **One-Time Selection**: Fonts selected in the search bar apply only to the next new note, then automatically reset to default.
-- **16 Curated Fonts**: Including system fonts, elegant serifs (Playfair Display, Lora), monospace options (Fira Code, JetBrains Mono), and handwritten styles (Comic Neue, Caveat).
+- **33 Curated Fonts**: Including system fonts, elegant serifs (Playfair Display, Lora), monospace options (Fira Code, JetBrains Mono), and handwritten styles (Comic Neue, Caveat).
 
 ### Study & Productivity (Deep Dive)
 #### Zen Quiz Mode
@@ -420,6 +420,7 @@ Special thanks to **YOU** for checking out **Quillon**!
 ---
 
 **Follow the project, give it a** **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!**   
+
 
 
 
