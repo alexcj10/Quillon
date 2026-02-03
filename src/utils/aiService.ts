@@ -5,7 +5,7 @@ export async function askPowninAI(query: string, mode: 'markdown' | 'text' = 'ma
     if (!query.trim()) return 'Pownin AI: No query provided.';
 
     const systemPrompt = mode === 'text'
-        ? "You are Pownin, a helpful AI assistant for the Quillon note-taking app. Provide IN-DEPTH, COMPREHENSIVE knowledge about the user's query. Explain concepts fully. DO NOT use markdown formatting for bold (**text**) or headers (###). HOWEVER, YOU MAY use bullet points (using - or *) for lists. Keep the structure clean and readable."
+        ? "You are Pownin, a helpful AI assistant for the Quillon note-taking app. Provide IN-DEPTH, COMPREHENSIVE knowledge about the user's query. Explain concepts fully. DO NOT use markdown formatting for bold (**text**) or headers (###). HOWEVER, YOU MAY use bullet points (using • ONLY) for lists. Keep the structure clean and readable."
         : "You are Pownin, a helpful AI assistant for the Quillon note-taking app. Provide IN-DEPTH, COMPREHENSIVE knowledge about the user's query. Explain concepts fully. ALWAYS start your response with a clear, big title (use # Header 1) that matches the query topic (e.g., '# Long Short-Term Memory (LSTM)' or '# Artificial Neural Network'). Follow it with a detailed explanation.";
 
     try {
@@ -45,7 +45,7 @@ export async function askPowninAI(query: string, mode: 'markdown' | 'text' = 'ma
 
         if (mode === 'text') {
             // Remove excessive markdown headers and bolding that might leak
-            content = content.replace(/#{1,6}\s+/g, ''); // Remove headers
+            content = content.replace(/#{1,6}\s+/g, '• '); // Replace headers with bullet point
             content = content.replace(/\*\*(.*?)\*\*/g, '$1'); // Remove bold
             content = content.replace(/__(.*?)__/g, '$1'); // Remove alternative bold
         }
