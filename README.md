@@ -331,7 +331,7 @@ The app will be available at ```http://localhost:5173```
 | `@nodes-[task]` | Create public node | Both |
 | `7@nodes-[task]` | Create private node | Both |
 
-### Calculator & Translation Commands
+### Attribute Commands
 | Command | Description | Example |
 |---------|-------------|---------|
 | `@c-[expression]` | Solve math/algebra | `@c-2x+5=15` |
@@ -420,6 +420,7 @@ Special thanks to **YOU** for checking out **Quillon**!
 ---
 
 **Follow the project, give it a** **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!**   
+
 
 
 
