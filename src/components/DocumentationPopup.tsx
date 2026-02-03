@@ -61,6 +61,21 @@ Forget manual color codes. Quillon organizes tags automatically.
 
 ---
 
+## 🧞 Pownin AI Command (@pai-)
+
+Access the power of AI directly from your workflow:
+
+### 📝 In Note Editor
+- Type \`@pai-[query]\` and press **Enter** 
+- The AI inserts a concise, **plain-text** answer directly into your note (perfect for lists and quick facts).
+
+### 🔍 In Search Bar
+- Type \`@pai-[query]\` and press **Enter**
+- A beautiful popup appears with a **rich markdown** response, including deep details and correct code formatting.
+
+---
+
+
 ## ⚙️ Advanced Tag Management
 
 Powerful tag editing and deletion via the **All Tags** button or **+more** icon.
