@@ -22,18 +22,24 @@ export async function fetchWikiSummary(topic: string): Promise<string> {
             const searchResult = searchData.query?.search?.[0];
             const correctTitle = searchResult ? searchResult.title : trimmedTopic;
 
-            // Step 2: Fetch summary
-            const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(correctTitle.replace(/ /g, '_'))}`;
-            const summaryResponse = await fetch(summaryUrl);
+            // Step 2: Fetch detailed introduction (extracts)
+            // exintro=true: Get only the content before the first section
+            // explaintext=true: Get plain text instead of HTML
+            const extractUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=${encodeURIComponent(correctTitle)}&format=json&origin=*`;
+            const extractResponse = await fetch(extractUrl);
 
-            if (!summaryResponse.ok) {
+            if (!extractResponse.ok) {
                 results.push(`Wikipedia (${trimmedTopic}): No entry found or error fetching data.`);
                 continue;
             }
 
-            const data = await summaryResponse.json();
-            if (data.extract) {
-                results.push(`Wikipedia (${correctTitle}):\n${data.extract}`);
+            const data = await extractResponse.json();
+            const pages = data?.query?.pages;
+            const pageId = Object.keys(pages || {})[0];
+            const extract = pages?.[pageId]?.extract;
+
+            if (extract) {
+                results.push(`Wikipedia (${correctTitle}):\n${extract}`);
             } else {
                 results.push(`Wikipedia (${correctTitle}): No summary available.`);
             }
