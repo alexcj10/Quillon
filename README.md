@@ -27,6 +27,12 @@ The heart of Quillon is **Pownin**, an Advanced AI powered by a 5-stage retrieva
 4. **Keyword Sniper**: Instantly boosts exact Title matches for precision retrieval.
 5. **Reflection Core**: The AI self-corrects and rewrites answers if they aren't perfect.
 
+### Pownin AI Command (`@pai-`)
+Access the power of AI directly from your workflow:
+- **In Note Editor**: Type `@pai-[query]` and press **Enter**. The AI inserts a concise, **plain-text** answer directly into your note (perfect for lists and quick facts).
+- **In Search Bar**: Type `@pai-[query]` and press **Enter**. A beautiful popup appears with a **rich markdown** response, including deep details and correct code formatting.
+
+
 ### Intelligent Tagging System
 Forget manual color codes. Quillon organizes tags automatically:
 - **Blue Tags (Folders)**: Tags starting with **`file`** (e.g., `fileProject`) create a main folder named **Project**.  
@@ -284,6 +290,7 @@ The app will be available at ```http://localhost:5173```
 | Command | Description | Example |
 |---------|-------------|---------|
 | `@c-[expression]` | Solve math/algebra | `@c-2x+5=15` |
+| `@pai-[query]` | Ask Pownin AI (Markdown/Text) | `@pai-explain gravity` |
 | `@wiki-[topic]` | Wikipedia summary | `@wiki-Tesla` |
 | `@def-[word]` | Dictionary definition | `@def-logic` |
 | `@summary` | Full Rewrite: Generate Summary | `@summary` |
