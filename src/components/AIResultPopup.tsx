@@ -5,6 +5,8 @@ import { Check, Copy } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useState } from 'react';
 
+import powninLogo from '../assets/pownin.png';
+
 interface AIResultPopupProps {
     input: string;
     result: string | null;
@@ -41,7 +43,7 @@ export function AIResultPopup({ input, result, isLoading, isVisible }: AIResultP
                     {/* Header */}
                     <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                            <img src={powninLogo} alt="Pownin AI" className="w-5 h-5 rounded-md object-cover animate-pulse" />
                             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Pownin AI Response</span>
                         </div>
                         {result && !isLoading && (
