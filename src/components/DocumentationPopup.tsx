@@ -79,20 +79,23 @@ Access the power of AI directly from your workflow:
 
 The most powerful command in Quillon. Create fully-featured notes directly from the search bar.
 
-### 🛠️ Syntax
-\`@new-[Title] | [Content/Command] #[tags] c:[color] f:[font] * ^ ! ?\`
+### 🧠 Intelligence Commands (Nested)
+You can nest these inside the content to fetch data before saving:
+*   **\`@pai-[query]\`**: Ask Pownin AI for a detailed response.
+*   **\`@wiki-[topic]\`**: Fetches a summary from Wikipedia.
+*   **\`@t-[lang]\`**: Translates content (e.g., \`@t-es\`).
+*   **\`@c-[math]\`**: Solves equations instantly.
+*   **\`@summary / @elaboration\`**: AI rewrites of your text.
 
-### 🧞 Recursive Intelligence
-If you write \`@pai-\`, \`@wiki-\`, or \`@t-\` **inside** the content, Quillon resolves it and saves the result!
-
-- **Tags**: Use \`#tag\` (Grey) or \`#file[Name]\` (Blue).
-- **Flags**: \`*\` (Star), \`^\` (Pin), \`!\` (Private).
-- **Hide**: Use \`@hide\` or the **\`?\`** shortcut (Amber).
+### 🛠️ Attribute Flags (Unordered)
+Mix these anywhere in the content section:
+*   **Color**: \`c:blue\`, \`c:pink\`, \`c:purple\`, \`c:green\`, \`c:yellow\`, \`c:orange\`
+*   **Style**: \`f:Caveat\`, \`f:Inter\`, etc.
+*   **Flags**: \`*\` (Favorite), \`^\` (Pin), \`!\` (Private), \`?\` (Hide)
+*   **Tags**: \`#tag\` (Grey) or \`#fileFolder\` (Blue).
 
 > [!TIP]
-> **Green tags** are automatic! They appear when any tag is used alongside a Blue Folder tag.
-
-**Example:** \`@new-Task | @pai-write a todo list #work #fileProject c:blue * ^\`
+> **The Ultimate Command**: \`@new-Einstein | @wiki-Albert Einstein #science #fileWork c:purple * ^\`
 
 ---
 

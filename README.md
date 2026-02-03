@@ -99,15 +99,32 @@ Quickly transform long notes into concise summaries or simple explanations:
 - **Full Rewrite**: The AI replaces the **entire** note with the generated content.
 
 ### 🏛️ Hyper-Architect Command (`@new-`)
-Create fully-featured notes directly from the search bar. This is the ultimate power-user command.
-- **Syntax**: `@new-[Title] | [Content/Command] #[tags] c:[color] f:[font] * ^ ! ?`
-- **Recursive Intelligence**: If you write `@pai-`, `@wiki-`, or `@t-` *inside* the content, Quillon resolves it and saves the result!
-- **Tag Logic**: Use `#tag` (Grey) or `#file[Name]` (Blue). Green tags are automatic whenever regular tags are used inside folder notes.
-- **Shorthand Flags**: `*` (Star), `^` (Pin), `!` (Private), `?` (Hide).
-- **Example**: `@new-Research | @wiki-SpaceX #science #fileWork c:blue * ^`
-.
-- **Plain Text**: Output is optimized for the Quillon editor (bullet points and paragraphs, no markdown headers).
-- **Labels**: Generates explicit `SUMMARY:` or `ELABORATION:` labels at the start for clarity.
+The most powerful command in Quillon. Create fully-featured notes directly from the search bar with intelligence and style.
+
+**Syntax**: `@new-[Title] | [Content or Command] [Flags/Tags]`
+
+#### 🧠 Intelligence Commands (Nested)
+You can nest these inside the content to fetch data before saving:
+*   **`@pai-[query]`**: Ask Pownin AI for a detailed, plain-text response (sanitized).
+*   **`@wiki-[topic]`**: Fetches a comprehensive summary from Wikipedia.
+*   **`@t-[lang] [text]`**: Translates content into any language (e.g., `@t-es`).
+*   **`@c-[math]`**: Solves complex equations and puts the result in your note.
+*   **`@summary`**: Takes your text and shrinks it into a bulleted summary.
+*   **`@elaboration`**: Explains your text in simple, plain language.
+
+#### 🛠️ Attribute Flags (Unordered)
+Mix these anywhere in the content section (unordered):
+*   **Color**: `c:blue`, `c:pink`, `c:purple`, `c:green`, `c:yellow`, `c:orange`
+*   **Font**: `f:Caveat`, `f:Inter`, etc.
+*   **Flags**: `*` (Favorite), `^` (Pin), `!` (Private), `?` (Hide)
+*   **Tag Logic**: 
+    *   `#tag` — Standard (**Grey**)
+    *   `#fileFolder` — Folders (**Blue**)
+    *   **Green tags** are automatic inside folders!
+    *   **Amber tags** appear when using `?` or `@hide`.
+
+> [!TIP]
+> **The Ultimate Command**: `@new-Einstein | @wiki-Albert Einstein #science #fileWork c:purple * ^`
 
 ### Quick Insight Lookup
 Instantly fetch factual information and definitions directly into your note:
