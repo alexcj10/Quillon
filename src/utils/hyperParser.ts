@@ -15,7 +15,7 @@ export interface HyperParsedData {
     isHidden: boolean;
     fontFamily?: string;
     nestedCommand?: {
-        type: 'pai' | 'wiki' | 'summary' | 'elaborate' | 'translate' | 'math';
+        type: 'pai' | 'wiki' | 'summary' | 'elaborate' | 'translate' | 'math' | 'def';
         query: string;
     };
 }
@@ -29,14 +29,21 @@ export function parseHyperCommand(input: string): HyperParsedData {
         raw = raw.slice(5).trim();
     }
 
-    // 2. Split Title | Content
+    // 2. Split Title || Content
+    // Rules for Title Splitting:
+    // - Skip if it starts with @ (Direct Command)
+    // - Skip if it looks like a URL (starts with http, www, or contains ://)
+    // - Use || (double pipe) as the delimiter to avoid clashes with dates, paths, etc.
     let title = 'Untitled Note';
     let body = raw;
 
-    if (raw.includes('|')) {
-        const parts = raw.split('|');
-        title = parts[0].trim();
-        body = parts.slice(1).join('|').trim(); // Join back in case body contains |
+    const isURL = /^(https?:\/\/|www\.)/i.test(raw) || raw.includes('://');
+    const isDirectCommand = raw.startsWith('@');
+
+    if (!isDirectCommand && !isURL && raw.includes('||')) {
+        const firstDelimiterIndex = raw.indexOf('||');
+        title = raw.substring(0, firstDelimiterIndex).trim();
+        body = raw.substring(firstDelimiterIndex + 2).trim(); // +2 to skip ||
     }
 
     // 3. Extract Meta-Flags and clean the body
@@ -51,61 +58,71 @@ export function parseHyperCommand(input: string): HyperParsedData {
     let fontFamily = '';
 
     // Extract Tags: #tag or #fileTag
-    const tagMatches = body.match(/(?:^|\s)#([a-zA-Z0-9\-_]+)/g);
+    // Refinement: Enforce tags to start with a letter or underscore to avoid hex codes (#fff) or numbers (#1)
+    const tagMatches = body.match(/(?:^|\s|\|\|)#([a-zA-Z_][a-zA-Z0-9\-_]*)/g);
     if (tagMatches) {
         tagMatches.forEach(m => {
-            const tag = m.trim().slice(1);
+            // Remove the possible leading separator (space or ||)
+            const tag = m.trim().replace(/^\|\|/, '').slice(1);
             if (tag) tags.push(tag);
         });
         // Remove from body
-        body = body.replace(/(?:^|\s)#([a-zA-Z0-9\-_]+)/g, ' ');
+        body = body.replace(/(?:^|\s|\|\|)#([a-zA-Z_][a-zA-Z0-9\-_]*)/g, ' ');
     }
 
-    // Extract @hide
-    if (body.toLowerCase().includes('@hide')) {
-        tags.push('@hide');
-        body = body.replace(/@hide/gi, ' ');
-    }
 
     // Extract Color: c:red or c:pink
-    const colorMatch = body.match(/(?:^|\s)c:([a-zA-Z]+)/i);
+    const colorMatch = body.match(/(?:^|\s|\|\|)c:([a-zA-Z]+)/i);
     if (colorMatch) {
         const c = colorMatch[1].toLowerCase();
         if (VALID_COLORS.includes(c)) {
             color = c;
         }
-        body = body.replace(/(?:^|\s)c:([a-zA-Z]+)/i, ' ');
+        body = body.replace(/(?:^|\s|\|\|)c:([a-zA-Z]+)/i, ' ');
     }
 
     // Extract Font: f:Caveat
-    const fontMatch = body.match(/(?:^|\s)f:([a-zA-Z0-9 ]+)(?:\s|$)/i);
+    const fontMatch = body.match(/(?:^|\s|\|\|)f:([a-zA-Z0-9 ]+)(?:\s|\|\||$)/i);
     if (fontMatch) {
         fontFamily = fontMatch[1].trim();
-        body = body.replace(/(?:^|\s)f:([a-zA-Z0-9 ]+)(?:\s|$)/i, ' ');
+        body = body.replace(/(?:^|\s|\|\|)f:([a-zA-Z0-9 ]+)(?:\s|\|\||$)/i, ' ');
     }
 
-    // Extract Flags
-    if (body.includes('*')) {
-        isFavorite = true;
-        body = body.replace(/\*/g, ' ');
-    }
-    if (body.includes('^')) {
-        isPinned = true;
-        body = body.replace(/\^/g, ' ');
-    }
-    if (body.includes('!')) {
-        isPrivate = true;
-        body = body.replace(/!/g, ' ');
-    }
-    if (body.includes('?')) {
-        isHidden = true;
-        if (!tags.includes('@hide')) tags.push('@hide');
-        body = body.replace(/\?/g, ' ');
-    }
+    // Extract Flags (is:fav, is:pin, etc)
+    const FLAG_PATTERNS = [
+        { key: 'isFavorite', pattern: /(?:^|\s|\|\|)is:(?:fav|star)\b/gi },
+        { key: 'isPinned', pattern: /(?:^|\s|\|\|)is:pin\b/gi },
+        { key: 'isPrivate', pattern: /(?:^|\s|\|\|)is:(?:vault|private)\b/gi },
+        { key: 'isHidden', pattern: /(?:^|\s|\|\|)is:hide\b/gi }
+    ];
+
+    FLAG_PATTERNS.forEach(({ key, pattern }) => {
+        if (pattern.test(body)) {
+            if (key === 'isFavorite') isFavorite = true;
+            if (key === 'isPinned') isPinned = true;
+            if (key === 'isPrivate') isPrivate = true;
+            if (key === 'isHidden') isHidden = true;
+
+            body = body.replace(pattern, ' ');
+            if (key === 'isHidden' && !tags.includes('@hide')) tags.push('@hide');
+        }
+    });
 
     // 4. Determine if there is a nested command in the (cleaned) body
+    let cleanBody = body.trim();
+
+    // Cleanup: Remove stray || delimiters
+    // 1. Remove || at the end
+    while (cleanBody.endsWith('||')) {
+        cleanBody = cleanBody.slice(0, -2).trim();
+    }
+    // 2. Remove || that are followed by spaces or at end
+    cleanBody = cleanBody.replace(/\|\|(\s+|$)/g, '$1').trim();
+
+    // 3. Final cleanup for multiple spaces
+    cleanBody = cleanBody.replace(/\s+/g, ' ').trim();
+
     let nestedCommand: HyperParsedData['nestedCommand'];
-    const cleanBody = body.trim();
 
     const lowerBody = cleanBody.toLowerCase();
     if (lowerBody.startsWith('@pai-')) {
@@ -118,6 +135,8 @@ export function parseHyperCommand(input: string): HyperParsedData {
         nestedCommand = { type: 'summary', query: '' };
     } else if (lowerBody === '@elaboration') {
         nestedCommand = { type: 'elaborate', query: '' };
+    } else if (lowerBody.startsWith('@def-')) {
+        nestedCommand = { type: 'def', query: cleanBody.slice(5).trim() };
     } else if (lowerBody.startsWith('@c-')) {
         nestedCommand = { type: 'math', query: cleanBody.slice(3).trim() };
     }

@@ -389,6 +389,7 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                         switch (type) {
                           case 'pai': finalContent = await askPowninAI(query, 'text'); break;
                           case 'wiki': finalContent = await fetchWikiSummary(query); break;
+                          case 'def': finalContent = await fetchDefinition(query); break;
                           case 'math': finalContent = evaluateMathCommand(query) || ''; break;
                           case 'translate':
                             const langCode = extractLangCode(query);
