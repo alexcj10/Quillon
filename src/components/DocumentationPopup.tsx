@@ -1,6 +1,6 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { X } from 'lucide-react';
+import { X, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import bannerIcon from '../assets/QP.png';
 
@@ -11,6 +11,7 @@ interface DocumentationPopupProps {
 
 const DocumentationPopup = ({ isOpen, onClose }: DocumentationPopupProps) => {
     const popupRef = useRef<HTMLDivElement>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Close on click outside
     useEffect(() => {
@@ -441,6 +442,24 @@ Quillon features a global audio feedback system for a professional, tactile expe
 - **Privacy**: No cloud servers. Your data never leaves your device.
 `;
 
+    // Filter documentation content based on search query
+    const filteredContent = useMemo(() => {
+        if (!searchQuery.trim()) return documentationContent;
+
+        const query = searchQuery.toLowerCase();
+        const sections = documentationContent.split(/(?=^##\s)/gm);
+
+        const matchingSections = sections.filter(section => {
+            return section.toLowerCase().includes(query);
+        });
+
+        if (matchingSections.length === 0) {
+            return `## No Results Found\n\nNo documentation matches your search for "${searchQuery}". Try different keywords.`;
+        }
+
+        return matchingSections.join('\n');
+    }, [searchQuery]);
+
     // Custom renderer for ReactMarkdown with Lucide icons for headers if we wanted, 
     // but kept simple for now with strict Tailwind classes.
 
@@ -500,6 +519,29 @@ Quillon features a global audio feedback system for a professional, tactile expe
                                 <img src={bannerIcon} alt="Quillon" className="w-full object-cover" />
                             </div>
 
+                            {/* Search Bar - Sticky */}
+                            <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                                <div className="max-w-2xl mx-auto relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search documentation..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-10 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+                                    />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery('')}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                                            aria-label="Clear search"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
                             <div className="max-w-2xl mx-auto px-6 py-10">
                                 <article className="prose prose-slate dark:prose-invert max-w-none 
                   prose-headings:font-bold prose-headings:tracking-tight
@@ -532,7 +574,7 @@ Quillon features a global audio feedback system for a professional, tactile expe
                                             img: ({ node, ...props }) => <img {...props} className="w-full rounded-xl mb-6 shadow-sm" />,
                                         }}
                                     >
-                                        {documentationContent}
+                                        {filteredContent}
                                     </ReactMarkdown>
                                 </article>
                             </div>
