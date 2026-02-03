@@ -98,23 +98,23 @@ Quickly transform long notes into concise summaries or simple explanations:
 - **Usage**: Type `@summary` or `@elaboration` anywhere in a note and press **Enter**.
 - **Full Rewrite**: The AI replaces the **entire** note with the generated content.
 
-### 🏛️ Hyper-Architect Command (`@new-`)
+### Hyper-Architect Command (`@new-`)
 The most powerful command in Quillon. Create fully-featured notes directly from the search bar with intelligence and style.
 
 **Syntax**: `@new-[Title] || [Content or Command] || [Attributes]`
 
-#### 📐 Delimiter Rules (`||`)
+#### Delimiter Rules (`||`)
 *   **For Title Separation**: `||` is **compulsory** if you want a custom title.
     *   `@new-Meeting || Discussion notes` → Title: "Meeting"
     *   `@new-Just some text` → Title: "Untitled Note" (no `||` used)
 *   **For Attributes**: `||` is **optional** between content and attributes.
-    *   `@new-Title || Content || #tag || is:fav` → Works ✅
-    *   `@new-Title || Content #tag is:fav` → Works ✅ (spaces work too)
+    *   `@new-Title || Content || #tag || is:fav` → Works 
+    *   `@new-Title || Content #tag is:fav` → Works (spaces work too)
 *   **Spacing Flexibility**: Works with or without spaces around `||`.
-    *   `@new-Title||Content||#tag` → Works ✅
-    *   `@new-Title || Content || #tag` → Works ✅
+    *   `@new-Title||Content||#tag` → Works 
+    *   `@new-Title || Content || #tag` → Works 
 
-#### 🧠 Intelligence Commands (Nested)
+#### Intelligence Commands (Nested)
 You can nest these inside the content to fetch data before saving:
 *   **`@pai-[query]`**: Ask Pownin AI for a detailed, plain-text response (sanitized).
 *   **`@wiki-[topic]`**: Fetches a comprehensive summary from Wikipedia.
@@ -124,15 +124,15 @@ You can nest these inside the content to fetch data before saving:
 *   **`@summary`**: Takes your text and shrinks it into a bulleted summary.
 *   **`@elaboration`**: Explains your text in simple, plain language.
 
-#### 🛠️ Attribute Flags (Unordered)
+#### Attribute Flags (Unordered)
 Mix these anywhere in the content section (unordered):
 *   **Color**: `c:blue`, `c:pink`, `c:purple`, `c:green`, `c:yellow`, `c:orange`
 *   **Font**: `f:Caveat`, `f:Inter`, etc.
 *   **Flags**: 
-    *   `is:fav` or `is:star` — Mark as Favorite (⭐️)
-    *   `is:pin` — Pin to top (📌)
-    *   `is:vault` or `is:private` — Save to Private Space (🔒)
-    *   `is:hide` — Hide from Main View (👁️‍🗨️)
+    *   `is:fav` or `is:star` — Mark as Favorite
+    *   `is:pin` — Pin to top
+    *   `is:vault` or `is:private` — Save to Private Space
+    *   `is:hide` — Hide from Main View
 *   **Tag Logic**: 
     *   `#tag` — Standard (**Grey**)
     *   `#fileFolder` — Folders (**Blue**)
