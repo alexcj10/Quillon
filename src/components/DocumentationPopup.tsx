@@ -440,6 +440,16 @@ Quillon features a global audio feedback system for a professional, tactile expe
 - **Local-First**: All notes and documents are stored locally on your device using **IndexedDB** (disk-backed browser storage).
 - **Capacity**: No artificial limits are imposed by Quillon. Storage capacity scales with available device space and browser-managed quotas, making it effectively unlimited for personal use.
 - **Privacy**: No cloud servers. Your data never leaves your device.
+
+---
+
+## 📄 Documentation Command (@docs)
+
+Quickly access this documentation popup directly from the search bar.
+
+### ⚡ Usage
+- **Command**: Type \`@docs\` in the search bar and press **Enter**
+- **Action**: Opens this documentation popup instantly.
 `;
 
     // Filter documentation content based on search query

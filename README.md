@@ -46,6 +46,16 @@ Forget manual color codes. Quillon organizes tags automatically:
 - **Capacity**: No artificial limits are imposed by Quillon. Storage capacity scales with available device space and browser-managed quotas, making it effectively unlimited for personal use.
 - **Privacy**: No cloud servers. Your data never leaves your device.
 
+---
+
+## Documentation Command (`@docs`)
+
+Quickly access the documentation popup directly from the search bar.
+
+### Usage
+- **Command**: Type `@docs` in the search bar and press **Enter**
+- **Action**: Opens the documentation popup instantly.
+
 ### Advanced Tag Management
 Powerful tag editing and deletion via the **All Tags** button or **+more** icon:
 - **Access**: Click "All Tags" button or "+X more" when you have many tags
