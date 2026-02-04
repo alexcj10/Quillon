@@ -314,6 +314,8 @@ npm run dev
 ```
 The app will be available at ```http://localhost:5173``` 
 
+---
+
 ## Core Functionalities  
 
 - **Note Management** – Add, edit, delete, and organize notes with a distraction-free editor.
@@ -333,6 +335,7 @@ The app will be available at ```http://localhost:5173```
 - **Documentation** – Quick access to help via `@docs`.
 - **Adaptive UI** – Seamless experience across devices with a responsive design.  
 
+---
 
 ## Quick Command Reference
 
