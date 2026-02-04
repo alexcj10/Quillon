@@ -196,7 +196,7 @@ function NoteList() {
 
 
 
-        {<NoteFilters displayedNotes={filteredNotes} />}
+        {<NoteFilters displayedNotes={filteredNotes} onOpenDocs={() => setIsDocsOpen(true)} />}
 
         {!isNotesLoaded ? (
           <div className="flex flex-col items-center justify-center py-20">

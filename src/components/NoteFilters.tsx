@@ -23,7 +23,7 @@ import { fetchWikiSummary, fetchDefinition } from '../utils/insightService';
 import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchSummary, fetchElaboration } from '../utils/summaryService';
 
-export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
+export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: Note[]; onOpenDocs: () => void }) {
   const {
     searchTerm,
     setSearchTerm,
@@ -319,6 +319,9 @@ export function NoteFilters({ displayedNotes }: { displayedNotes?: Note[] }) {
                     setCurrentFont(font);
                     setSearchTerm('');
                   }
+                } else if (term.toLowerCase() === '@docs') {
+                  onOpenDocs();
+                  setSearchTerm('');
                 } else if (term.toLowerCase().startsWith('@wiki-')) {
                   // @wiki- - Wikipedia lookup
                   const query = term.slice(6).trim();
