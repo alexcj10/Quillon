@@ -175,7 +175,7 @@ Personalize your notes with custom fonts for better readability and style:
 - **Quick Selection**: Use `@font-[index]` (e.g., `@font-15` for Comic Neue) or `@font-[name]` (e.g., `@font-Caveat`) to change fonts.
 - **Per-Note Persistence**: Each note remembers its own font independently, allowing different fonts for different types of content.
 - **One-Time Selection**: Fonts selected in the search bar apply only to the next new note, then automatically reset to default.
-- **16 Curated Fonts**: Including system fonts, elegant serifs (Playfair Display, Lora), monospace options (Fira Code, JetBrains Mono), and handwritten styles (Comic Neue, Caveat).
+- **33 Curated Fonts**: Including system fonts, elegant serifs (Playfair Display, Lora), monospace options (Fira Code, JetBrains Mono), and handwritten styles (Comic Neue, Caveat).
 
 ### Study & Productivity (Deep Dive)
 #### Zen Quiz Mode
@@ -269,7 +269,7 @@ Quillon features a global, real-time audio feedback system for a more tactile ex
 
 ---
 
-## 🛠 Tech Stack  
+## Tech Stack  
 
 | Category  | Technology |
 |-----------|------------|
@@ -331,7 +331,7 @@ The app will be available at ```http://localhost:5173```
 | `@nodes-[task]` | Create public node | Both |
 | `7@nodes-[task]` | Create private node | Both |
 
-### Calculator & Translation Commands
+### Attribute Commands
 | Command | Description | Example |
 |---------|-------------|---------|
 | `@c-[expression]` | Solve math/algebra | `@c-2x+5=15` |
@@ -420,6 +420,9 @@ Special thanks to **YOU** for checking out **Quillon**!
 ---
 
 **Follow the project, give it a** **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!**   
+
+
+
 
 
 
