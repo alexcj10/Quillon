@@ -452,11 +452,20 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     // Rename the tag in all notes
     setNotes(prev => prev.map(note => {
       if (note.tags.includes(oldTagName)) {
-        return {
+        const updatedTags = note.tags.map(tag => tag === oldTagName ? newTagName : tag);
+
+        // Update embedding
+        const tagStr = updatedTags.map(tg => isFileTag(tg) ? `${tg} ${getFileTagDisplayName(tg)}` : tg).join(" ");
+        const embedding = embedText(`${note.title} ${note.content} ${tagStr}`);
+
+        const updatedNote = {
           ...note,
-          tags: note.tags.map(tag => tag === oldTagName ? newTagName : tag),
+          tags: updatedTags,
           updatedAt: new Date().toISOString(),
+          embedding
         };
+        db.saveNote(updatedNote);
+        return updatedNote;
       }
       return note;
     }));
@@ -477,12 +486,16 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
     if (permanentDelete) {
       // PERMANENTLY DELETE all notes with this tag (from trash)
-      setNotes(prev => prev.filter(note => !note.tags.includes(tagName)));
+      setNotes(prev => {
+        const notesToDelete = prev.filter(note => note.tags.includes(tagName));
+        notesToDelete.forEach(note => db.deleteNote(note.id));
+        return prev.filter(note => !note.tags.includes(tagName));
+      });
     } else {
       // Move ALL notes with this tag to trash (keeping the tag visible in trash)
       setNotes(prev => prev.map(note => {
         if (note.tags.includes(tagName) && !note.isDeleted) {
-          return {
+          const updatedNote = {
             ...note,
             // Keep ALL tags including the deleted one so they're visible in trash
             isDeleted: true,
@@ -490,6 +503,8 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
             isPinned: false,
             isFavorite: false,
           };
+          db.saveNote(updatedNote);
+          return updatedNote;
         }
         return note;
       }));
@@ -529,37 +544,44 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
   const bulkRestoreFromTrash = () => {
     const idsToRestore = Array.from(selectedNoteIds);
-    setNotes(prev => prev.map(note =>
-      idsToRestore.includes(note.id)
-        ? {
+    setNotes(prev => prev.map(note => {
+      if (idsToRestore.includes(note.id)) {
+        const updatedNote = {
           ...note,
           isDeleted: false,
           deletedAt: undefined,
-        }
-        : note
-    ));
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
     clearSelection();
   };
 
   const bulkDeleteForever = () => {
     const idsToDelete = Array.from(selectedNoteIds);
+    idsToDelete.forEach(id => db.deleteNote(id));
     setNotes(prev => prev.filter(note => !idsToDelete.includes(note.id)));
     clearSelection();
   };
 
   const bulkMoveToTrash = () => {
     const idsToMove = Array.from(selectedNoteIds);
-    setNotes(prev => prev.map(note =>
-      idsToMove.includes(note.id)
-        ? {
+    setNotes(prev => prev.map(note => {
+      if (idsToMove.includes(note.id)) {
+        const updatedNote = {
           ...note,
           isDeleted: true,
           deletedAt: new Date().toISOString(),
           isPinned: false,
           isPinnedInFavorite: false,
-        }
-        : note
-    ));
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
     clearSelection();
   };
 
