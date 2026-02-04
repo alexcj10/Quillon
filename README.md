@@ -314,28 +314,25 @@ npm run dev
 ```
 The app will be available at ```http://localhost:5173``` 
 
----
-
 ## Core Functionalities  
 
-**Note Management** – Add, edit, delete, and organize notes with a distraction-free editor.
-**Ask Pownin (RAG)** – Chat with your notes, ask questions, and get markdown answers (`@pai-`).
-**Hyper-Architect** – Create fully-featured notes directly from the search bar (`@new-`).
-**Smart Tags** – Automatic blue/green/grey hierarchy for effortless structure.
-**Hide/Show Notes** – Keep your workspace clean by hiding specific notes with `@hide`.
-**Dual Workspace** – Seamless switching between Public and Password-Protected Private spaces.
-**Nodes (Tasks)** – Quick task management accessible via `@nodes` command.
-**Knowledge Tools** – Instant Wikipedia summaries (`@wiki`), definitions (`@def`), and translations (`@t-`).
-**AI Brain** – Summarize (`@summary`) or elaborate (`@elaboration`) on any note instantly.
-**Productivity Suite** – Built-in Pomodoro timer (`@pomo`) and Zen Quiz Mode (`@quiz`) for study.
-**Smart Calculator & Utils** – Math solving (`@c-`), currency/unit conversion, and weather fetching.
-**Font Customization** – Personalize notes with 30+ curated fonts (`@fonts`).
-**Smart Trash** – Bulk delete, recover, or permanently remove notes with animated Energy Sphere.
-**Interactive Sound** – Satisfying haptic feedback and dynamic audio cues.
-**Documentation** – Quick access to help via `@docs`.
-**Adaptive UI** – Seamless experience across devices with a responsive design.  
+- **Note Management** – Add, edit, delete, and organize notes with a distraction-free editor.
+- **Ask Pownin (RAG)** – Chat with your notes, ask questions, and get markdown answers (`@pai-`).
+- **Hyper-Architect** – Create fully-featured notes directly from the search bar (`@new-`).
+- **Smart Tags** – Automatic blue/green/grey hierarchy for effortless structure.
+- **Hide/Show Notes** – Keep your workspace clean by hiding specific notes with `@hide`.
+- **Dual Workspace** – Seamless switching between Public and Password-Protected Private spaces.
+- **Nodes (Tasks)** – Quick task management accessible via `@nodes` command.
+- **Knowledge Tools** – Instant Wikipedia summaries (`@wiki`), definitions (`@def`), and translations (`@t-`).
+- **AI Brain** – Summarize (`@summary`) or elaborate (`@elaboration`) on any note instantly.
+- **Productivity Suite** – Built-in Pomodoro timer (`@pomo`) and Zen Quiz Mode (`@quiz`) for study.
+- **Smart Calculator & Utils** – Math solving (`@c-`), currency/unit conversion, and weather fetching.
+- **Font Customization** – Personalize notes with 30+ curated fonts (`@fonts`).
+- **Smart Trash** – Bulk delete, recover, or permanently remove notes with animated Energy Sphere.
+- **Interactive Sound** – Satisfying haptic feedback and dynamic audio cues.
+- **Documentation** – Quick access to help via `@docs`.
+- **Adaptive UI** – Seamless experience across devices with a responsive design.  
 
----
 
 ## Quick Command Reference
 
