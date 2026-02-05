@@ -100,6 +100,8 @@ export function TagEditPopup({ isVisible, onSelect, inputRef }: TagEditPopupProp
                 <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                     <div>Edit: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[old]/edit-[new]</code></div>
                     <div>Delete: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[tag]/delete</code></div>
+                    <div>Pin: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[tag]/pin</code></div>
+                    <div>Star: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[tag]/star</code> or <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[tag]/fav</code></div>
                 </div>
             </div>
         </div>

@@ -32,6 +32,25 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
 
+  // Pinned and Starred Tags State (Persisted in localStorage)
+  const [pinnedTags, setPinnedTags] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('pinnedTags');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [starredTags, setStarredTags] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('starredTags');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   // ... other state definitions ...
 
   // Load notes from IndexedDB on mount
@@ -97,6 +116,15 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isDarkMode]);
 
+  // Persist Pinned/Starred Tags
+  useEffect(() => {
+    localStorage.setItem('pinnedTags', JSON.stringify(pinnedTags));
+  }, [pinnedTags]);
+
+  useEffect(() => {
+    localStorage.setItem('starredTags', JSON.stringify(starredTags));
+  }, [starredTags]);
+
   // Auto-delete notes that have been in trash for 30 days
   useEffect(() => {
     const checkTrash = () => {
@@ -126,7 +154,8 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       ...note,
       id: crypto.randomUUID(),
       isHidden: note.tags.includes('@hide'),
-      isPinnedInFavorite: false,
+      isPinnedInFavorite: note.isPinnedInFavorite || false,
+      pinnedAt: note.isPinned || note.isPinnedInFavorite ? new Date().toISOString() : undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       embedding: embedText(`${note.title} ${note.content} ${tagText}`)
@@ -168,6 +197,21 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
         // Data Consistency: Un-pin from Starred view if un-favorited
         if (updates.isFavorite === false) {
           updatedNote.isPinnedInFavorite = false;
+        }
+
+        // Handle pinnedAt timestamp for LIFO sorting
+        const isTurningOnPin = (updates.isPinned === true && !note.isPinned);
+        const isTurningOnFavPin = (updates.isPinnedInFavorite === true && !note.isPinnedInFavorite);
+
+        if (isTurningOnPin || isTurningOnFavPin) {
+          updatedNote.pinnedAt = new Date().toISOString();
+        }
+
+        const currentlyPinned = updates.isPinned !== undefined ? updates.isPinned : note.isPinned;
+        const currentlyFavPinned = updates.isPinnedInFavorite !== undefined ? updates.isPinnedInFavorite : note.isPinnedInFavorite;
+
+        if (!currentlyPinned && !currentlyFavPinned) {
+          updatedNote.pinnedAt = undefined;
         }
 
         if (
@@ -585,6 +629,18 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     clearSelection();
   };
 
+  const togglePinTag = (tag: string) => {
+    setPinnedTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [tag, ...prev]
+    );
+  };
+
+  const toggleStarTag = (tag: string) => {
+    setStarredTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [tag, ...prev]
+    );
+  };
+
   return (
     <NoteContext.Provider value={{
       notes,
@@ -637,6 +693,10 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       bulkDeleteForever,
       bulkMoveToTrash,
       isNotesLoaded,
+      pinnedTags,
+      starredTags,
+      togglePinTag,
+      toggleStarTag,
     }}>
       {children}
     </NoteContext.Provider>

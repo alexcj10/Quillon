@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Search, Folder, Tag, Check, AlertCircle } from 'lucide-react';
+import { X, Search, Folder, Tag, Check, AlertCircle, Pin, Star } from 'lucide-react';
 import { isFileTag, getFileTagDisplayName } from '../types';
 import { useNotes } from '../context/NoteContext';
-import { parseTagEditCommand, parseTagDeleteCommand, isTagEditCommandStart, extractSearchTermFromCommand, extractTagTypeFromCommand } from '../utils/tagCommandParser';
+import { parseTagEditCommand, parseTagDeleteCommand, parseTagPinCommand, parseTagStarCommand, isTagEditCommandStart, extractSearchTermFromCommand, extractTagTypeFromCommand } from '../utils/tagCommandParser';
 import { TagEditPopup } from './TagEditPopup';
 
 interface TagModalProps {
@@ -14,6 +14,47 @@ interface TagModalProps {
     onToggleTag: (tag: string) => void;
     tagsInFileFolders: Set<string>;
     showTrash: boolean;
+}
+
+interface TagButtonProps {
+    tag: string;
+    isFile: boolean;
+    isSelected: boolean;
+    isInsideFolderTag: boolean;
+    onClick: () => void;
+    displayName: string;
+    isPinned: boolean;
+    isStarred: boolean;
+}
+
+function TagButton({ tag, isFile, isSelected, isInsideFolderTag, onClick, displayName, isPinned, isStarred }: TagButtonProps) {
+    const baseClasses = "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer select-none relative group";
+    const selectedClasses = "bg-blue-500 text-white hover:bg-blue-600";
+    const unselectedFileClasses = "bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-800/40";
+    const unselectedFolderTagClasses = "bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-200 dark:hover:bg-green-800/40";
+    const unselectedNormalClasses = "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600";
+
+    const classes = `${baseClasses} ${isSelected
+        ? selectedClasses
+        : isFile
+            ? unselectedFileClasses
+            : isInsideFolderTag
+                ? unselectedFolderTagClasses
+                : unselectedNormalClasses
+        }`;
+
+    return (
+        <button
+            onClick={onClick}
+            className={classes}
+            title={tag}
+        >
+            {isFile && <Folder className="h-3.5 w-3.5" />}
+            {displayName}
+            {isPinned && <Pin className="h-3 w-3 ml-1 fill-current opacity-70" />}
+            {isStarred && <Star className="h-3 w-3 ml-1 fill-current opacity-70 text-yellow-500" />}
+        </button>
+    );
 }
 
 export function TagModal({
@@ -29,7 +70,7 @@ export function TagModal({
     const [showPopup, setShowPopup] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
-    const { renameTag, deleteTag } = useNotes();
+    const { renameTag, deleteTag, pinnedTags, starredTags, togglePinTag, toggleStarTag } = useNotes();
     const [validationState, setValidationState] = useState<{ isValid: boolean; message: string } | null>(null);
 
     useEffect(() => {
@@ -109,6 +150,73 @@ export function TagModal({
             }
         }
 
+        // Check for pin command validation
+        if (searchTerm.includes('/pin')) {
+            const parts = searchTerm.split('/pin');
+            if (parts.length === 2 && parts[1] === '') {
+                const commandInfo = extractSearchTermFromCommand(searchTerm);
+                if (commandInfo) {
+                    const { tagType, searchTerm: tagName } = commandInfo;
+                    let actualTag = '';
+                    if (tagType === 'blue') {
+                        actualTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === tagName) || '';
+                    } else if (tagType === 'green') {
+                        actualTag = tags.find(tag => !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === tagName) || '';
+                    } else {
+                        actualTag = tags.find(tag => !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === tagName) || '';
+                    }
+
+                    if (actualTag) {
+                        const isPinned = pinnedTags.includes(actualTag);
+                        setValidationState({
+                            isValid: true,
+                            message: `Press Enter to ${isPinned ? 'unpin' : 'pin'} this tag`
+                        });
+                    } else {
+                        setValidationState({
+                            isValid: false,
+                            message: `Tag '${tagName}' not found`
+                        });
+                    }
+                    return;
+                }
+            }
+        }
+
+        // Check for star command validation
+        if (searchTerm.includes('/star') || searchTerm.includes('/fav')) {
+            const separator = searchTerm.includes('/star') ? '/star' : '/fav';
+            const parts = searchTerm.split(separator);
+            if (parts.length === 2 && parts[1] === '') {
+                const commandInfo = extractSearchTermFromCommand(searchTerm);
+                if (commandInfo) {
+                    const { tagType, searchTerm: tagName } = commandInfo;
+                    let actualTag = '';
+                    if (tagType === 'blue') {
+                        actualTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === tagName) || '';
+                    } else if (tagType === 'green') {
+                        actualTag = tags.find(tag => !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === tagName) || '';
+                    } else {
+                        actualTag = tags.find(tag => !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === tagName) || '';
+                    }
+
+                    if (actualTag) {
+                        const isStarred = starredTags.includes(actualTag);
+                        setValidationState({
+                            isValid: true,
+                            message: `Press Enter to ${isStarred ? 'remove from favorites' : 'add to favorites'}`
+                        });
+                    } else {
+                        setValidationState({
+                            isValid: false,
+                            message: `Tag '${tagName}' not found`
+                        });
+                    }
+                    return;
+                }
+            }
+        }
+
         // Check for typos in command keywords (e.g., /editt, /deletes, etc.)
         if (searchTerm.includes('/') && extractTagTypeFromCommand(searchTerm)) {
             const afterSlash = searchTerm.split('/')[1];
@@ -122,16 +230,23 @@ export function TagModal({
                 if (isEditTypo || isDeleteTypo) {
                     setValidationState({
                         isValid: false,
-                        message: `Invalid command. Use "/edit-" for renaming or "/delete" for deletion`
+                        message: `Invalid command. Use "/edit-", "/delete", "/pin", or "/star"`
                     });
                     return;
                 }
 
-                // Check for other common typos
-                if (!lowerAfterSlash.startsWith('edit') && !lowerAfterSlash.startsWith('delete')) {
+                // Check for other common typos or invalid commands
+                const isValidCommand =
+                    lowerAfterSlash.startsWith('edit') ||
+                    lowerAfterSlash.startsWith('delete') ||
+                    lowerAfterSlash.startsWith('pin') ||
+                    lowerAfterSlash.startsWith('star') ||
+                    lowerAfterSlash.startsWith('fav');
+
+                if (!isValidCommand) {
                     setValidationState({
                         isValid: false,
-                        message: `Invalid command. Use "/edit-[newname]" or "/delete"`
+                        message: `Invalid command. Use "/edit-", "/delete", "/pin", or "/star"`
                     });
                     return;
                 }
@@ -210,6 +325,16 @@ export function TagModal({
             (isFileTag(tag) && getFileTagDisplayName(tag).toLowerCase().includes(lowerTerm))
         );
     }, [tags, searchTerm, tagsInFileFolders]);
+
+    // Space Mode Filtering
+    const spaceMode = searchTerm.toLowerCase() === '@space';
+    const displayedTags = useMemo(() => {
+        if (spaceMode) {
+            // Return empty here, we will handle rendering separately for space mode
+            return [];
+        }
+        return filteredTags;
+    }, [spaceMode, filteredTags]);
 
 
 
@@ -361,8 +486,65 @@ export function TagModal({
         }
 
         // If neither command matched
+
+
+        // Try parsing as pin command
+        const pinCommand = parseTagPinCommand(searchTerm);
+        if (pinCommand) {
+            let actualTagName = '';
+            // Resolve tag name logic (similar to delete)
+            if (pinCommand.tagType === 'blue') {
+                const fileTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === pinCommand.tagName);
+                if (!fileTag) { setErrorMessage(`Blue tag "${pinCommand.tagName}" not found.`); return; }
+                actualTagName = fileTag;
+            } else if (pinCommand.tagType === 'green') {
+                const greenTag = tags.find(tag => !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === pinCommand.tagName);
+                if (!greenTag) { setErrorMessage(`Green tag "${pinCommand.tagName}" not found.`); return; }
+                actualTagName = greenTag;
+            } else {
+                const greyTag = tags.find(tag => !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === pinCommand.tagName);
+                if (!greyTag) { setErrorMessage(`Grey tag "${pinCommand.tagName}" not found.`); return; }
+                actualTagName = greyTag;
+            }
+            togglePinTag(actualTagName);
+            setSearchTerm('');
+            setErrorMessage('');
+            return;
+        }
+
+        // Try parsing as star command
+        const starCommand = parseTagStarCommand(searchTerm);
+        if (starCommand) {
+            let actualTagName = '';
+            // Resolve tag name logic
+            if (starCommand.tagType === 'blue') {
+                const fileTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === starCommand.tagName);
+                if (!fileTag) { setErrorMessage(`Blue tag "${starCommand.tagName}" not found.`); return; }
+                actualTagName = fileTag;
+            } else if (starCommand.tagType === 'green') {
+                const greenTag = tags.find(tag => !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === starCommand.tagName);
+                if (!greenTag) { setErrorMessage(`Green tag "${starCommand.tagName}" not found.`); return; }
+                actualTagName = greenTag;
+            } else {
+                const greyTag = tags.find(tag => !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === starCommand.tagName);
+                if (!greyTag) { setErrorMessage(`Grey tag "${starCommand.tagName}" not found.`); return; }
+                actualTagName = greyTag;
+            }
+            toggleStarTag(actualTagName);
+            setSearchTerm('');
+            setErrorMessage('');
+            return;
+        }
+
+        // Special Space Commands
+        if (searchTerm.trim().toLowerCase() === '@space-return') {
+            setSearchTerm('');
+            return;
+        }
+
+        // If neither command matched
         if (isTagEditCommandStart(searchTerm) && searchTerm !== '@') {
-            setErrorMessage('Invalid command format. Use: @[type]-[old]/edit-[new] or @[type]-[tag]/delete');
+            setErrorMessage('Invalid command format. Use: .../edit-[new], .../delete, .../pin, or .../star');
         }
     };
 
@@ -415,7 +597,7 @@ export function TagModal({
                     {extractTagTypeFromCommand(searchTerm) && !searchTerm.includes('/') && (
                         <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                             <p className="text-sm text-blue-600 dark:text-blue-400">
-                                💡 Click on a tag below to select it for editing or deleting
+                                💡 Click on a tag below to select it for editing, deleting, pinning, or starring
                             </p>
                         </div>
                     )}
@@ -469,62 +651,114 @@ export function TagModal({
                         }
                     `}</style>
 
-                    {filteredTags.length === 0 ? (
-                        <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                            No tags found matching "{searchTerm}"
+
+                    {spaceMode ? (
+                        <div className="space-y-6">
+                            {/* Pinned Section */}
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
+                                    <span className="text-lg">📌</span> Pinned
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {tags.filter(tag => pinnedTags.includes(tag)).map(tag => (
+                                        <TagButton
+                                            key={tag}
+                                            tag={tag}
+                                            isFile={isFileTag(tag)}
+                                            isSelected={true}
+                                            isInsideFolderTag={!isFileTag(tag) && tagsInFileFolders.has(tag)}
+                                            onClick={() => {
+                                                // In space mode, maybe clicking just jumps to it? 
+                                                // Or we can treat it as selection toggle if we want.
+                                                // Let's keep it as toggle for now.
+                                                onToggleTag(tag);
+                                            }}
+                                            displayName={isFileTag(tag) ? getFileTagDisplayName(tag) : tag}
+                                            isPinned={true}
+                                            isStarred={starredTags.includes(tag)}
+                                        />
+                                    ))}
+                                    {tags.filter(tag => pinnedTags.includes(tag)).length === 0 && (
+                                        <div className="text-sm text-gray-400 italic">No pinned tags yet.</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Starred Section */}
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
+                                    <span className="text-lg">⭐</span> Favorites
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {tags.filter(tag => starredTags.includes(tag) && !pinnedTags.includes(tag)).map(tag => (
+                                        <TagButton
+                                            key={tag}
+                                            tag={tag}
+                                            isFile={isFileTag(tag)}
+                                            isSelected={true}
+                                            isInsideFolderTag={!isFileTag(tag) && tagsInFileFolders.has(tag)}
+                                            onClick={() => onToggleTag(tag)}
+                                            displayName={isFileTag(tag) ? getFileTagDisplayName(tag) : tag}
+                                            isPinned={false}
+                                            isStarred={true}
+                                        />
+                                    ))}
+                                    {tags.filter(tag => starredTags.includes(tag) && !pinnedTags.includes(tag)).length === 0 && (
+                                        <div className="text-sm text-gray-400 italic">No starred tags yet.</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="pt-8 text-center">
+                                <p className="text-xs text-gray-400">Type <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">@space-return</code> to go back</p>
+                            </div>
                         </div>
                     ) : (
-                        <div className="flex flex-wrap gap-2">
-                            {filteredTags.map(tag => {
-                                const isFile = isFileTag(tag);
-                                const isSelected = selectedTags.includes(tag);
-                                const isInsideFolderTag = !isFile && tagsInFileFolders.has(tag);
+                        displayedTags.length === 0 ? (
+                            <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                                No tags found matching "{searchTerm}"
+                            </div>
+                        ) : (
+                            <div className="flex flex-wrap gap-2">
+                                {displayedTags.map(tag => {
+                                    const isFile = isFileTag(tag);
+                                    const isSelected = selectedTags.includes(tag);
+                                    const isInsideFolderTag = !isFile && tagsInFileFolders.has(tag);
 
-                                // Check if we're in edit mode
-                                const tagType = extractTagTypeFromCommand(searchTerm);
-                                const isEditMode = tagType !== null;
+                                    // Check if we're in edit mode
+                                    const tagType = extractTagTypeFromCommand(searchTerm);
+                                    const isEditMode = tagType !== null;
 
-                                const baseClasses = "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer select-none";
-                                const selectedClasses = "bg-blue-500 text-white hover:bg-blue-600";
-                                const unselectedFileClasses = "bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-800/40";
-                                const unselectedFolderTagClasses = "bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-200 dark:hover:bg-green-800/40";
-                                const unselectedNormalClasses = "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600";
+                                    // Handle tag click based on mode
+                                    const handleTagClick = () => {
+                                        if (isEditMode && tagType) {
+                                            // In edit mode: populate search field with the EXACT tag name
+                                            const tagName = isFile ? getFileTagDisplayName(tag) : tag;
+                                            // Preserve all characters including spaces, special symbols, etc.
+                                            setSearchTerm(`@${tagType}-${tagName}`);
+                                            setErrorMessage('');
+                                        } else {
+                                            // Normal mode: toggle tag selection
+                                            onToggleTag(tag);
+                                        }
+                                    };
 
-                                const classes = `${baseClasses} ${isSelected
-                                    ? selectedClasses
-                                    : isFile
-                                        ? unselectedFileClasses
-                                        : isInsideFolderTag
-                                            ? unselectedFolderTagClasses
-                                            : unselectedNormalClasses
-                                    }`;
-
-                                // Handle tag click based on mode
-                                const handleTagClick = () => {
-                                    if (isEditMode && tagType) {
-                                        // In edit mode: populate search field with the EXACT tag name
-                                        const tagName = isFile ? getFileTagDisplayName(tag) : tag;
-                                        // Preserve all characters including spaces, special symbols, etc.
-                                        setSearchTerm(`@${tagType}-${tagName}`);
-                                        setErrorMessage('');
-                                    } else {
-                                        // Normal mode: toggle tag selection
-                                        onToggleTag(tag);
-                                    }
-                                };
-
-                                return (
-                                    <button
-                                        key={tag}
-                                        onClick={handleTagClick}
-                                        className={classes}
-                                    >
-                                        {isFile && <Folder className="h-3.5 w-3.5" />}
-                                        {isFile ? getFileTagDisplayName(tag) : tag}
-                                    </button>
-                                );
-                            })}
-                        </div>
+                                    return (
+                                        <TagButton
+                                            key={tag}
+                                            tag={tag}
+                                            isFile={isFile}
+                                            isSelected={isSelected}
+                                            isInsideFolderTag={isInsideFolderTag}
+                                            onClick={handleTagClick}
+                                            displayName={isFile ? getFileTagDisplayName(tag) : tag}
+                                            isPinned={pinnedTags.includes(tag)}
+                                            isStarred={starredTags.includes(tag)}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        )
                     )}
 
                 </div>

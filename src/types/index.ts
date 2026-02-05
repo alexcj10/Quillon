@@ -23,6 +23,7 @@ export interface Note {
   color: string;
   isPinned: boolean;
   isPinnedInFavorite?: boolean;
+  pinnedAt?: string;
   isFavorite: boolean;
   isPrivate: boolean;
   isDeleted?: boolean;
@@ -103,6 +104,10 @@ export interface NoteContextType {
   checkShareProtection: (id: string, password?: string) => boolean;
   renameTag: (oldTagName: string, newTagName: string) => { success: boolean; error?: string };
   deleteTag: (tagName: string, permanentDelete?: boolean) => { success: boolean; error?: string };
+  pinnedTags: string[];
+  starredTags: string[];
+  togglePinTag: (tag: string) => void;
+  toggleStarTag: (tag: string) => void;
   selectionMode: boolean;
   setSelectionMode: (mode: boolean) => void;
   selectedNoteIds: Set<string>;

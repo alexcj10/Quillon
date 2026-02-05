@@ -9,6 +9,17 @@ export interface TagDeleteCommand {
   tagName: string;
 }
 
+
+export interface TagPinCommand {
+  tagType: 'blue' | 'green' | 'grey';
+  tagName: string;
+}
+
+export interface TagStarCommand {
+  tagType: 'blue' | 'green' | 'grey';
+  tagName: string;
+}
+
 /**
  * Parses tag edit command in format: @[type]-[old]/edit-[new]
  * Returns parsed command object or null if invalid
@@ -72,6 +83,51 @@ export function parseTagDeleteCommand(input: string): TagDeleteCommand | null {
   if (!tagName.trim()) {
     return null;
   }
+
+  return {
+    tagType: tagType as 'blue' | 'green' | 'grey',
+    tagName: tagName.trim(),
+  };
+}
+
+/**
+ * Parses tag pin command in format: @[type]-[tagname]/pin
+ * Returns parsed command object or null if invalid
+ */
+export function parseTagPinCommand(input: string): TagPinCommand | null {
+  if (!input.startsWith('@')) return null;
+
+  const pattern = /^@(blue|green|grey)-(.+?)\/pin$/;
+  const match = input.match(pattern);
+
+  if (!match) return null;
+
+  const [, tagType, tagName] = match;
+
+  if (!tagName.trim()) return null;
+
+  return {
+    tagType: tagType as 'blue' | 'green' | 'grey',
+    tagName: tagName.trim(),
+  };
+}
+
+/**
+ * Parses tag star command in format: @[type]-[tagname]/star or /fav
+ * Returns parsed command object or null if invalid
+ */
+export function parseTagStarCommand(input: string): TagStarCommand | null {
+  if (!input.startsWith('@')) return null;
+
+  // Support both /star and /fav
+  const pattern = /^@(blue|green|grey)-(.+?)\/(star|fav)$/;
+  const match = input.match(pattern);
+
+  if (!match) return null;
+
+  const [, tagType, tagName] = match;
+
+  if (!tagName.trim()) return null;
 
   return {
     tagType: tagType as 'blue' | 'green' | 'grey',

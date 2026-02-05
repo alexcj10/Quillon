@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Search, Star, Folder, MoreHorizontal, Tag, Globe, Book } from 'lucide-react';
+import { Search, Star, Folder, MoreHorizontal, Tag, Globe, Book, Pin } from 'lucide-react';
 import { useNotes } from '../context/NoteContext';
 import { useNodesWidget } from '../context/NodesContext';
 import { useSound } from '../context/SoundContext';
@@ -46,6 +46,8 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
     bulkDeleteForever,
     bulkMoveToTrash,
     selectedNoteIds,
+    pinnedTags,
+    starredTags,
   } = useNotes();
 
   const { setIsOpen, addNode } = useNodesWidget();
@@ -117,12 +119,22 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
   ), [visibleNotes]);
 
   // Maintain creation order while grouping file tags with their green tags
+  // BUT: put pinned tags first!
   const sortedTags = useMemo(() => {
     const result: string[] = [];
     const processedTags = new Set<string>();
 
+    // 1. First, handle pinned tags to ensure they are at the front
+    pinnedTags.forEach(tag => {
+      if (allTags.includes(tag)) {
+        result.push(tag);
+        processedTags.add(tag);
+      }
+    });
+
+    // 2. Then, follow the original grouping logic for the remaining tags
     allTags.forEach(tag => {
-      // Skip if already processed
+      // Skip if already processed (meaning it was pinned)
       if (processedTags.has(tag)) return;
 
       if (isFileTag(tag)) {
@@ -150,7 +162,7 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
     });
 
     return result;
-  }, [allTags, visibleNotes]);
+  }, [allTags, visibleNotes, pinnedTags]);
 
   const VISIBLE_TAGS_LIMIT = 20;
   const visibleTags = sortedTags.slice(0, VISIBLE_TAGS_LIMIT);
@@ -554,10 +566,15 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
                 : unselectedNormalClasses
             }`;
 
+          const isPinned = pinnedTags.includes(tag);
+          const isStarred = starredTags.includes(tag);
+
           return (
             <button key={tag} onClick={() => toggleTag(tag)} className={classes}>
               {isFile && <Folder className="h-4 w-4" />}
               {isFile ? getFileTagDisplayName(tag) : tag}
+              {isPinned && <Pin className="h-3 w-3 ml-1 fill-current opacity-70" />}
+              {isStarred && <Star className="h-3 w-3 ml-1 fill-current opacity-70 text-yellow-500" />}
             </button>
           );
         })}

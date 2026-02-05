@@ -115,6 +115,11 @@ function NoteList() {
 
       if (isPinnedA !== isPinnedB) return isPinnedB ? 1 : -1;
 
+      // If both are pinned, sort by pinnedAt (newest pin first)
+      if (isPinnedA && isPinnedB) {
+        return new Date(b.pinnedAt || b.createdAt).getTime() - new Date(a.pinnedAt || a.createdAt).getTime();
+      }
+
       // If in trash, sort by deletion date
       if (showTrash) {
         return new Date(b.deletedAt!).getTime() - new Date(a.deletedAt!).getTime();
