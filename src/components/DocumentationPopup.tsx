@@ -115,7 +115,7 @@ Mix these anywhere in the content section:
     *   \`is:hide\` — Hide from Main View (👁️‍🗨️)
 *   **Tags**: \`##tag\` (Grey) or \`##fileFolder\` (Blue).
 
-> [!TIP]
+> ✨ **Tip**:
 > **Full Example**: \`@new-Einstein || @wiki-Albert Einstein || ##science ##fileWork || c:purple || is:fav || is:pin\`
 > 
 > **Compact Style**: \`@new-Notes||Content here||##work||is:star\`
