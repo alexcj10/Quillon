@@ -125,34 +125,26 @@ Mix these anywhere in the content section:
 ---
 
 ## ⚙️ Advanced Tag Management
-
-Powerful tag editing and deletion via the **All Tags** button or **+more** icon.
-
-### 🔑 Access
-- Click **All Tags** button  
-- Or click **+X more** when many tags are present
-
-### ✏️ Edit Tag Names
-1. Type \`@\` to see tag type options (\`blue / green / grey\`)
-2. Select tag type, then click on any tag to auto-populate
-3. Add \`/edit-[newname]\` to rename  
-   - Example: \`@blue-oldname/edit-newname\`
-4. Press **Enter** to confirm
-
-### 🗑️ Delete & Manage Tags
-- **Edit**: \`@[type]-[tagname]/edit-[newname]\`
-- **Delete**: \`@[type]-[tagname]/delete\`
-- **Pin**: \`@[type]-[tagname]/pin\` (Keep at top)
-- **Star/Fav**: \`@[type]-[tagname]/star\` (Favorite)
-
-- Press **Enter** to confirm
-
-### 🌌 Space View
-- **Enter**: Type \`@space\` in All Tags search to enter Pinned & Favorite space
-- **Exit**: Type \`@space-return\` to return to all tags
-
-### ✅ Smart Validation
-- Real-time feedback on command validity and tag availability
+Powerful tag editing, deletion and organization via the **All Tags** button or **+more** icon:
+- **Access**: Click "All Tags" button or "+X more" when you have many tags
+- **Edit Tag Names**:
+  - Type \`@\` to see tag type options (blue/green/grey)
+  - Select tag type, then click on any tag to auto-populate
+  - Add \`/edit-[newname]\` to rename: \`@blue-oldname/edit-newname\`
+  - Press Enter to confirm
+- **Pin/Star Tags**:
+  - Type \`@[type]-[tagname]/pin\` to pin important tags to the top
+  - Type \`@[type]-[tagname]/star\` or \`@[type]-[tagname]/fav\` to favorite tags
+  - Press Enter to confirm
+- **Space View**:
+  - Type \`@space\` to enter your dedicated **Pinned & Favorite** space
+  - Type \`@space-return\` to exit and return to the full tag list
+- **Delete Tags**:
+  - Type \`@[type]-[tagname]/delete\` (e.g., \`@grey-work/delete\`)
+  - In **Main View**: Deletes tag and moves all associated notes to trash
+  - In **Trash View**: Permanently deletes tag and all associated notes
+  - Press Enter to confirm
+- **Smart Validation**: Real-time feedback on command validity and tag availability
 
 ---
 
