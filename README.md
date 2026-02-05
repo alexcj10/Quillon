@@ -54,7 +54,7 @@ Quickly access the documentation popup directly from the search bar.
 - **Action**: Opens the documentation popup instantly.
 
 ### Advanced Tag Management
-Powerful tag editing and deletion via the **All Tags** button or **+more** icon:
+Powerful tag editing, deletion and organization via the **All Tags** button or **+more** icon:
 - **Access**: Click "All Tags" button or "+X more" when you have many tags
 - **Edit Tag Names**:
   - Type `@` to see tag type options (blue/green/grey)
