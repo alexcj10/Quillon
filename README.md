@@ -61,6 +61,13 @@ Powerful tag editing and deletion via the **All Tags** button or **+more** icon:
   - Select tag type, then click on any tag to auto-populate
   - Add `/edit-[newname]` to rename: `@blue-oldname/edit-newname`
   - Press Enter to confirm
+- **Pin/Star Tags**:
+  - Type `@[type]-[tagname]/pin` to pin important tags to the top
+  - Type `@[type]-[tagname]/star` or `@[type]-[tagname]/fav` to favorite tags
+  - Press Enter to confirm
+- **Space View**:
+  - Type `@space` to enter your dedicated **Pinned & Favorite** space
+  - Type `@space-return` to exit and return to the full tag list
 - **Delete Tags**:
   - Type `@[type]-[tagname]/delete` (e.g., `@grey-work/delete`)
   - In **Main View**: Deletes tag and moves all associated notes to trash
@@ -383,6 +390,14 @@ Access via **All Tags** button or **+more** icon:
 | `@` | Show tag type selector | `@` |
 | `@[type]-[name]/edit-[new]` | Rename a tag | `@blue-work/edit-projects` |
 | `@[type]-[name]/delete` | Delete tag & associated notes | `@grey-archive/delete` |
+| `@[type]-[name]/pin` | Pin/Unpin a tag | `@grey-work/pin` |
+| `@[type]-[name]/star` | Fav/Unfav a tag | `@blue-work/star` |
+
+### Space Commands
+| Command | Description | Example |
+|---------|-------------|---------|
+| `@space` | Enter Pinned & Favorite space | `@space` |
+| `@space-return` | Return to all tags | `@space-return` |
 
 ### Hide/Show Commands
 | Command | Description | Example |
