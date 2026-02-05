@@ -139,15 +139,17 @@ Powerful tag editing and deletion via the **All Tags** button or **+more** icon.
    - Example: \`@blue-oldname/edit-newname\`
 4. Press **Enter** to confirm
 
-### 🗑️ Delete Tags
-- Type \`@[type]-[tagname]/delete\`  
-  - Example: \`@grey-work/delete\`
-
-**Behavior:**
-- **Main View** → Deletes tag and moves all associated notes to **Trash**
-- **Trash View** → Permanently deletes tag and all associated notes
+### 🗑️ Delete & Manage Tags
+- **Edit**: \`@[type]-[tagname]/edit-[newname]\`
+- **Delete**: \`@[type]-[tagname]/delete\`
+- **Pin**: \`@[type]-[tagname]/pin\` (Keep at top)
+- **Star/Fav**: \`@[type]-[tagname]/star\` (Favorite)
 
 - Press **Enter** to confirm
+
+### 🌌 Space View
+- **Enter**: Type \`@space\` in All Tags search to enter Pinned & Favorite space
+- **Exit**: Type \`@space-return\` to return to all tags
 
 ### ✅ Smart Validation
 - Real-time feedback on command validity and tag availability
