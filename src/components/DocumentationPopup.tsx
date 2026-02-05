@@ -36,6 +36,8 @@ const DocumentationPopup = ({ isOpen, onClose }: DocumentationPopupProps) => {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'unset';
+            // Reset search query when closing
+            setSearchQuery('');
         }
         return () => {
             document.body.style.overflow = 'unset';
