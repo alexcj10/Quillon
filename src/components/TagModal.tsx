@@ -72,8 +72,26 @@ export function TagModal({
     const inputRef = useRef<HTMLInputElement>(null);
     const { renameTag, deleteTag, pinnedTags, starredTags, togglePinTag, toggleStarTag } = useNotes();
     const [validationState, setValidationState] = useState<{ isValid: boolean; message: string } | null>(null);
+    const [isSpaceMode, setIsSpaceMode] = useState(false);
 
     useEffect(() => {
+        // Check for @space command validation
+        if (searchTerm.toLowerCase() === '@space' && !isSpaceMode) {
+            setValidationState({
+                isValid: true,
+                message: 'Press Enter to open your Pinned & Favorite space'
+            });
+            return;
+        }
+
+        if (searchTerm.toLowerCase() === '@space-return' && isSpaceMode) {
+            setValidationState({
+                isValid: true,
+                message: 'Press Enter to return to all tags'
+            });
+            return;
+        }
+
         // Check for edit command validation
         if (searchTerm.includes('/edit-')) {
             const parts = searchTerm.split('/edit-');
@@ -326,15 +344,13 @@ export function TagModal({
         );
     }, [tags, searchTerm, tagsInFileFolders]);
 
-    // Space Mode Filtering
-    const spaceMode = searchTerm.toLowerCase() === '@space';
     const displayedTags = useMemo(() => {
-        if (spaceMode) {
+        if (isSpaceMode) {
             // Return empty here, we will handle rendering separately for space mode
             return [];
         }
         return filteredTags;
-    }, [spaceMode, filteredTags]);
+    }, [isSpaceMode, filteredTags]);
 
 
 
@@ -537,8 +553,17 @@ export function TagModal({
         }
 
         // Special Space Commands
-        if (searchTerm.trim().toLowerCase() === '@space-return') {
+        if (searchTerm.trim().toLowerCase() === '@space') {
+            setIsSpaceMode(true);
             setSearchTerm('');
+            setErrorMessage('');
+            return;
+        }
+
+        if (searchTerm.trim().toLowerCase() === '@space-return') {
+            setIsSpaceMode(false);
+            setSearchTerm('');
+            setErrorMessage('');
             return;
         }
 
@@ -652,7 +677,7 @@ export function TagModal({
                     `}</style>
 
 
-                    {spaceMode ? (
+                    {isSpaceMode ? (
                         <div className="space-y-6">
                             {/* Pinned Section */}
                             <div>
@@ -665,7 +690,7 @@ export function TagModal({
                                             key={tag}
                                             tag={tag}
                                             isFile={isFileTag(tag)}
-                                            isSelected={true}
+                                            isSelected={selectedTags.includes(tag)}
                                             isInsideFolderTag={!isFileTag(tag) && tagsInFileFolders.has(tag)}
                                             onClick={() => {
                                                 // In space mode, maybe clicking just jumps to it? 
@@ -695,7 +720,7 @@ export function TagModal({
                                             key={tag}
                                             tag={tag}
                                             isFile={isFileTag(tag)}
-                                            isSelected={true}
+                                            isSelected={selectedTags.includes(tag)}
                                             isInsideFolderTag={!isFileTag(tag) && tagsInFileFolders.has(tag)}
                                             onClick={() => onToggleTag(tag)}
                                             displayName={isFileTag(tag) ? getFileTagDisplayName(tag) : tag}
