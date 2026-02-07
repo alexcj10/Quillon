@@ -153,6 +153,11 @@ export interface TagGroupActionCommand {
   action: 'drop' | 'view' | 'remove' | 'back';
 }
 
+export interface TagGroupRenameCommand {
+  oldName: string;
+  newName: string;
+}
+
 /**
  * Parses group create command: @orange-[name]/create
  */
@@ -193,7 +198,7 @@ export function parseTagGroupEnterCommand(input: string): TagGroupEnterCommand |
 }
 
 /**
- * Parses sub-commands inside a group: /drop, /view, /remove, /back
+ * Parses group action commands (e.g., /view, /edit-new)
  */
 export function parseTagGroupActionCommand(input: string): TagGroupActionCommand | null {
   if (!input.startsWith('/')) return null;
@@ -201,6 +206,19 @@ export function parseTagGroupActionCommand(input: string): TagGroupActionCommand
   const match = input.match(pattern);
   if (!match) return null;
   return { action: match[1] as 'drop' | 'view' | 'remove' | 'back' };
+}
+
+/**
+ * Parses group rename command: @orange-[oldName]/edit-[newName]
+ */
+export function parseTagGroupRenameCommand(input: string): TagGroupRenameCommand | null {
+  if (!input.startsWith('@')) return null;
+  const pattern = /^@orange-(.+?)\/edit-(.+)$/;
+  const match = input.match(pattern);
+  if (!match) return null;
+  const [, oldName, newName] = match;
+  if (!oldName.trim() || !newName.trim()) return null;
+  return { oldName: oldName.trim(), newName: newName.trim() };
 }
 
 /**

@@ -140,6 +140,7 @@ export interface NoteContextType {
   removeTagFromGroup: (groupName: string, tagName: string) => void;
   enterGroupView: (groupName: string) => void;
   exitGroupView: () => void;
+  renameTagGroup: (oldName: string, newName: string) => { success: boolean; error?: string };
   orangeMode: { isActive: boolean; groupName: string | null };
   activeFilterGroup: string | null;
   setActiveFilterGroup: (groupName: string | null) => void;

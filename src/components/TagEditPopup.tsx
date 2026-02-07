@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 interface TagEditPopupProps {
     isVisible: boolean;
-    onSelect: (tagType: 'blue' | 'green' | 'grey') => void;
+    onSelect: (tagType: 'blue' | 'green' | 'grey' | 'orange') => void;
     inputRef: React.RefObject<HTMLInputElement>;
 }
 
@@ -53,6 +53,13 @@ export function TagEditPopup({ isVisible, onSelect, inputRef }: TagEditPopupProp
             description: 'Other tags',
             icon: '🔖',
             colorClass: 'bg-gray-50 text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+        },
+        {
+            type: 'orange' as const,
+            label: 'orange',
+            description: 'Group tags',
+            icon: '🍊',
+            colorClass: 'bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-900/30 dark:text-orange-200 dark:hover:bg-orange-800/40'
         }
     ];
 
@@ -100,8 +107,9 @@ export function TagEditPopup({ isVisible, onSelect, inputRef }: TagEditPopupProp
                 <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                     <div>Edit: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[old]/edit-[new]</code></div>
                     <div>Delete: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[tag]/delete</code></div>
-                    <div>Pin: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[tag]/pin</code></div>
-                    <div>Star: <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[tag]/star</code> or <code className="text-xs bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@[type]-[tag]/fav</code></div>
+                    <div className="pt-1 border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5 opacity-80">
+                        <span className="text-orange-500">💡</span> Orange tags use <code className="text-[10px] bg-amber-50 dark:bg-amber-900/30 px-1 rounded">/etots</code> to enter
+                    </div>
                 </div>
             </div>
         </div>

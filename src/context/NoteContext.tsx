@@ -746,6 +746,30 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     db.saveTagGroup(updatedGroup);
   };
 
+  const renameTagGroup = (oldName: string, newName: string): { success: boolean; error?: string } => {
+    const group = tagGroups.find(g => g.name === oldName);
+    if (!group) return { success: false, error: `Group "${oldName}" not found.` };
+
+    const nameExists = tagGroups.some(g => g.name === newName);
+    if (nameExists) return { success: false, error: `A group named "${newName}" already exists.` };
+
+    const updatedGroup = {
+      ...group,
+      name: newName,
+      updatedAt: new Date().toISOString()
+    };
+
+    setTagGroups(prev => prev.map(g => g.name === oldName ? updatedGroup : g));
+    db.saveTagGroup(updatedGroup);
+
+    // If we are currently in this group view, update the orangeMode state
+    if (orangeMode.isActive && orangeMode.groupName === oldName) {
+      setOrangeMode({ ...orangeMode, groupName: newName });
+    }
+
+    return { success: true };
+  };
+
   const enterGroupView = (groupName: string) => {
     if (tagGroups.some(g => g.name === groupName)) {
       setOrangeMode({ isActive: true, groupName });
@@ -815,6 +839,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       tagGroups,
       createTagGroup,
       deleteTagGroup,
+      renameTagGroup,
       addTagToGroup,
       removeTagFromGroup,
       enterGroupView,

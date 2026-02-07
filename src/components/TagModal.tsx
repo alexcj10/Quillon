@@ -6,6 +6,7 @@ import { useNotes } from '../context/NoteContext';
 import {
     parseTagEditCommand, parseTagDeleteCommand, parseTagPinCommand, parseTagStarCommand,
     parseTagGroupCreateCommand, parseTagGroupDeleteCommand, parseTagGroupEnterCommand, parseTagGroupActionCommand,
+    parseTagGroupRenameCommand,
     isTagEditCommandStart, extractSearchTermFromCommand, extractTagTypeFromCommand
 } from '../utils/tagCommandParser';
 import { TagEditPopup } from './TagEditPopup';
@@ -114,7 +115,7 @@ export function TagModal({
     const inputRef = useRef<HTMLInputElement>(null);
     const {
         renameTag, deleteTag, pinnedTags, starredTags, togglePinTag, toggleStarTag,
-        tagGroups, createTagGroup, deleteTagGroup, addTagToGroup, removeTagFromGroup,
+        tagGroups, createTagGroup, deleteTagGroup, renameTagGroup, addTagToGroup, removeTagFromGroup,
         enterGroupView, exitGroupView, orangeMode, showHidden
     } = useNotes();
     const [validationState, setValidationState] = useState<{ isValid: boolean; message: string } | null>(null);
@@ -519,7 +520,7 @@ export function TagModal({
         setErrorMessage(''); // Clear error on input change
     };
 
-    const handleTagTypeSelect = (tagType: 'blue' | 'green' | 'grey') => {
+    const handleTagTypeSelect = (tagType: 'blue' | 'green' | 'grey' | 'orange') => {
         setSearchTerm(`@${tagType}-`);
         setShowPopup(false);
         inputRef.current?.focus();
@@ -604,6 +605,44 @@ export function TagModal({
                 setErrorMessage("Use / commands (like /drop, /view) while in an Orange Tag group.");
                 return;
             }
+        }
+
+        // Administrative Orange Commands
+        const orangeRenameCmd = parseTagGroupRenameCommand(searchTerm);
+        if (orangeRenameCmd) {
+            const result = renameTagGroup(orangeRenameCmd.oldName, orangeRenameCmd.newName);
+            if (result.success) {
+                setSearchTerm('');
+                setErrorMessage('');
+                // If it was the current group name, the context already updated it
+            } else {
+                setErrorMessage(result.error || "Failed to rename group.");
+            }
+            return;
+        }
+
+        const orangeDeleteCmd = parseTagGroupDeleteCommand(searchTerm);
+        if (orangeDeleteCmd) {
+            const result = deleteTagGroup(orangeDeleteCmd.groupName);
+            if (result.success) {
+                setSearchTerm('');
+                setErrorMessage('');
+            } else {
+                setErrorMessage(result.error || "Failed to delete group.");
+            }
+            return;
+        }
+
+        const orangeCreateCmd = parseTagGroupCreateCommand(searchTerm);
+        if (orangeCreateCmd) {
+            const result = createTagGroup(orangeCreateCmd.groupName);
+            if (result.success) {
+                setSearchTerm('');
+                setErrorMessage('');
+            } else {
+                setErrorMessage(result.error || "Failed to create group.");
+            }
+            return;
         }
 
         // ... existing edit command logic ...
@@ -864,7 +903,7 @@ export function TagModal({
                     )}
                     {orangeMode.isActive && (
                         <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
-                        <p className="text-sm text-amber-600 dark:text-amber-400">
+                            <p className="text-sm text-amber-600 dark:text-amber-400">
                                 {groupViewMode === 'drop' ? "💡 Click on a tag below to drop it into this group" :
                                     groupViewMode === 'remove' ? "💡 Click on a tag below to remove it from this group" :
                                         "💡 Click on a tag below to filter notes by this specific tag"}
@@ -1046,13 +1085,36 @@ export function TagModal({
                                                 return true;
                                             }) // Visibility filter only for Hidden mode
                                             .filter(g => !searchTerm || g.name.toLowerCase().includes(searchTerm.toLowerCase().replace('@orange-', '')))
-                                            .map(group => (
-                                                <GroupTagButton
-                                                    key={group.id}
-                                                    name={group.name}
-                                                    onClick={() => enterGroupView(group.name)}
-                                                />
-                                            ))}
+                                            .map(group => {
+                                                const tagType = extractTagTypeFromCommand(searchTerm);
+                                                const handleGroupClick = () => {
+                                                    if (tagType === 'orange') {
+                                                        setSearchTerm(`@orange-${group.name}`);
+                                                        setErrorMessage('');
+                                                    } else {
+                                                        enterGroupView(group.name);
+                                                    }
+                                                };
+                                                return (
+                                                    <GroupTagButton
+                                                        key={group.id}
+                                                        name={group.name}
+                                                        onClick={handleGroupClick}
+                                                    />
+                                                );
+                                            })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {extractTagTypeFromCommand(searchTerm) === 'orange' && tagGroups.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase().replace('@orange-', ''))).length === 0 && (
+                                <div className="mt-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
+                                    <div className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
+                                        <p className="font-semibold mb-1">Orange Tag Commands:</p>
+                                        <div>Create: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/create</code></div>
+                                        <div>Delete: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/delete</code></div>
+                                        <div>Enter: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/etots</code></div>
+                                        <div>Rename: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[old]/edit-[new]</code></div>
                                     </div>
                                 </div>
                             )}
