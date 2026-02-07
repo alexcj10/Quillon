@@ -1060,7 +1060,8 @@ export function TagModal({
                             {(!searchTerm || searchTerm.toLowerCase().includes('orange')) && tagGroups.length > 0 && (
                                 <div className="mb-4">
                                     <div className="flex flex-wrap gap-2">
-                                        {tagGroups
+                                        {[...tagGroups]
+                                            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                                             .filter(g => {
                                                 if (showHidden) {
                                                     return g.tags?.some(tag => (allVisibleTags || []).includes(tag));

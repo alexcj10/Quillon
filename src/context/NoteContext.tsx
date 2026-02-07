@@ -681,7 +681,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       updatedAt: new Date().toISOString()
     };
 
-    setTagGroups(prev => [...prev, newGroup]);
+    setTagGroups(prev => [newGroup, ...prev]);
     db.saveTagGroup(newGroup);
     return { success: true };
   };

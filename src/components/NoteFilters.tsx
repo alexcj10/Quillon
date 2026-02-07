@@ -114,7 +114,7 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
     (note.isHidden || false) === showHidden
   ), [notes, showPrivateNotes, showTrash, showHidden]);
 
-  const allTags = useMemo(() => Array.from(new Set(visibleNotes.flatMap(note => note.tags.filter(tag => tag !== '@hide')))), [visibleNotes]);
+  const allTags = useMemo(() => Array.from(new Set([...visibleNotes].reverse().flatMap(note => note.tags.filter(tag => tag !== '@hide')))), [visibleNotes]);
 
   const tagsInFileFolders = useMemo(() => new Set(
     visibleNotes
