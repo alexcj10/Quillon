@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { X } from 'lucide-react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 
@@ -9,9 +8,7 @@ interface TagRestrictionInfoProps {
 }
 
 export function TagRestrictionInfo({ isOpen, onClose, conflictingTagName }: TagRestrictionInfoProps) {
-    const modalRef = useRef<HTMLDivElement>(null);
-
-    useOutsideClick({
+    const modalRef = useOutsideClick({
         onOutsideClick: onClose,
         isOpen
     });
