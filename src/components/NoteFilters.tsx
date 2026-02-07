@@ -11,6 +11,8 @@ import { BulkRecoveryPopup } from './BulkRecoveryPopup';
 import { BulkActionsPopup } from './BulkActionsPopup';
 import { ConfirmDialog } from './ConfirmDialog';
 import { EnergySphere } from './EnergySphere';
+import { GroupTagButton } from './GroupTagButton';
+import { GroupOverviewPopup } from './GroupOverviewPopup';
 import { evaluateMathCommand, isMathCommand } from '../utils/mathCommandParser';
 import { MathResultPopup } from './MathResultPopup';
 import { AIResultPopup } from './AIResultPopup';
@@ -78,6 +80,16 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isAiPopupVisible, setIsAiPopupVisible] = useState(false);
   const [aiPopupType, setAiPopupType] = useState<'ai' | 'wiki' | 'def'>('ai');
+  const [overviewGroup, setOverviewGroup] = useState<{ name: string; x: number; y: number } | null>(null);
+
+  const handleGroupContextMenu = (e: React.MouseEvent, name: string) => {
+    e.preventDefault();
+    setOverviewGroup({ name, x: e.clientX, y: e.clientY });
+  };
+
+  const handleGroupLongPress = (name: string, x: number, y: number) => {
+    setOverviewGroup({ name, x, y });
+  };
 
   const searchBarRef = useOutsideClick({
     onOutsideClick: () => {
@@ -97,8 +109,9 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
     setIsMainBulkPopupOpen(false);
     setSelectionMode(false);
     clearSelection();
+    setOverviewGroup(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showTrash]);
+  }, [showTrash, isTagModalOpen]);
 
   // Auto-close popups when selection mode is deactivated globally
   useEffect(() => {
@@ -553,34 +566,45 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
 
         {/* TAG BUTTONS */}
 
-        {/* Render Orange Groups First (if any) */}
         {tagGroups.filter(group => group.tags.some(tag => allTags.includes(tag))).map(group => {
           const isActive = activeFilterGroup === group.name;
 
           return (
-            <button
+            <GroupTagButton
               key={group.id}
+              name={group.name}
+              isActive={isActive}
               onClick={() => {
                 if (isActive) {
                   setActiveFilterGroup(null);
                 } else {
                   setActiveFilterGroup(group.name);
-                  setSelectedTags([]); // Clear other filters to show group clearly
+                  setSelectedTags([]);
                 }
               }}
-              className={`inline-flex items-center rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation px-4 py-2 gap-1 focus:outline-none
-                ${isActive
-                  ? 'bg-amber-500 text-white dark:bg-amber-600'
-                  : 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/50 dark:text-amber-200 dark:hover:bg-amber-800/50'
-                }
-            `}
-              title={`Filter by ${group.name}`}
-            >
-              <span className="flex items-center justify-center h-4 w-4 text-base leading-none">🍊</span>
-              {group.name}
-            </button>
+              onContextMenu={handleGroupContextMenu}
+              onLongPress={handleGroupLongPress}
+            />
           )
         })}
+
+        {overviewGroup && (
+          <GroupOverviewPopup
+            groupName={overviewGroup.name}
+            tags={tagGroups.find(g => g.name === overviewGroup.name)?.tags || []}
+            selectedTags={selectedTags}
+            x={overviewGroup.x}
+            y={overviewGroup.y}
+            onClose={() => setOverviewGroup(null)}
+            onTagSelect={(tag) => {
+              if (selectedTags.includes(tag)) {
+                setSelectedTags(selectedTags.filter(t => t !== tag));
+              } else {
+                setSelectedTags([...selectedTags, tag]);
+              }
+            }}
+          />
+        )}
 
         {visibleTags.map(tag => {
           const isFile = isFileTag(tag);

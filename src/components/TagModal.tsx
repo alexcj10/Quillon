@@ -11,6 +11,8 @@ import {
 } from '../utils/tagCommandParser';
 import { TagEditPopup } from './TagEditPopup';
 import { GroupCommandPopup } from './GroupCommandPopup';
+import { GroupTagButton } from './GroupTagButton';
+import { GroupOverviewPopup } from './GroupOverviewPopup';
 
 interface TagModalProps {
     isOpen: boolean;
@@ -74,30 +76,6 @@ function TagButton({ tag, isFile, isSelected, isInsideFolderTag, onClick, displa
     );
 }
 
-interface GroupTagButtonProps {
-    name: string;
-    onClick: () => void;
-    isActive?: boolean;
-}
-
-function GroupTagButton({ name, onClick, isActive }: GroupTagButtonProps) {
-    // Coral/Amber style
-    const baseClasses = "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer select-none relative group";
-    const activeClasses = "bg-amber-500 text-white hover:bg-amber-600"; // Highlighted when entering?
-    // User requested "Orange" tag match Blue intensity but NO border.
-    const normalClasses = "bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-800/40";
-
-    return (
-        <button
-            onClick={onClick}
-            className={`${baseClasses} ${isActive ? activeClasses : normalClasses}`}
-            title={`Group: ${name}`}
-        >
-            <span className="flex items-center justify-center h-3.5 w-3.5 text-sm leading-none">🍊</span>
-            {name}
-        </button>
-    );
-}
 
 export function TagModal({
     isOpen,
@@ -112,6 +90,17 @@ export function TagModal({
     const [searchTerm, setSearchTerm] = useState('');
     const [showPopup, setShowPopup] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [overviewGroup, setOverviewGroup] = useState<{ name: string; x: number; y: number } | null>(null);
+
+    const handleGroupContextMenu = (e: React.MouseEvent, name: string) => {
+        e.preventDefault();
+        setOverviewGroup({ name, x: e.clientX, y: e.clientY });
+    };
+
+    const handleGroupLongPress = (name: string, x: number, y: number) => {
+        setOverviewGroup({ name, x, y });
+    };
+
     const inputRef = useRef<HTMLInputElement>(null);
     const {
         renameTag, deleteTag, pinnedTags, starredTags, togglePinTag, toggleStarTag,
@@ -141,6 +130,7 @@ export function TagModal({
             setIsSpaceMode(false);
             setValidationState(null);
             setShowGroupPopup(false);
+            setOverviewGroup(null);
         }
     }, [isOpen]);
 
@@ -1146,11 +1136,27 @@ export function TagModal({
                                                         key={group.id}
                                                         name={group.name}
                                                         onClick={handleGroupClick}
+                                                        onContextMenu={handleGroupContextMenu}
+                                                        onLongPress={handleGroupLongPress}
                                                     />
                                                 );
                                             })}
                                     </div>
                                 </div>
+                            )}
+
+                            {overviewGroup && (
+                                <GroupOverviewPopup
+                                    groupName={overviewGroup.name}
+                                    tags={tagGroups.find(g => g.name === overviewGroup.name)?.tags || []}
+                                    selectedTags={selectedTags}
+                                    x={overviewGroup.x}
+                                    y={overviewGroup.y}
+                                    onClose={() => setOverviewGroup(null)}
+                                    onTagSelect={(tag) => {
+                                        onToggleTag(tag);
+                                    }}
+                                />
                             )}
 
                             {extractTagTypeFromCommand(searchTerm) === 'orange' && tagGroups.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase().replace('@orange-', ''))).length === 0 && (
