@@ -85,6 +85,13 @@ Once inside a group, use these slash commands:
 - \`/remove\`: Select tags to remove from the group (they return to the main list)
 - \`/back\`: Return to the main tag view
 
+### ✏️ Rename Group
+- **Command**: Type \`@orange-[old]/edit-[new]\` (e.g., \`@orange-Work/edit-Office\`)
+
+### ⚡ Quick Peek
+- **Action**: **Right-click** (Desktop) or **Long-press** (Mobile) on any Orange Group button.
+- **Result**: Instantly opens a popup showing all tags inside, allowing you to click them without entering the group.
+
 ### 🗑️ Delete Group
 - **Command**: Type \`@orange-[name]/delete\`
 - **Result**: Removes the group container but **releases** all tags back to the main list (safe delete).

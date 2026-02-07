@@ -51,6 +51,8 @@ Organize your grey tags into named groups to keep your workspace clean:
   - `/view`: Show tags currently in the group.
   - `/remove`: Select tags to remove from the group (they return to the main list).
   - `/back`: Return to the main tag view.
+- **Rename Group**: Type `@orange-[old]/edit-[new]` (e.g., `@orange-Work/edit-Office`).
+- **Quick Peek**: **Right-click** (Desktop) or **Long-press** (Mobile) on an Orange Tag to instantly view and click tags inside it without entering the group.
 - **Delete Group**: Type `@orange-[name]/delete` to remove the group (tags inside are released, not deleted).
 
 ### Data & Storage
