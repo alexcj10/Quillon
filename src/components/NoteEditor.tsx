@@ -85,7 +85,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
   // Tag suggestion state
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
 
   // Tag Restriction Info State
   const [showTagRestrictionInfo, setShowTagRestrictionInfo] = useState(false);
@@ -385,7 +385,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     // Show/hide tag suggestions based on input - strict 'file' prefix
     const shouldShowSuggestions = v.startsWith('file') && v.length >= 4;
     setShowTagSuggestions(shouldShowSuggestions);
-    setSelectedSuggestionIndex(0); // Reset selection when input changes
+    setSelectedSuggestionIndex(-1); // Reset selection when input changes
   };
 
   const addTag = (t: string) => {
@@ -611,9 +611,12 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
         return;
       }
       if (e.key === 'Enter') {
-        e.preventDefault();
-        handleSelectSuggestion(filteredSuggestions[selectedSuggestionIndex]);
-        return;
+        if (selectedSuggestionIndex >= 0) {
+          e.preventDefault();
+          handleSelectSuggestion(filteredSuggestions[selectedSuggestionIndex]);
+          return;
+        }
+        // If index is -1, fall through to default Enter handler (addTag)
       }
       if (e.key === 'Escape') {
         e.preventDefault();
