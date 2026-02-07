@@ -497,8 +497,8 @@ export function TagModal({
 
     useEffect(() => {
         // Show popup when user types @ and hide when they type more
-        // Show tag type selection popup (@) only when NOT in an orange tag
-        if (isTagEditCommandStart(searchTerm) && !orangeMode.isActive) {
+        // Show tag type selection popup (@) only when exactly @ is typed and NOT in an orange tag
+        if (searchTerm === '@' && !orangeMode.isActive) {
             setShowPopup(true);
             setErrorMessage('');
         } else {
