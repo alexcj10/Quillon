@@ -331,12 +331,19 @@ export function TagModal({
                     lowerAfterSlash.startsWith('delete') ||
                     lowerAfterSlash.startsWith('pin') ||
                     lowerAfterSlash.startsWith('star') ||
-                    lowerAfterSlash.startsWith('fav');
+                    lowerAfterSlash.startsWith('fav') ||
+                    (extractTagTypeFromCommand(searchTerm) === 'orange' && (
+                        lowerAfterSlash.startsWith('create') ||
+                        lowerAfterSlash.startsWith('etots')
+                    ));
 
                 if (!isValidCommand) {
+                    const tagType = extractTagTypeFromCommand(searchTerm);
                     setValidationState({
                         isValid: false,
-                        message: `Invalid command. Use "/edit-", "/delete", "/pin", or "/star"`
+                        message: tagType === 'orange'
+                            ? `Invalid command. Use "/edit-", "/delete", "/create", or "/etots"`
+                            : `Invalid command. Use "/edit-", "/delete", "/pin", or "/star"`
                     });
                     return;
                 }
@@ -593,40 +600,15 @@ export function TagModal({
             }
         }
 
-        // Administrative Orange Commands
+        // Administrative Orange Commands (Rename)
         const orangeRenameCmd = parseTagGroupRenameCommand(searchTerm);
         if (orangeRenameCmd) {
             const result = renameTagGroup(orangeRenameCmd.oldName, orangeRenameCmd.newName);
             if (result.success) {
                 setSearchTerm('');
                 setErrorMessage('');
-                // If it was the current group name, the context already updated it
             } else {
                 setErrorMessage(result.error || "Failed to rename group.");
-            }
-            return;
-        }
-
-        const orangeDeleteCmd = parseTagGroupDeleteCommand(searchTerm);
-        if (orangeDeleteCmd) {
-            const result = deleteTagGroup(orangeDeleteCmd.groupName);
-            if (result.success) {
-                setSearchTerm('');
-                setErrorMessage('');
-            } else {
-                setErrorMessage(result.error || "Failed to delete group.");
-            }
-            return;
-        }
-
-        const orangeCreateCmd = parseTagGroupCreateCommand(searchTerm);
-        if (orangeCreateCmd) {
-            const result = createTagGroup(orangeCreateCmd.groupName);
-            if (result.success) {
-                setSearchTerm('');
-                setErrorMessage('');
-            } else {
-                setErrorMessage(result.error || "Failed to create group.");
             }
             return;
         }
@@ -801,7 +783,10 @@ export function TagModal({
 
         // If neither command matched
         if (isTagEditCommandStart(searchTerm) && searchTerm !== '@') {
-            setErrorMessage('Invalid command format. Use: .../edit-[new], .../delete, .../pin, or .../star');
+            const tagType = extractTagTypeFromCommand(searchTerm);
+            setErrorMessage(tagType === 'orange'
+                ? 'Invalid command format. Use: @orange-[name]/create, .../delete, .../etots, or .../edit-[new]'
+                : 'Invalid command format. Use: .../edit-[new], .../delete, .../pin, or .../star');
         }
     };
 
@@ -882,12 +867,12 @@ export function TagModal({
                     </div>
                     {extractTagTypeFromCommand(searchTerm) && !searchTerm.includes('/') && (
                         <div className={`mt-2 p-2 rounded-md border ${extractTagTypeFromCommand(searchTerm) === 'orange'
-                                ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
-                                : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                            ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+                            : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
                             }`}>
                             <p className={`text-sm ${extractTagTypeFromCommand(searchTerm) === 'orange'
-                                    ? 'text-amber-600 dark:text-amber-400'
-                                    : 'text-blue-600 dark:text-blue-400'
+                                ? 'text-amber-600 dark:text-amber-400'
+                                : 'text-blue-600 dark:text-blue-400'
                                 }`}>
                                 {extractTagTypeFromCommand(searchTerm) === 'orange'
                                     ? "💡 Click on an orange tag below to select it for renaming, deleting, or entering the group"
