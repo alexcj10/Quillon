@@ -178,12 +178,16 @@ export function TagModal({
                             targetName = 'file' + newTagName;
                         }
 
-                        const exists = tags.some(t => t === targetName);
+                        const exists = tagType === 'orange'
+                            ? tagGroups.some(g => g.name === newTagName)
+                            : tags.some(t => t === targetName);
 
                         if (exists) {
                             setValidationState({
                                 isValid: false,
-                                message: `The tag name '${newTagName}' already exists. Please choose a different name.`
+                                message: tagType === 'orange'
+                                    ? `A group named '${newTagName}' already exists.`
+                                    : `The tag name '${newTagName}' already exists. Please choose a different name.`
                             });
                         } else {
                             setValidationState({
