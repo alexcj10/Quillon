@@ -13,6 +13,7 @@ import { TagEditPopup } from './TagEditPopup';
 import { GroupCommandPopup } from './GroupCommandPopup';
 import { GroupTagButton } from './GroupTagButton';
 import { GroupOverviewPopup } from './GroupOverviewPopup';
+import { TagRestrictionInfo } from './TagRestrictionInfo';
 
 interface TagModalProps {
     isOpen: boolean;
@@ -112,6 +113,10 @@ export function TagModal({
     const [isSpaceMode, setIsSpaceMode] = useState(false);
     const [groupViewMode, setGroupViewMode] = useState<'view' | 'drop' | 'remove' | 'neutral'>('neutral');
     const [showGroupPopup, setShowGroupPopup] = useState(false);
+
+    // Tag Restriction Info State
+    const [showTagRestrictionInfo, setShowTagRestrictionInfo] = useState(false);
+    const [conflictingTagName, setConflictingTagName] = useState('');
 
     // Effect to clear search and reset sub-mode when changing modes
     useEffect(() => {
@@ -713,6 +718,33 @@ export function TagModal({
                 actualNewTagName = editCommand.newName;
             }
 
+            // Check for Renaming Conflict (Green/Grey Restriction)
+            const isTargetFileTag = isFileTag(actualNewTagName);
+            if (!isTargetFileTag) {
+                const isTargetGreen = tagsInFileFolders.has(actualNewTagName);
+                const isCurrentGreen = tagsInFileFolders.has(actualOldTagName);
+
+                // Case 1: Renaming a Grey tag to an existing Green tag name
+                if (!isCurrentGreen && isTargetGreen) {
+                    setErrorMessage(`"${actualNewTagName}" is reserved as a folder tag.`);
+                    setConflictingTagName(actualNewTagName);
+                    setShowTagRestrictionInfo(true);
+                    return;
+                }
+
+                // Case 2: Renaming a Green tag to an existing Grey tag name
+                // If the target name already exists in `tags` but is NOT in `tagsInFileFolders`, it's a grey tag.
+                const isTargetGrey = tags.includes(actualNewTagName) && !isTargetGreen;
+
+                if (isCurrentGreen && isTargetGrey) {
+                    setErrorMessage(`Cannot rename to "${actualNewTagName}" because it is already used as a standalone tag.`);
+                    // We can reuse the popup but maybe the message is slightly different? 
+                    // The popup currently says "Tag Name Unavailable... is already used as a Green Tag".
+                    // For now, let's just block it. Dual-role is disallowed both ways.
+                    return;
+                }
+            }
+
             const result = renameTag(actualOldTagName, actualNewTagName);
 
             if (result.success) {
@@ -853,6 +885,11 @@ export function TagModal({
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] transition-all duration-200"
             onClick={onClose}
         >
+            <TagRestrictionInfo
+                isOpen={showTagRestrictionInfo}
+                onClose={() => setShowTagRestrictionInfo(false)}
+                conflictingTagName={conflictingTagName}
+            />
             <div
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full mx-4 md:mx-8 max-w-2xl h-[60vh] sm:h-[450px] flex flex-col transform transition-all scale-100"
                 onClick={e => e.stopPropagation()}

@@ -13,7 +13,9 @@ import {
   Globe,
   Trash2,
   Timer,
+  Info,
 } from 'lucide-react';
+import { TagRestrictionInfo } from './TagRestrictionInfo';
 import { CommandExplorer, Command } from './CommandExplorer';
 import { Note, isFileTag } from '../types';
 import { NOTE_COLORS } from '../constants/colors';
@@ -84,6 +86,10 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   // Tag suggestion state
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
+
+  // Tag Restriction Info State
+  const [showTagRestrictionInfo, setShowTagRestrictionInfo] = useState(false);
+  const [conflictingTagName, setConflictingTagName] = useState('');
 
   // Track the intended space (public/private) for each tag in this session
   // This ensures that if a user selects a "Public" tag that has the same name as a "Private" tag,
@@ -158,6 +164,21 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     });
 
     return Array.from(tagMap.values());
+  }, [allNotes]);
+
+  // Calculate set of tags that are used in file folders (Green Tags)
+  const tagsInFileFolders = useMemo(() => {
+    const set = new Set<string>();
+    allNotes.forEach(note => {
+      if (note.tags.some(t => isFileTag(t))) {
+        note.tags.forEach(t => {
+          if (!isFileTag(t)) {
+            set.add(t);
+          }
+        });
+      }
+    });
+    return set;
   }, [allNotes]);
 
   // Filter suggestions based on current input
@@ -386,6 +407,18 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     }
 
     if (!tags.includes(newTag)) {
+
+      // Check for Green Tag Conflict (Restriction)
+      const hasFileTags = tags.some(t => isFileTag(t));
+      const willBeGrey = !isFileTag(newTag) && !hasFileTags;
+
+      if (willBeGrey && tagsInFileFolders.has(newTag)) {
+        setTagError(`"${newTag}" is reserved as a folder tag.`);
+        setConflictingTagName(newTag);
+        setShowTagRestrictionInfo(true);
+        return;
+      }
+
       setTags([...tags, newTag]);
 
       // If adding manually, assume matches current privacy state
@@ -416,18 +449,30 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
       return;
     }
 
+    setShowTagSuggestions(false);
+
     // Update the intent map with the specific suggestion's space
     const newSpaces = { ...fileTagSpaces, [newTag]: suggestion.space };
     setFileTagSpaces(newSpaces);
 
     // Add tag if needed
     if (!tags.includes(newTag)) {
+      // Check for Green Tag Conflict (Restriction) - unlikely for file tags but good for completeness if logic changes
+      const hasFileTags = tags.some(t => isFileTag(t));
+      const willBeGrey = !isFileTag(newTag) && !hasFileTags;
+
+      if (willBeGrey && tagsInFileFolders.has(newTag)) {
+        setTagError(`"${newTag}" is reserved as a folder tag.`);
+        setConflictingTagName(newTag);
+        setShowTagRestrictionInfo(true);
+        return;
+      }
+
       setTags([...tags, newTag]);
     }
 
     setTagInput('');
     setTagError('');
-    setShowTagSuggestions(false);
 
     // Smart Context Switching logic:
     // If ANY current tag (including the new one) is marked 'private' in our session intent,
@@ -609,6 +654,13 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
             </div>
           </div>
         )}
+
+        <TagRestrictionInfo
+          isOpen={showTagRestrictionInfo}
+          onClose={() => setShowTagRestrictionInfo(false)}
+          conflictingTagName={conflictingTagName}
+        />
+
         {/* TOP BAR */}
         <div className="flex items-center justify-between px-5 py-4 backdrop-blur-sm">
           <button
@@ -1394,7 +1446,18 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                   />
                 </div>
                 {tagError && (
-                  <div className="text-red-400 text-xs mt-1">{tagError}</div>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <div className="text-red-400 text-xs">{tagError}</div>
+                    {tagError.includes("reserved as a folder tag") && (
+                      <button
+                        onClick={() => setShowTagRestrictionInfo(true)}
+                        className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors p-0.5 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                        title="Why can't I use this tag?"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 {/* File tag suggestions popup */}
