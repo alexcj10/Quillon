@@ -220,6 +220,8 @@ export function TagModal({
                         tagExists = tags.some(tag =>
                             !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === tagName
                         );
+                    } else if (tagType === 'orange') {
+                        tagExists = tagGroups.some(g => g.name === tagName);
                     } else {
                         tagExists = tags.some(tag =>
                             !isFileTag(tag) && !tagsInFileFolders.has(tag) && tag === tagName
@@ -229,14 +231,18 @@ export function TagModal({
                     if (tagExists) {
                         setValidationState({
                             isValid: true,
-                            message: showTrash
-                                ? `Press Enter to permanently delete this tag and all associated notes`
-                                : `Press Enter to delete this tag and move all associated notes to trash`
+                            message: tagType === 'orange'
+                                ? `Press Enter to delete group "${tagName}"`
+                                : showTrash
+                                    ? `Press Enter to permanently delete this tag and all associated notes`
+                                    : `Press Enter to delete this tag and move all associated notes to trash`
                         });
                     } else {
                         setValidationState({
                             isValid: false,
-                            message: `Tag '${tagName}' not found`
+                            message: tagType === 'orange'
+                                ? `Group "${tagName}" not found`
+                                : `Tag '${tagName}' not found`
                         });
                     }
                     return;
@@ -311,6 +317,56 @@ export function TagModal({
             }
         }
 
+        // Check for create command validation (Orange Tags only)
+        if (searchTerm.includes('/create')) {
+            const parts = searchTerm.split('/create');
+            if (parts.length === 2 && parts[1] === '') {
+                const commandInfo = extractSearchTermFromCommand(searchTerm);
+                if (commandInfo && commandInfo.tagType === 'orange') {
+                    const groupName = commandInfo.searchTerm;
+                    const exists = tagGroups.some(g => g.name === groupName);
+
+                    if (exists) {
+                        setValidationState({
+                            isValid: false,
+                            message: `Group "${groupName}" already exists.`
+                        });
+                    } else {
+                        setValidationState({
+                            isValid: true,
+                            message: `Press Enter to create group "${groupName}"`
+                        });
+                    }
+                    return;
+                }
+            }
+        }
+
+        // Check for etots (Enter The Orange Space) command validation (Orange Tags only)
+        if (searchTerm.includes('/etots')) {
+            const parts = searchTerm.split('/etots');
+            if (parts.length === 2 && parts[1] === '') {
+                const commandInfo = extractSearchTermFromCommand(searchTerm);
+                if (commandInfo && commandInfo.tagType === 'orange') {
+                    const groupName = commandInfo.searchTerm;
+                    const exists = tagGroups.some(g => g.name === groupName);
+
+                    if (exists) {
+                        setValidationState({
+                            isValid: true,
+                            message: `Press Enter to enter group "${groupName}"`
+                        });
+                    } else {
+                        setValidationState({
+                            isValid: false,
+                            message: `Group "${groupName}" not found.`
+                        });
+                    }
+                    return;
+                }
+            }
+        }
+
         // Check for typos in command keywords (e.g., /editt, /deletes, etc.)
         if (searchTerm.includes('/') && extractTagTypeFromCommand(searchTerm)) {
             const afterSlash = searchTerm.split('/')[1];
@@ -330,19 +386,25 @@ export function TagModal({
                 }
 
                 // Check for other common typos or invalid commands
-                const isValidCommand =
-                    lowerAfterSlash.startsWith('edit') ||
-                    lowerAfterSlash.startsWith('delete') ||
-                    lowerAfterSlash.startsWith('pin') ||
-                    lowerAfterSlash.startsWith('star') ||
-                    lowerAfterSlash.startsWith('fav') ||
-                    (extractTagTypeFromCommand(searchTerm) === 'orange' && (
+                const tagType = extractTagTypeFromCommand(searchTerm);
+                let isValidCommand = false;
+
+                if (tagType === 'orange') {
+                    isValidCommand =
+                        lowerAfterSlash.startsWith('edit') ||
+                        lowerAfterSlash.startsWith('delete') ||
                         lowerAfterSlash.startsWith('create') ||
-                        lowerAfterSlash.startsWith('etots')
-                    ));
+                        lowerAfterSlash.startsWith('etots');
+                } else {
+                    isValidCommand =
+                        lowerAfterSlash.startsWith('edit') ||
+                        lowerAfterSlash.startsWith('delete') ||
+                        lowerAfterSlash.startsWith('pin') ||
+                        lowerAfterSlash.startsWith('star') ||
+                        lowerAfterSlash.startsWith('fav');
+                }
 
                 if (!isValidCommand) {
-                    const tagType = extractTagTypeFromCommand(searchTerm);
                     setValidationState({
                         isValid: false,
                         message: tagType === 'orange'
