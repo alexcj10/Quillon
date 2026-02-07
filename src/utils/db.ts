@@ -2,7 +2,7 @@ import { StorageError } from './errors.ts';
 
 export class DocumentDB {
   private dbName = 'DocumentStorage';
-  private version = 4;
+  private version = 5;
   private storeName = 'documents';
   private db: IDBDatabase | null = null;
 
@@ -34,6 +34,9 @@ export class DocumentDB {
         }
         if (!db.objectStoreNames.contains('nodes_data')) {
           db.createObjectStore('nodes_data', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('tag_groups')) {
+          db.createObjectStore('tag_groups', { keyPath: 'id' });
         }
       };
     });
@@ -249,6 +252,43 @@ export class DocumentDB {
       store.clear().onsuccess = () => {
         nodes.forEach(node => store.put(node));
       };
+    });
+  }
+
+  // Tag Groups methods
+  async getAllTagGroups(): Promise<any[]> {
+    const db = await this.connect();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('tag_groups', 'readonly');
+      const store = tx.objectStore('tag_groups');
+      const request = store.getAll();
+
+      request.onerror = () => reject(new StorageError('Failed to load tag groups'));
+      request.onsuccess = () => resolve(request.result);
+    });
+  }
+
+  async saveTagGroup(group: any): Promise<void> {
+    const db = await this.connect();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('tag_groups', 'readwrite');
+      const store = tx.objectStore('tag_groups');
+      const request = store.put(group);
+
+      request.onerror = () => reject(new StorageError('Failed to save tag group'));
+      request.onsuccess = () => resolve();
+    });
+  }
+
+  async deleteTagGroup(id: string): Promise<void> {
+    const db = await this.connect();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('tag_groups', 'readwrite');
+      const store = tx.objectStore('tag_groups');
+      const request = store.delete(id);
+
+      request.onerror = () => reject(new StorageError('Failed to delete tag group'));
+      request.onsuccess = () => resolve();
     });
   }
 }

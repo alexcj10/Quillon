@@ -37,6 +37,8 @@ function NoteList() {
     updateNote,
     clearSelection,
     isNotesLoaded,
+    tagGroups,
+    activeFilterGroup,
   } = useNotes();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -94,18 +96,43 @@ function NoteList() {
         } else {
           // No file tag selected.
           // Only show if specific normal tags are selected and match
-          if (normalTags.length === 0 || !matchesNormalTags) {
-            return false; // Hide from main page
+          // BUT: if activeFilterGroup is set, we use THAT logic instead of normalTags check
+          if (activeFilterGroup) {
+            // Logic: Must have at least one tag from the active group
+            // AND must match search term
+            const group = tagGroups.find(g => g.name === activeFilterGroup);
+            if (group) {
+              const hasGroupTag = note.tags.some(t => group.tags.includes(t));
+              if (!hasGroupTag) return false;
+            }
+          } else {
+            if (normalTags.length === 0 || !matchesNormalTags) {
+              return false; // Hide from main page
+            }
           }
         }
-        // Check search and normal tags
-        return matchesSearch && matchesNormalTags;
+        // Check search and normal tags (if not using group filter)
+        return matchesSearch && (activeFilterGroup ? true : matchesNormalTags);
       }
 
       // If a file tag is selected, don't show regular notes
       if (selectedFileTag) return false;
 
-      // For main view, check normal tags
+      // For main view:
+      if (activeFilterGroup) {
+        const group = tagGroups.find(g => g.name === activeFilterGroup);
+        if (group) {
+          const hasGroupTag = note.tags.some(t => group.tags.includes(t));
+          if (!hasGroupTag) return false;
+        }
+        // If group filter is active, ignore standard 'matchesNormalTags' strictly?
+        // Or should we allow intersection?
+        // User request: "clicking on orange should open dropped tag notes" implies viewing group content.
+        // Usually this replaces other filters. Let's assume replacement for clarity.
+        return matchesSearch;
+      }
+
+      // Standard logic check normal tags
       return matchesSearch && matchesNormalTags;
     })
     .sort((a, b) => {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Note, NoteContextType, SharedUser, NoteActivity, ShareProtection, isFileTag, getFileTagDisplayName } from '../types';
+import { Note, NoteContextType, SharedUser, NoteActivity, ShareProtection, isFileTag, getFileTagDisplayName, TagGroup } from '../types';
 import { embedText } from "../utils/embed";  // add this at top
 import { initializeEmbeddings } from "../utils/initializeEmbeddings";
 
@@ -51,6 +51,15 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
+  // Orange Tag (Group) State
+  const [tagGroups, setTagGroups] = useState<TagGroup[]>([]);
+  const [orangeMode, setOrangeMode] = useState<{ isActive: boolean; groupName: string | null }>({
+    isActive: false,
+    groupName: null
+  });
+  // Active filter group for the main note list (Orange Tag Filter)
+  const [activeFilterGroup, setActiveFilterGroup] = useState<string | null>(null);
+
   // ... other state definitions ...
 
   // Load notes from IndexedDB on mount
@@ -83,7 +92,18 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
         setIsNotesLoaded(true);
       }
     };
+
+    const loadTagGroups = async () => {
+      try {
+        const savedGroups = await db.getAllTagGroups();
+        setTagGroups(savedGroups);
+      } catch (error) {
+        console.error('Failed to load tag groups:', error);
+      }
+    };
+
     loadNotes();
+    loadTagGroups();
   }, []);
 
   // Save changes to IndexedDB
@@ -641,6 +661,101 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  // Orange Tag (Group) Functions
+  const createTagGroup = (name: string): { success: boolean; error?: string } => {
+    // Check if group already exists
+    if (tagGroups.some(g => g.name === name)) {
+      return { success: false, error: `Group "${name}" already exists.` };
+    }
+
+    // Check if name conflicts with existing tags (optional, but good practice)
+    // Actually, group names are separate from tag names in our design, 
+    // but to avoid confusion maybe check? User didn't specify. 
+    // Let's allow same name for now as they are distinct entities (TagGroup vs Tag string).
+
+    const newGroup: TagGroup = {
+      id: crypto.randomUUID(),
+      name,
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    setTagGroups(prev => [...prev, newGroup]);
+    db.saveTagGroup(newGroup);
+    return { success: true };
+  };
+
+  const deleteTagGroup = (name: string): { success: boolean; error?: string } => {
+    const group = tagGroups.find(g => g.name === name);
+    if (!group) {
+      return { success: false, error: `Group "${name}" not found.` };
+    }
+
+    setTagGroups(prev => prev.filter(g => g.name !== name));
+    db.deleteTagGroup(group.id);
+
+    // If we were in this group, exit
+    if (orangeMode.isActive && orangeMode.groupName === name) {
+      exitGroupView();
+    }
+
+    return { success: true };
+  };
+
+  const addTagToGroup = (groupName: string, tagName: string): { success: boolean; error?: string } => {
+    const group = tagGroups.find(g => g.name === groupName);
+    if (!group) return { success: false, error: `Group "${groupName}" not found.` };
+
+    if (group.tags.includes(tagName)) {
+      return { success: false, error: `Tag "${tagName}" is already in group "${groupName}".` };
+    }
+
+    // Check if tag is already in another group? 
+    // User said "if user have multiple grey tags which sometimes could of same topic... put it in main ui and tag which is grey tag".
+    // Usually one tag belongs to one group to avoid confusion, but technically it could be in multiple.
+    // However, for "management" and hiding from main view, it implies exclusive membership.
+    // Let's enforce exclusive membership for now to keep things clean.
+    const existingGroup = tagGroups.find(g => g.tags.includes(tagName));
+    if (existingGroup) {
+      return { success: false, error: `Tag "${tagName}" is already in group "${existingGroup.name}".` };
+    }
+
+    const updatedGroup = {
+      ...group,
+      tags: [...group.tags, tagName],
+      updatedAt: new Date().toISOString()
+    };
+
+    setTagGroups(prev => prev.map(g => g.name === groupName ? updatedGroup : g));
+    db.saveTagGroup(updatedGroup);
+    return { success: true };
+  };
+
+  const removeTagFromGroup = (groupName: string, tagName: string) => {
+    const group = tagGroups.find(g => g.name === groupName);
+    if (!group) return;
+
+    const updatedGroup = {
+      ...group,
+      tags: group.tags.filter(t => t !== tagName),
+      updatedAt: new Date().toISOString()
+    };
+
+    setTagGroups(prev => prev.map(g => g.name === groupName ? updatedGroup : g));
+    db.saveTagGroup(updatedGroup);
+  };
+
+  const enterGroupView = (groupName: string) => {
+    if (tagGroups.some(g => g.name === groupName)) {
+      setOrangeMode({ isActive: true, groupName });
+    }
+  };
+
+  const exitGroupView = () => {
+    setOrangeMode({ isActive: false, groupName: null });
+  };
+
   return (
     <NoteContext.Provider value={{
       notes,
@@ -697,6 +812,16 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       starredTags,
       togglePinTag,
       toggleStarTag,
+      tagGroups,
+      createTagGroup,
+      deleteTagGroup,
+      addTagToGroup,
+      removeTagFromGroup,
+      enterGroupView,
+      exitGroupView,
+      orangeMode,
+      activeFilterGroup,
+      setActiveFilterGroup,
     }}>
       {children}
     </NoteContext.Provider>

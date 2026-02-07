@@ -41,6 +41,18 @@ Forget manual color codes. Quillon organizes tags automatically:
 - **Grey Tags**: Standard tags for loose categorization.
 *No commands needed. Just tag it, and Quillon sorts it.*
 
+### Orange Tags (Group Tags)
+Organize your grey tags into named groups to keep your workspace clean:
+- **Create Group**: Type `@orange-[name]/create` (e.g., `@orange-Work/create`) in the **All Tags** search bar.
+- **Group Behavior**: Grey tags added to an Orange Group are **hidden** from the main list, reducing clutter.
+- **Enter Group**: click the Orange Group button or type `@orange-[name]/etots`.
+- **Manage Group**:
+  - `/drop`: Show available grey tags to add to the group.
+  - `/view`: Show tags currently in the group.
+  - `/remove`: Select tags to remove from the group (they return to the main list).
+  - `/back`: Return to the main tag view.
+- **Delete Group**: Type `@orange-[name]/delete` to remove the group (tags inside are released, not deleted).
+
 ### Data & Storage
 - **Local-First**: All notes and documents are stored locally on your device using **IndexedDB** (disk-backed browser storage).
 - **Capacity**: No artificial limits are imposed by Quillon. Storage capacity scales with available device space and browser-managed quotas, making it effectively unlimited for personal use.

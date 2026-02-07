@@ -63,6 +63,19 @@ export const getTagType = (tag: string, tagsInFileFolders: Set<string>): 'blue' 
   return 'grey';
 };
 
+export interface TagGroup {
+  id: string;
+  name: string;
+  tags: string[]; // Array of grey tag names in this group
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Helper function to check if a tag is an orange group tag
+export const isGroupTag = (tag: string, groups: TagGroup[]): boolean => {
+  return groups.some(g => g.name === tag);
+};
+
 export interface NoteContextType {
   notes: Note[];
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -118,6 +131,18 @@ export interface NoteContextType {
   bulkDeleteForever: () => void;
   bulkMoveToTrash: () => void;
   isNotesLoaded: boolean;
+
+  // Orange Tag (Group) System
+  tagGroups: TagGroup[];
+  createTagGroup: (name: string) => { success: boolean; error?: string };
+  deleteTagGroup: (name: string) => { success: boolean; error?: string };
+  addTagToGroup: (groupName: string, tagName: string) => { success: boolean; error?: string };
+  removeTagFromGroup: (groupName: string, tagName: string) => void;
+  enterGroupView: (groupName: string) => void;
+  exitGroupView: () => void;
+  orangeMode: { isActive: boolean; groupName: string | null };
+  activeFilterGroup: string | null;
+  setActiveFilterGroup: (groupName: string | null) => void;
 }
 
 export interface Message {

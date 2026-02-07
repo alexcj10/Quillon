@@ -48,6 +48,10 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
     selectedNoteIds,
     pinnedTags,
     starredTags,
+    tagGroups,
+    exitGroupView,
+    activeFilterGroup,
+    setActiveFilterGroup,
   } = useNotes();
 
   const { setIsOpen, addNode } = useNodesWidget();
@@ -133,6 +137,10 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
     });
 
     // 2. Then, follow the original grouping logic for the remaining tags
+
+    // Identify tags that are in groups (to hide them)
+    const groupedTagsSet = new Set(tagGroups.flatMap(g => g.tags));
+
     allTags.forEach(tag => {
       // Skip if already processed (meaning it was pinned)
       if (processedTags.has(tag)) return;
@@ -155,14 +163,16 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
           }
         });
       } else {
-        // Normal grey tag - add in its original position
-        result.push(tag);
-        processedTags.add(tag);
+        // Normal grey tag - add in its original position ONLY if not in a group
+        if (!groupedTagsSet.has(tag)) {
+          result.push(tag);
+          processedTags.add(tag);
+        }
       }
     });
 
     return result;
-  }, [allTags, visibleNotes, pinnedTags]);
+  }, [allTags, visibleNotes, pinnedTags, tagGroups]);
 
   const VISIBLE_TAGS_LIMIT = 20;
   const visibleTags = sortedTags.slice(0, VISIBLE_TAGS_LIMIT);
@@ -542,6 +552,36 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
         </button>
 
         {/* TAG BUTTONS */}
+
+        {/* Render Orange Groups First (if any) */}
+        {tagGroups.filter(group => group.tags.some(tag => allTags.includes(tag))).map(group => {
+          const isActive = activeFilterGroup === group.name;
+
+          return (
+            <button
+              key={group.id}
+              onClick={() => {
+                if (isActive) {
+                  setActiveFilterGroup(null);
+                } else {
+                  setActiveFilterGroup(group.name);
+                  setSelectedTags([]); // Clear other filters to show group clearly
+                }
+              }}
+              className={`inline-flex items-center rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation px-4 py-2 gap-1 focus:outline-none
+                ${isActive
+                  ? 'bg-amber-500 text-white dark:bg-amber-600'
+                  : 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/50 dark:text-amber-200 dark:hover:bg-amber-800/50'
+                }
+            `}
+              title={`Filter by ${group.name}`}
+            >
+              <span className="flex items-center justify-center h-4 w-4 text-base leading-none">🍊</span>
+              {group.name}
+            </button>
+          )
+        })}
+
         {visibleTags.map(tag => {
           const isFile = isFileTag(tag);
           const isSelected = selectedTags.includes(tag);
@@ -549,7 +589,10 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
 
           const baseClasses =
             "inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap touch-manipulation";
-          const selectedClasses = "bg-blue-500 text-white";
+          const selectedFileClasses = "bg-blue-500 text-white";
+          const selectedFolderClasses = "bg-green-600 text-white";
+          const selectedNormalClasses = "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 hover:bg-black dark:hover:bg-white";
+
           const unselectedFileClasses =
             "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-800/50";
           const unselectedFolderTagClasses =
@@ -558,7 +601,11 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
             "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600";
 
           const classes = `${baseClasses} ${isSelected
-            ? selectedClasses
+            ? isFile
+              ? selectedFileClasses
+              : isInsideFolderTag
+                ? selectedFolderClasses
+                : selectedNormalClasses
             : isFile
               ? unselectedFileClasses
               : isInsideFolderTag
@@ -593,12 +640,16 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
 
       <TagModal
         isOpen={isTagModalOpen}
-        onClose={() => setIsTagModalOpen(false)}
+        onClose={() => {
+          setIsTagModalOpen(false);
+          exitGroupView();
+        }}
         tags={sortedTags}
         selectedTags={selectedTags}
         onToggleTag={toggleTag}
         tagsInFileFolders={tagsInFileFolders}
         showTrash={showTrash}
+        allVisibleTags={allTags}
       />
 
       <BulkRecoveryPopup

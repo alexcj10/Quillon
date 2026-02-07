@@ -135,6 +135,74 @@ export function parseTagStarCommand(input: string): TagStarCommand | null {
   };
 }
 
+// Orange Tag (Group) Commands
+
+export interface TagGroupCreateCommand {
+  groupName: string;
+}
+
+export interface TagGroupDeleteCommand {
+  groupName: string;
+}
+
+export interface TagGroupEnterCommand {
+  groupName: string;
+}
+
+export interface TagGroupActionCommand {
+  action: 'drop' | 'view' | 'remove' | 'back';
+}
+
+/**
+ * Parses group create command: @orange-[name]/create
+ */
+export function parseTagGroupCreateCommand(input: string): TagGroupCreateCommand | null {
+  if (!input.startsWith('@')) return null;
+  const pattern = /^@orange-(.+?)\/create$/;
+  const match = input.match(pattern);
+  if (!match) return null;
+  const [, groupName] = match;
+  if (!groupName.trim()) return null;
+  return { groupName: groupName.trim() };
+}
+
+/**
+ * Parses group delete command: @orange-[name]/delete
+ */
+export function parseTagGroupDeleteCommand(input: string): TagGroupDeleteCommand | null {
+  if (!input.startsWith('@')) return null;
+  const pattern = /^@orange-(.+?)\/delete$/;
+  const match = input.match(pattern);
+  if (!match) return null;
+  const [, groupName] = match;
+  if (!groupName.trim()) return null;
+  return { groupName: groupName.trim() };
+}
+
+/**
+ * Parses group enter command: @orange-[name]/etots
+ */
+export function parseTagGroupEnterCommand(input: string): TagGroupEnterCommand | null {
+  if (!input.startsWith('@')) return null;
+  const pattern = /^@orange-(.+?)\/etots$/; // User requested 'etots' which stands for Enter The Orange Space
+  const match = input.match(pattern);
+  if (!match) return null;
+  const [, groupName] = match;
+  if (!groupName.trim()) return null;
+  return { groupName: groupName.trim() };
+}
+
+/**
+ * Parses sub-commands inside a group: /drop, /view, /remove, /back
+ */
+export function parseTagGroupActionCommand(input: string): TagGroupActionCommand | null {
+  if (!input.startsWith('/')) return null;
+  const pattern = /^\/(drop|view|remove|back)$/;
+  const match = input.match(pattern);
+  if (!match) return null;
+  return { action: match[1] as 'drop' | 'view' | 'remove' | 'back' };
+}
+
 /**
  * Checks if input is potentially a tag edit command (starts with @)
  */
@@ -153,7 +221,7 @@ export function getPartialTagType(input: string): string | null {
   const partial = input.slice(1).toLowerCase();
 
   // Check if it matches the start of any tag type
-  if ('blue'.startsWith(partial) || 'green'.startsWith(partial) || 'grey'.startsWith(partial)) {
+  if ('blue'.startsWith(partial) || 'green'.startsWith(partial) || 'grey'.startsWith(partial) || 'orange'.startsWith(partial)) {
     return partial;
   }
 
@@ -162,20 +230,15 @@ export function getPartialTagType(input: string): string | null {
 
 /**
  * Extracts search term from a partial tag edit command
- * Examples:
- * - "@blue-A" => { tagType: 'blue', searchTerm: 'A' }
- * - "@green-Java" => { tagType: 'green', searchTerm: 'Java' }
- * - "@grey-s" => { tagType: 'grey', searchTerm: 's' }
- * - "@blue-Alex/edit-" => { tagType: 'blue', searchTerm: 'Alex' }
- * Returns null if not a valid partial command
+ * Return type updated to include 'orange'
  */
-export function extractSearchTermFromCommand(input: string): { tagType: 'blue' | 'green' | 'grey'; searchTerm: string } | null {
+export function extractSearchTermFromCommand(input: string): { tagType: 'blue' | 'green' | 'grey' | 'orange'; searchTerm: string } | null {
   if (!input.startsWith('@')) {
     return null;
   }
 
   // Match pattern: @[type]-[searchTerm] (with optional /edit-[newName])
-  const partialPattern = /^@(blue|green|grey)-([^/]+)/;
+  const partialPattern = /^@(blue|green|grey|orange)-([^/]+)/;
   const match = input.match(partialPattern);
 
   if (!match) {
@@ -185,31 +248,27 @@ export function extractSearchTermFromCommand(input: string): { tagType: 'blue' |
   const [, tagType, searchTerm] = match;
 
   return {
-    tagType: tagType as 'blue' | 'green' | 'grey',
+    tagType: tagType as 'blue' | 'green' | 'grey' | 'orange',
     searchTerm: searchTerm.trim(),
   };
 }
 
 /**
  * Extracts just the tag type from a command, even without a search term
- * Examples:
- * - "@blue-" => 'blue'
- * - "@green-" => 'green'
- * - "@grey-Code" => 'grey'
- * Returns null if not a valid command start
+ * Return type updated to include 'orange'
  */
-export function extractTagTypeFromCommand(input: string): 'blue' | 'green' | 'grey' | null {
+export function extractTagTypeFromCommand(input: string): 'blue' | 'green' | 'grey' | 'orange' | null {
   if (!input.startsWith('@')) {
     return null;
   }
 
   // Match pattern: @[type] (with optional dash and anything after)
-  const typePattern = /^@(blue|green|grey)/;
+  const typePattern = /^@(blue|green|grey|orange)/;
   const match = input.match(typePattern);
 
   if (!match) {
     return null;
   }
 
-  return match[1] as 'blue' | 'green' | 'grey';
+  return match[1] as 'blue' | 'green' | 'grey' | 'orange';
 }
