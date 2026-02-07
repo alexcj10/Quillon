@@ -28,7 +28,7 @@ export function GroupOverviewPopup({ groupName, tags, selectedTags, x, y, onClos
     return createPortal(
         <div
             ref={popupRef}
-            className="fixed z-[100] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 min-w-[220px] max-w-[280px] max-h-[300px] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-100"
+            className="fixed z-[10000] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 min-w-[220px] max-w-[280px] max-h-[300px] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-100"
             style={{
                 left: Math.min(x, window.innerWidth - 300),
                 top: Math.min(y, window.innerHeight - 320)
@@ -54,13 +54,14 @@ export function GroupOverviewPopup({ groupName, tags, selectedTags, x, y, onClos
                                     // Removed onClose() to allow multi-select
                                 }}
                                 className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors flex items-center justify-between group ${isSelected
-                                        ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
-                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
+                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                     }`}
                             >
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
-                                    <div className={`h-1.5 w-1.5 rounded-full shrink-0 ${isSelected ? 'bg-amber-500' : 'bg-gray-400 group-hover:bg-amber-500'
-                                        }`} />
+                                    <div className={`h-1.5 w-1.5 rounded-full shrink-0 ${isSelected
+                                        ? 'bg-gray-400 dark:bg-gray-500'
+                                        : 'bg-gray-400 group-hover:bg-amber-500'}`} />
                                     <span className="truncate" title={tag}>{tag}</span>
                                 </div>
                                 {isSelected && <Check className="h-3 w-3 shrink-0 ml-2" />}
