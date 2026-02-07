@@ -598,10 +598,13 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
             onClose={() => setOverviewGroup(null)}
             onTagSelect={(tag) => {
               if (selectedTags.includes(tag)) {
-                setSelectedTags(selectedTags.filter(t => t !== tag));
+                // If already selected, clear it (return to previous state)
+                setSelectedTags([]);
               } else {
-                setSelectedTags([...selectedTags, tag]);
+                // Single-select: Replace entire selection with this tag
+                setSelectedTags([tag]);
               }
+              setOverviewGroup(null);
             }}
           />
         )}

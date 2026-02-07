@@ -105,7 +105,7 @@ export function TagModal({
     const {
         renameTag, deleteTag, pinnedTags, starredTags, togglePinTag, toggleStarTag,
         tagGroups, createTagGroup, deleteTagGroup, renameTagGroup, addTagToGroup, removeTagFromGroup,
-        enterGroupView, exitGroupView, orangeMode, showHidden
+        enterGroupView, exitGroupView, orangeMode, showHidden, setSelectedTags
     } = useNotes();
     const [validationState, setValidationState] = useState<{ isValid: boolean; message: string } | null>(null);
 
@@ -1154,7 +1154,16 @@ export function TagModal({
                                     y={overviewGroup.y}
                                     onClose={() => setOverviewGroup(null)}
                                     onTagSelect={(tag) => {
-                                        onToggleTag(tag);
+                                        if (selectedTags.includes(tag)) {
+                                            // If already selected, clear it
+                                            setSelectedTags([]);
+                                        } else {
+                                            // Single-select: Replace entire selection with this tag
+                                            setSelectedTags([tag]);
+                                        }
+                                        setOverviewGroup(null);
+                                        // Auto-close EVERYTHING
+                                        onClose();
                                     }}
                                 />
                             )}

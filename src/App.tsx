@@ -111,8 +111,8 @@ function NoteList() {
             }
           }
         }
-        // Check search and normal tags (if not using group filter)
-        return matchesSearch && (activeFilterGroup ? true : matchesNormalTags);
+        // Check search and normal tags
+        return matchesSearch && matchesNormalTags;
       }
 
       // If a file tag is selected, don't show regular notes
@@ -129,7 +129,7 @@ function NoteList() {
         // Or should we allow intersection?
         // User request: "clicking on orange should open dropped tag notes" implies viewing group content.
         // Usually this replaces other filters. Let's assume replacement for clarity.
-        return matchesSearch;
+        return matchesSearch && matchesNormalTags;
       }
 
       // Standard logic check normal tags
