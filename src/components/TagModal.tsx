@@ -860,7 +860,7 @@ export function TagModal({
                             </p>
                         </div>
                     )}
-                    {orangeMode.isActive && groupViewMode !== 'neutral' && (
+                    {orangeMode.isActive && (
                         <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
                             <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
                                 {groupViewMode === 'drop' ? "💡 Click on a tag below to drop it into this group" :
@@ -987,12 +987,12 @@ export function TagModal({
                                     {displayedTags.map(tag => {
                                         // Logic for clicking inside Group Mode
                                         const handleClick = () => {
-                                            if (groupViewMode === 'drop' || groupViewMode === 'neutral') {
+                                            if (groupViewMode === 'drop') {
                                                 addTagToGroup(orangeMode.groupName!, tag);
                                             } else if (groupViewMode === 'remove') {
                                                 removeTagFromGroup(orangeMode.groupName!, tag);
                                             } else {
-                                                // View mode
+                                                // View or Neutral mode: Filter notes
                                                 onToggleTag(tag);
                                             }
                                         };
