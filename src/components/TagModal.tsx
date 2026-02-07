@@ -864,7 +864,7 @@ export function TagModal({
                     )}
                     {orangeMode.isActive && (
                         <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
-                            <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
+                        <p className="text-sm text-amber-600 dark:text-amber-400">
                                 {groupViewMode === 'drop' ? "💡 Click on a tag below to drop it into this group" :
                                     groupViewMode === 'remove' ? "💡 Click on a tag below to remove it from this group" :
                                         "💡 Click on a tag below to filter notes by this specific tag"}
