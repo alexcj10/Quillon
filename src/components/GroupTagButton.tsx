@@ -15,7 +15,7 @@ export function GroupTagButton({ name, onClick, onContextMenu, onLongPress, isAc
     // Coral/Amber style
     const baseClasses = "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer select-none relative group";
     const activeClasses = "bg-amber-500 text-white hover:bg-amber-600";
-    const normalClasses = "bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-800/40";
+    const normalClasses = "bg-amber-100 text-amber-900 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-800/40";
 
     const handleTouchStart = (e: React.TouchEvent) => {
         const touch = e.touches[0];

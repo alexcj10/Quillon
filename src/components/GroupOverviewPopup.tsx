@@ -34,8 +34,8 @@ export function GroupOverviewPopup({ groupName, tags, selectedTags, x, y, onClos
                 top: Math.min(y, window.innerHeight - 320)
             }}
         >
-            <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700 bg-amber-50/50 dark:bg-amber-900/20 flex items-center justify-between shrink-0">
-                <span className="text-xs font-semibold text-amber-800 dark:text-amber-200 flex items-center gap-1 truncate mr-2">
+            <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700 bg-amber-100 dark:bg-amber-900/20 flex items-center justify-between shrink-0">
+                <span className="text-xs font-semibold text-amber-900 dark:text-amber-200 flex items-center gap-1 truncate mr-2">
                     <span>🍊</span> {groupName}
                 </span>
                 <span className="text-[10px] text-gray-400 shrink-0">{tags.length} tags</span>
