@@ -66,12 +66,25 @@ export function TagEditPopup({ isVisible, onSelect, inputRef }: TagEditPopupProp
     return (
         <div
             ref={popupRef}
-            className="absolute top-full left-0 mt-1 w-full sm:w-auto sm:min-w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
+            className="absolute top-full left-0 mt-1 w-full sm:w-auto sm:min-w-[280px] max-h-[300px] overflow-y-auto custom-tag-scrollbar bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
             style={{
                 animation: 'fadeIn 0.15s ease-out'
             }}
         >
             <style>{`
+        .custom-tag-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-tag-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-tag-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.3);
+            border-radius: 20px;
+        }
+        .custom-tag-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(156, 163, 175, 0.5);
+        }
         @keyframes fadeIn {
           from {
             opacity: 0;
