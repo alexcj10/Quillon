@@ -123,10 +123,13 @@ export function TagModal({
     const [groupViewMode, setGroupViewMode] = useState<'view' | 'drop' | 'remove' | 'neutral'>('neutral');
     const [showGroupPopup, setShowGroupPopup] = useState(false);
 
-    // Effect to clear search when changing modes
+    // Effect to clear search and reset sub-mode when changing modes
     useEffect(() => {
         setSearchTerm('');
         setErrorMessage('');
+        setValidationState(null);
+        setGroupViewMode('neutral');
+        setShowGroupPopup(false);
     }, [orangeMode.isActive, orangeMode.groupName]);
 
     // Reset state when modal is closed
@@ -135,7 +138,6 @@ export function TagModal({
             setGroupViewMode('neutral');
             setSearchTerm('');
             setIsSpaceMode(false);
-            setErrorMessage('');
             setValidationState(null);
             setShowGroupPopup(false);
         }
@@ -805,7 +807,7 @@ export function TagModal({
                                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white capitalize">
                                         {orangeMode.groupName}
                                     </h2>
-                                    <span className="text-[10px] bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full text-amber-800 dark:text-amber-200 uppercase font-black tracking-tighter no-underline border border-amber-200 dark:border-amber-800/50">
+                                    <span className="text-[10px] bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full text-amber-800 dark:text-amber-200 capitalize font-medium tracking-tight no-underline border border-amber-200 dark:border-amber-800/50">
                                         {groupViewMode} Mode
                                     </span>
                                 </div>
