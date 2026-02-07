@@ -392,21 +392,7 @@ export function TagModal({
 
             // Special handling for Orange Tags search
             if (tagType === 'orange') {
-                return tagGroups
-                    .filter(g => g.name.toLowerCase().includes(lowerTerm))
-                    .map(g => g.name); // We return names here, but they aren't in 'tags' array.
-                // Wait, TagModal expects 'tags' to be strings from the main 'tags' prop.
-                // But Orange Tags are separate entities.
-                // We need to mix them in 'displayedTags' or handle them separately.
-                // 'filteredTags' is used to derive 'displayedTags'.
-                // The 'TagButton' mapping expects strings.
-                // Maybe we should return just the names and let the renderer handle distinguishing them?
-                // Current limitation: 'tags' prop only contains existing note tags.
-                // Orange Groups are in 'tagGroups'.
-                // Let's modify 'displayedTags' to combine them.
-                // 'filteredTags' should probably return matches from BOTH sources if strict typing allows.
-                // But 'tags' is string[]. 
-                // Let's keep filteredTags for regular tags, and handle Orange Groups in displayedTags or a separate list.
+                return []; // Orange Tags are handled in their own section in the renderer
             }
 
             return visibleTags.filter(tag => {
@@ -895,9 +881,17 @@ export function TagModal({
                         />
                     </div>
                     {extractTagTypeFromCommand(searchTerm) && !searchTerm.includes('/') && (
-                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                            <p className="text-sm text-blue-600 dark:text-blue-400">
-                                💡 Click on a tag below to select it for editing, deleting, pinning, or starring
+                        <div className={`mt-2 p-2 rounded-md border ${extractTagTypeFromCommand(searchTerm) === 'orange'
+                                ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+                                : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                            }`}>
+                            <p className={`text-sm ${extractTagTypeFromCommand(searchTerm) === 'orange'
+                                    ? 'text-amber-600 dark:text-amber-400'
+                                    : 'text-blue-600 dark:text-blue-400'
+                                }`}>
+                                {extractTagTypeFromCommand(searchTerm) === 'orange'
+                                    ? "💡 Click on an orange tag below to select it for renaming, deleting, or entering the group"
+                                    : "💡 Click on a tag below to select it for editing, deleting, pinning, or starring"}
                             </p>
                         </div>
                     )}
