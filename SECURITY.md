@@ -4,6 +4,7 @@
 
 | Version  | Status           |
 |----------|----------------|
+| *QX9*  | Supported  |
 | *QX8*  | Supported  |
 | *QX7*  | Supported  |
 | *QX6*  | Supported  |
@@ -47,6 +48,7 @@ Submit your findings via a [GitHub Security Advisory](https://github.com/alexcj1
 > *Transparency:* All major security fixes will be announced with version releases.  
 
 Stay secure & happy coding! 
+
 
 
 
