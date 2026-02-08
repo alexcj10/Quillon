@@ -127,7 +127,15 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
     (note.isHidden || false) === showHidden
   ), [notes, showPrivateNotes, showTrash, showHidden]);
 
-  const allTags = useMemo(() => Array.from(new Set([...visibleNotes].reverse().flatMap(note => note.tags.filter(tag => tag !== '@hide')))), [visibleNotes]);
+  const allTags = useMemo(() => {
+    // Ensure we process notes from Newest to Oldest based on createdAt
+    const sortedVisibleNotes = [...visibleNotes].sort((a, b) =>
+      new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    );
+    return Array.from(new Set(sortedVisibleNotes.flatMap(note =>
+      note.tags.filter(tag => tag !== '@hide')
+    )));
+  }, [visibleNotes]);
 
   const tagsInFileFolders = useMemo(() => new Set(
     visibleNotes

@@ -85,7 +85,11 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
         }
 
         const savedNotes = await db.getAllNotes();
-        setNotes(savedNotes);
+        // Sort by createdAt ascending so append maintains order Newest-at-end
+        const sortedNotes = [...savedNotes].sort((a, b) =>
+          new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+        );
+        setNotes(sortedNotes);
       } catch (error) {
         console.error('Failed to load notes:', error);
       } finally {
