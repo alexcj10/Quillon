@@ -69,10 +69,12 @@ function TagButton({ tag, isFile, isSelected, isInsideFolderTag, onClick, displa
             className={classes}
             title={tag}
         >
-            {isFile && <Folder className="h-3.5 w-3.5" />}
-            {displayName}
-            {isPinned && <Pin className="h-3 w-3 ml-1 fill-current opacity-70" />}
-            {isStarred && <Star className="h-3 w-3 ml-1 fill-current opacity-70 text-yellow-500" />}
+            {isFile && <Folder className="h-3.5 w-3.5 flex-shrink-0" />}
+            <span className="truncate max-w-[140px] sm:max-w-[180px]">
+                {displayName}
+            </span>
+            {isPinned && <Pin className="h-3 w-3 ml-1 fill-current opacity-70 flex-shrink-0" />}
+            {isStarred && <Star className="h-3 w-3 ml-1 fill-current opacity-70 text-yellow-500 flex-shrink-0" />}
         </button>
     );
 }

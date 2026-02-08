@@ -645,10 +645,12 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
 
           return (
             <button key={tag} onClick={() => toggleTag(tag)} className={classes}>
-              {isFile && <Folder className="h-4 w-4" />}
-              {isFile ? getFileTagDisplayName(tag) : tag}
-              {isPinned && <Pin className="h-3 w-3 ml-1 fill-current opacity-70" />}
-              {isStarred && <Star className="h-3 w-3 ml-1 fill-current opacity-70 text-yellow-500" />}
+              {isFile && <Folder className="h-4 w-4 flex-shrink-0" />}
+              <span className="truncate max-w-[120px] sm:max-w-[160px]" title={isFile ? getFileTagDisplayName(tag) : tag}>
+                {isFile ? getFileTagDisplayName(tag) : tag}
+              </span>
+              {isPinned && <Pin className="h-3 w-3 ml-1 fill-current opacity-70 flex-shrink-0" />}
+              {isStarred && <Star className="h-3 w-3 ml-1 fill-current opacity-70 text-yellow-500 flex-shrink-0" />}
             </button>
           );
         })}

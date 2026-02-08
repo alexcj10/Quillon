@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Note, isFileTag, getFileTagDisplayName } from '../types';
 import { Pin, Star, Trash2, Edit, Copy, Check, Lock, RotateCcw, XCircle, Eye, Download, ChevronDown, Share2, Folder, EyeOff } from 'lucide-react';
-import { useFont } from '../context/FontContext';
 import { getFontByName, DEFAULT_FONT } from '../utils/fontService';
 import { NoteViewer } from './NoteViewer';
 import { downloadNote } from '../utils/downloadUtils';
@@ -212,10 +211,13 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                     <span
                       key={tag}
                       className={classes}
+                      title={isFile ? getFileTagDisplayName(tag) : tag}
                     >
-                      {isFile && <Folder className="h-3 w-3" />}
-                      {isHideTag && <EyeOff className="h-3 w-3" />}
-                      {isFile ? getFileTagDisplayName(tag) : tag.length > 15 ? `${tag.substring(0, 15)}...` : tag}
+                      {isFile && <Folder className="h-3 w-3 flex-shrink-0" />}
+                      {isHideTag && <EyeOff className="h-3 w-3 flex-shrink-0" />}
+                      <span className="truncate max-w-[80px]">
+                        {isFile ? getFileTagDisplayName(tag) : tag}
+                      </span>
                     </span>
                   );
                 }).slice(0, 3)}
