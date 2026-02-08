@@ -118,6 +118,11 @@ function NoteList() {
       // If a file tag is selected, don't show regular notes
       if (selectedFileTag) return false;
 
+      // Group visibility logic
+      const allGroupedTags = new Set(tagGroups.flatMap(g => g.tags));
+      const hasGroupedTag = note.tags.some(t => allGroupedTags.has(t));
+      const isExplicitlyFilteringGroupTag = selectedTags.some(t => allGroupedTags.has(t));
+
       // For main view:
       if (activeFilterGroup) {
         const group = tagGroups.find(g => g.name === activeFilterGroup);
@@ -125,11 +130,11 @@ function NoteList() {
           const hasGroupTag = note.tags.some(t => group.tags.includes(t));
           if (!hasGroupTag) return false;
         }
-        // If group filter is active, ignore standard 'matchesNormalTags' strictly?
-        // Or should we allow intersection?
-        // User request: "clicking on orange should open dropped tag notes" implies viewing group content.
-        // Usually this replaces other filters. Let's assume replacement for clarity.
         return matchesSearch && matchesNormalTags;
+      } else if (hasGroupedTag && !isExplicitlyFilteringGroupTag) {
+        // Hide notes that belong to ANY group if we are in main view 
+        // AND not explicitly filtering for one of those tags
+        return false;
       }
 
       // Standard logic check normal tags

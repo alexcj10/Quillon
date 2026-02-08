@@ -710,6 +710,23 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     setTagGroups(prev => prev.filter(g => g.name !== name));
     db.deleteTagGroup(group.id);
 
+    // Reset pin status for all notes affected by tags in this group
+    const affectedTags = group.tags;
+    setNotes(prev => prev.map(note => {
+      if (note.tags.some(t => affectedTags.includes(t))) {
+        const updatedNote = {
+          ...note,
+          isPinned: false,
+          isPinnedInFavorite: false,
+          pinnedAt: undefined,
+          updatedAt: new Date().toISOString()
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
+
     // If we were in this group, exit
     if (orangeMode.isActive && orangeMode.groupName === name) {
       exitGroupView();
@@ -744,6 +761,23 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
     setTagGroups(prev => prev.map(g => g.name === groupName ? updatedGroup : g));
     db.saveTagGroup(updatedGroup);
+
+    // Reset pins for notes with this tag
+    setNotes(prev => prev.map(note => {
+      if (note.tags.includes(tagName)) {
+        const updatedNote = {
+          ...note,
+          isPinned: false,
+          isPinnedInFavorite: false,
+          pinnedAt: undefined,
+          updatedAt: new Date().toISOString()
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
+
     return { success: true };
   };
 
@@ -759,6 +793,22 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
     setTagGroups(prev => prev.map(g => g.name === groupName ? updatedGroup : g));
     db.saveTagGroup(updatedGroup);
+
+    // Reset pins for notes with this tag
+    setNotes(prev => prev.map(note => {
+      if (note.tags.includes(tagName)) {
+        const updatedNote = {
+          ...note,
+          isPinned: false,
+          isPinnedInFavorite: false,
+          pinnedAt: undefined,
+          updatedAt: new Date().toISOString()
+        };
+        db.saveNote(updatedNote);
+        return updatedNote;
+      }
+      return note;
+    }));
   };
 
   const renameTagGroup = (oldName: string, newName: string): { success: boolean; error?: string } => {
