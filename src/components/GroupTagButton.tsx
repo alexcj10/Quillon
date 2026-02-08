@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { Pin, Star } from 'lucide-react';
 
 interface GroupTagButtonProps {
     name: string;
@@ -7,9 +8,11 @@ interface GroupTagButtonProps {
     onLongPress: (name: string, x: number, y: number) => void;
     isActive?: boolean;
     className?: string;
+    isPinned?: boolean;
+    isStarred?: boolean;
 }
 
-export function GroupTagButton({ name, onClick, onContextMenu, onLongPress, isActive, className = "" }: GroupTagButtonProps) {
+export function GroupTagButton({ name, onClick, onContextMenu, onLongPress, isActive, className = "", isPinned, isStarred }: GroupTagButtonProps) {
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     // Coral/Amber style
@@ -45,6 +48,8 @@ export function GroupTagButton({ name, onClick, onContextMenu, onLongPress, isAc
             <span className="truncate max-w-[80px] sm:max-w-[120px]">
                 {name}
             </span>
+            {isPinned && <Pin className="h-3 w-3 ml-1 fill-current opacity-70 flex-shrink-0" />}
+            {isStarred && <Star className="h-3 w-3 ml-1 fill-current opacity-70 text-yellow-500 flex-shrink-0" />}
         </button>
     );
 }

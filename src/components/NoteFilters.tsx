@@ -574,27 +574,38 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
 
         {/* TAG BUTTONS */}
 
-        {tagGroups.filter(group => group.tags.some(tag => allTags.includes(tag))).map(group => {
-          const isActive = activeFilterGroup === group.name;
+        {[...tagGroups]
+          .filter(group => group.tags.some(tag => allTags.includes(tag)))
+          .sort((a, b) => {
+            const aPinned = pinnedTags.includes(a.name);
+            const bPinned = pinnedTags.includes(b.name);
+            if (aPinned && !bPinned) return -1;
+            if (!aPinned && bPinned) return 1;
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          })
+          .map(group => {
+            const isActive = activeFilterGroup === group.name;
 
-          return (
-            <GroupTagButton
-              key={group.id}
-              name={group.name}
-              isActive={isActive}
-              onClick={() => {
-                if (isActive) {
-                  setActiveFilterGroup(null);
-                } else {
-                  setActiveFilterGroup(group.name);
-                  setSelectedTags([]);
-                }
-              }}
-              onContextMenu={handleGroupContextMenu}
-              onLongPress={handleGroupLongPress}
-            />
-          )
-        })}
+            return (
+              <GroupTagButton
+                key={group.id}
+                name={group.name}
+                isActive={isActive}
+                isPinned={pinnedTags.includes(group.name)}
+                isStarred={starredTags.includes(group.name)}
+                onClick={() => {
+                  if (isActive) {
+                    setActiveFilterGroup(null);
+                  } else {
+                    setActiveFilterGroup(group.name);
+                    setSelectedTags([]);
+                  }
+                }}
+                onContextMenu={handleGroupContextMenu}
+                onLongPress={handleGroupLongPress}
+              />
+            )
+          })}
 
         {overviewGroup && (
           <GroupOverviewPopup

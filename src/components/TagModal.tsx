@@ -283,7 +283,9 @@ export function TagModal({
                 if (commandInfo) {
                     const { tagType, searchTerm: tagName } = commandInfo;
                     let actualTag = '';
-                    if (tagType === 'blue') {
+                    if (tagType === 'orange') {
+                        actualTag = tagGroups.find(g => g.name === tagName)?.name || '';
+                    } else if (tagType === 'blue') {
                         actualTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === tagName) || '';
                     } else if (tagType === 'green') {
                         actualTag = tags.find(tag => !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === tagName) || '';
@@ -295,7 +297,7 @@ export function TagModal({
                         const isPinned = pinnedTags.includes(actualTag);
                         setValidationState({
                             isValid: true,
-                            message: `Press Enter to ${isPinned ? 'unpin' : 'pin'} this tag`
+                            message: `Press Enter to ${isPinned ? 'unpin' : 'pin'} this ${tagType === 'orange' ? 'group' : 'tag'}`
                         });
                     } else {
                         const truncatedTagName = tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName;
@@ -335,7 +337,7 @@ export function TagModal({
                     } else {
                         setValidationState({
                             isValid: false,
-                            message: `Tag '${tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName}' not found`
+                            message: `${tagType === 'orange' ? 'Group' : 'Tag'} '${tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName}' not found`
                         });
                     }
                     return;
@@ -429,7 +431,10 @@ export function TagModal({
                         lowerAfterSlash.startsWith('edit') ||
                         lowerAfterSlash.startsWith('delete') ||
                         lowerAfterSlash.startsWith('create') ||
-                        lowerAfterSlash.startsWith('etots');
+                        lowerAfterSlash.startsWith('etots') ||
+                        lowerAfterSlash.startsWith('pin') ||
+                        lowerAfterSlash.startsWith('star') ||
+                        lowerAfterSlash.startsWith('fav');
                 } else {
                     isValidCommand =
                         lowerAfterSlash.startsWith('edit') ||
@@ -443,7 +448,7 @@ export function TagModal({
                     setValidationState({
                         isValid: false,
                         message: tagType === 'orange'
-                            ? `Invalid command. Use "/edit-", "/delete", "/create", or "/etots"`
+                            ? `Invalid command. Use "/edit-", "/delete", "/create", "/etots", "/pin", or "/star"`
                             : `Invalid command. Use "/edit-", "/delete", "/pin", or "/star"`
                     });
                     return;
@@ -863,7 +868,11 @@ export function TagModal({
         if (pinCommand) {
             let actualTagName = '';
             // Resolve tag name logic (similar to delete)
-            if (pinCommand.tagType === 'blue') {
+            if (pinCommand.tagType === 'orange') {
+                const group = tagGroups.find(g => g.name === pinCommand.tagName);
+                if (!group) { setErrorMessage(`Group "${pinCommand.tagName}" not found.`); return; }
+                actualTagName = group.name;
+            } else if (pinCommand.tagType === 'blue') {
                 const fileTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === pinCommand.tagName);
                 if (!fileTag) { setErrorMessage(`Blue tag "${pinCommand.tagName}" not found.`); return; }
                 actualTagName = fileTag;
@@ -887,7 +896,11 @@ export function TagModal({
         if (starCommand) {
             let actualTagName = '';
             // Resolve tag name logic
-            if (starCommand.tagType === 'blue') {
+            if (starCommand.tagType === 'orange') {
+                const group = tagGroups.find(g => g.name === starCommand.tagName);
+                if (!group) { setErrorMessage(`Group "${starCommand.tagName}" not found.`); return; }
+                actualTagName = group.name;
+            } else if (starCommand.tagType === 'blue') {
                 const fileTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === starCommand.tagName);
                 if (!fileTag) { setErrorMessage(`Blue tag "${starCommand.tagName}" not found.`); return; }
                 actualTagName = fileTag;
@@ -925,7 +938,7 @@ export function TagModal({
         if (isTagEditCommandStart(searchTerm) && searchTerm !== '@') {
             const tagType = extractTagTypeFromCommand(searchTerm);
             setErrorMessage(tagType === 'orange'
-                ? 'Invalid command format. Use: @orange-[name]/create, .../delete, .../etots, or .../edit-[new]'
+                ? 'Invalid command format. Use: @orange-[name]/create, .../delete, .../etots, .../pin, .../star, or .../edit-[new]'
                 : 'Invalid command format. Use: .../edit-[new], .../delete, .../pin, or .../star');
         }
     };
@@ -1271,7 +1284,13 @@ export function TagModal({
                                 <div className="mb-4">
                                     <div className="flex flex-wrap gap-2">
                                         {[...tagGroups]
-                                            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                                            .sort((a, b) => {
+                                                const aPinned = pinnedTags.includes(a.name);
+                                                const bPinned = pinnedTags.includes(b.name);
+                                                if (aPinned && !bPinned) return -1;
+                                                if (!aPinned && bPinned) return 1;
+                                                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                                            })
                                             .filter(g => {
                                                 if (showHidden) {
                                                     return g.tags?.some(tag => (allVisibleTags || []).includes(tag));
@@ -1293,6 +1312,8 @@ export function TagModal({
                                                     <GroupTagButton
                                                         key={group.id}
                                                         name={group.name}
+                                                        isPinned={pinnedTags.includes(group.name)}
+                                                        isStarred={starredTags.includes(group.name)}
                                                         onClick={handleGroupClick}
                                                         onContextMenu={handleGroupContextMenu}
                                                         onLongPress={handleGroupLongPress}
@@ -1334,6 +1355,8 @@ export function TagModal({
                                         <div>Delete: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/delete</code></div>
                                         <div>Enter: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/etots</code></div>
                                         <div>Rename: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[old]/edit-[new]</code></div>
+                                        <div>Pin: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/pin</code></div>
+                                        <div>Star: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/star</code></div>
                                     </div>
                                 </div>
                             )}

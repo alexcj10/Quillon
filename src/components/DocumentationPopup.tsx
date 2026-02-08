@@ -92,6 +92,11 @@ Once inside a group, use these slash commands:
 - **Action**: **Right-click** (Desktop) or **Long-press** (Mobile) on any Orange Group button.
 - **Result**: Instantly opens a popup showing all tags inside, allowing you to click them without entering the group.
 
+### 📌 Pin & Star Group
+- **Pin**: Type \`@orange-[name]/pin\` to pin the group to the filter bar
+- **Star**: Type \`@orange-[name]/star\` (or \`/fav\`) to favorite the group
+- **Result**: Group buttons will display a pin or star icon for easy access.
+
 ### 🗑️ Delete Group
 - **Command**: Type \`@orange-[name]/delete\`
 - **Result**: Removes the group container but **releases** all tags back to the main list (safe delete).
@@ -166,9 +171,9 @@ Powerful tag editing, deletion and organization via the **All Tags** button or *
   - Select tag type, then click on any tag to auto-populate
   - Add \`/edit-[newname]\` to rename: \`@blue-oldname/edit-newname\`
   - Press Enter to confirm
-- 📌 **Pin/Star Tags**:
-  - Type \`@[type]-[tagname]/pin\` to pin important tags to the top
-  - Type \`@[type]-[tagname]/star\` or \`@[type]-[tagname]/fav\` to favorite tags
+- 📌 **Pin/Star Tags & Groups**:
+  - Type \`@[type]-[tagname]/pin\` to pin tags or orange groups to the top
+  - Type \`@[type]-[tagname]/star\` or \`@[type]-[tagname]/fav\` to favorite them
   - Press Enter to confirm
 - 🌌 **Space View**:
   - Type \`@space\` to enter your dedicated **Pinned & Favorite** space

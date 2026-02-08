@@ -11,12 +11,12 @@ export interface TagDeleteCommand {
 
 
 export interface TagPinCommand {
-  tagType: 'blue' | 'green' | 'grey';
+  tagType: 'blue' | 'green' | 'grey' | 'orange';
   tagName: string;
 }
 
 export interface TagStarCommand {
-  tagType: 'blue' | 'green' | 'grey';
+  tagType: 'blue' | 'green' | 'grey' | 'orange';
   tagName: string;
 }
 
@@ -97,7 +97,7 @@ export function parseTagDeleteCommand(input: string): TagDeleteCommand | null {
 export function parseTagPinCommand(input: string): TagPinCommand | null {
   if (!input.startsWith('@')) return null;
 
-  const pattern = /^@(blue|green|grey)-(.+?)\/pin$/;
+  const pattern = /^@(blue|green|grey|orange)-(.+?)\/pin$/;
   const match = input.match(pattern);
 
   if (!match) return null;
@@ -120,7 +120,7 @@ export function parseTagStarCommand(input: string): TagStarCommand | null {
   if (!input.startsWith('@')) return null;
 
   // Support both /star and /fav
-  const pattern = /^@(blue|green|grey)-(.+?)\/(star|fav)$/;
+  const pattern = /^@(blue|green|grey|orange)-(.+?)\/(star|fav)$/;
   const match = input.match(pattern);
 
   if (!match) return null;

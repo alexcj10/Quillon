@@ -51,9 +51,11 @@ Organize your grey tags into named groups to keep your workspace clean:
   - `/view`: Show tags currently in the group.
   - `/remove`: Select tags to remove from the group (they return to the main list).
   - `/back`: Return to the main tag view.
-- **Rename Group**: Type `@orange-[old]/edit-[new]` (e.g., `@orange-Work/edit-Office`).
+- **Rename Group**: Type \`@orange-[old]/edit-[new]\` (e.g., \`@orange-Work/edit-Office\`).
+- **Pin Group**: Type \`@orange-[name]/pin\` to pin the group for quick access.
+- **Star Group**: Type \`@orange-[name]/star\` (or \`/fav\`) to favorite the group.
 - **Quick Peek**: **Right-click** (Desktop) or **Long-press** (Mobile) on an Orange Tag to instantly view and click tags inside it without entering the group.
-- **Delete Group**: Type `@orange-[name]/delete` to remove the group (tags inside are released, not deleted).
+- **Delete Group**: Type \`@orange-[name]/delete\` to remove the group (tags inside are released, not deleted).
 
 ### Data & Storage
 - **Local-First**: All notes and documents are stored locally on your device using **IndexedDB** (disk-backed browser storage).
@@ -426,7 +428,7 @@ Access via **All Tags** button or **+more** icon:
 | `@sound-on-[XX]` | Set specific volume (%) | `@sound-on-40` |
 | `@sound-off` | Mute all sounds | `@sound-off` |
 
-**Tag Types**: `blue` (folders), `green` (context), `grey` (standard)
+**Tag Types**: `blue` (folders), `green` (context), `grey` (standard), `orange` (groups)
 > [!TIP]
 > Use the `@hide` tag on individual notes to move them to the hidden view. Remove all other tags first!
 
