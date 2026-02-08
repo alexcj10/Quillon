@@ -70,7 +70,7 @@ function TagButton({ tag, isFile, isSelected, isInsideFolderTag, onClick, displa
             title={tag}
         >
             {isFile && <Folder className="h-3.5 w-3.5 flex-shrink-0" />}
-            <span className="truncate max-w-[140px] sm:max-w-[180px]">
+            <span className="truncate max-w-[80px] sm:max-w-[120px]">
                 {displayName}
             </span>
             {isPinned && <Pin className="h-3 w-3 ml-1 fill-current opacity-70 flex-shrink-0" />}
@@ -948,21 +948,21 @@ export function TagModal({
                 <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 min-h-[65px]">
                     <div className="flex items-center gap-2">
                         {orangeMode.isActive ? (
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
                                 <button
                                     onClick={exitGroupView}
-                                    className="p-1.5 -ml-1 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-full transition-colors flex items-center justify-center focus:outline-none"
+                                    className="p-1.5 -ml-1 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-full transition-colors flex items-center justify-center focus:outline-none flex-shrink-0"
                                     title="Back to all tags"
                                 >
                                     <ArrowLeft className="h-5 w-5" />
                                 </button>
-                                <div className="flex items-center gap-2">
-                                    <span className="flex items-center justify-center h-5 w-5 text-lg leading-none">🍊</span>
-                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white capitalize truncate max-w-[150px] sm:max-w-[300px]" title={orangeMode.groupName || undefined}>
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <span className="flex items-center justify-center h-5 w-5 text-lg leading-none flex-shrink-0">🍊</span>
+                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white capitalize truncate max-w-[90px] sm:max-w-[300px]" title={orangeMode.groupName || undefined}>
                                         {orangeMode.groupName}
                                     </h2>
-                                    <span className="text-[10px] bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full text-amber-800 dark:text-amber-200 capitalize font-medium tracking-tight no-underline border border-amber-200 dark:border-amber-800/50">
-                                        {groupViewMode} Mode
+                                    <span className="text-[10px] bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full text-amber-800 dark:text-amber-200 capitalize font-medium tracking-tight no-underline border border-amber-200 dark:border-amber-800/50 flex-shrink-0">
+                                        {groupViewMode}
                                     </span>
                                 </div>
                             </div>

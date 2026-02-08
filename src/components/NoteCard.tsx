@@ -215,7 +215,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
                     >
                       {isFile && <Folder className="h-3 w-3 flex-shrink-0" />}
                       {isHideTag && <EyeOff className="h-3 w-3 flex-shrink-0" />}
-                      <span className="truncate max-w-[80px]">
+                      <span className="truncate max-w-[60px]">
                         {isFile ? getFileTagDisplayName(tag) : tag}
                       </span>
                     </span>

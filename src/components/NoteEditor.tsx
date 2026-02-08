@@ -1491,7 +1491,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
                         className={`px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm dark:shadow-none flex-shrink-0 whitespace-nowrap ${isHideTag ? hideClasses : normalClasses}`}
                       >
                         {isHideTag && <EyeOff className="w-3.5 h-3.5 flex-shrink-0" />}
-                        <span className="truncate max-w-[150px] sm:max-w-[200px]" title={t}>
+                        <span className="truncate max-w-[80px] sm:max-w-[120px]" title={t}>
                           {t}
                         </span>
                         <button onClick={() => handleRemoveTag(t)} className="flex-shrink-0">
