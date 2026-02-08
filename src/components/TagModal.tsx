@@ -284,7 +284,8 @@ export function TagModal({
                     const { tagType, searchTerm: tagName } = commandInfo;
                     let actualTag = '';
                     if (tagType === 'orange') {
-                        actualTag = tagGroups.find(g => g.name === tagName)?.name || '';
+                        const group = tagGroups.find(g => g.name.toLowerCase() === tagName.toLowerCase());
+                        actualTag = group?.name || '';
                     } else if (tagType === 'blue') {
                         actualTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === tagName) || '';
                     } else if (tagType === 'green') {
@@ -303,7 +304,7 @@ export function TagModal({
                         const truncatedTagName = tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName;
                         setValidationState({
                             isValid: false,
-                            message: `Tag '${truncatedTagName}' not found`
+                            message: `${tagType === 'orange' ? 'Group' : 'Tag'} '${truncatedTagName}' not found`
                         });
                     }
                     return;
@@ -320,7 +321,10 @@ export function TagModal({
                 if (commandInfo) {
                     const { tagType, searchTerm: tagName } = commandInfo;
                     let actualTag = '';
-                    if (tagType === 'blue') {
+                    if (tagType === 'orange') {
+                        const group = tagGroups.find(g => g.name.toLowerCase() === tagName.toLowerCase());
+                        actualTag = group?.name || '';
+                    } else if (tagType === 'blue') {
                         actualTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === tagName) || '';
                     } else if (tagType === 'green') {
                         actualTag = tags.find(tag => !isFileTag(tag) && tagsInFileFolders.has(tag) && tag === tagName) || '';
@@ -332,12 +336,13 @@ export function TagModal({
                         const isStarred = starredTags.includes(actualTag);
                         setValidationState({
                             isValid: true,
-                            message: `Press Enter to ${isStarred ? 'remove from favorites' : 'add to favorites'}`
+                            message: `Press Enter to ${isStarred ? 'remove from favorites' : 'add to favorites'} this ${tagType === 'orange' ? 'group' : 'tag'}`
                         });
                     } else {
+                        const truncatedTagName = tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName;
                         setValidationState({
                             isValid: false,
-                            message: `${tagType === 'orange' ? 'Group' : 'Tag'} '${tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName}' not found`
+                            message: `${tagType === 'orange' ? 'Group' : 'Tag'} '${truncatedTagName}' not found`
                         });
                     }
                     return;
@@ -448,8 +453,8 @@ export function TagModal({
                     setValidationState({
                         isValid: false,
                         message: tagType === 'orange'
-                            ? `Invalid command. Use "/edit-", "/delete", "/create", "/etots", "/pin", or "/star"`
-                            : `Invalid command. Use "/edit-", "/delete", "/pin", or "/star"`
+                            ? `Invalid command. Use "/edit-", "/delete", "/create", "/etots", "/pin", "/star", or "/fav"`
+                            : `Invalid command. Use "/edit-", "/delete", "/pin", "/star", or "/fav"`
                     });
                     return;
                 }
@@ -869,10 +874,11 @@ export function TagModal({
             let actualTagName = '';
             // Resolve tag name logic (similar to delete)
             if (pinCommand.tagType === 'orange') {
-                const group = tagGroups.find(g => g.name === pinCommand.tagName);
+                const group = tagGroups.find(g => g.name.toLowerCase() === pinCommand.tagName.toLowerCase());
                 if (!group) { setErrorMessage(`Group "${pinCommand.tagName}" not found.`); return; }
                 actualTagName = group.name;
-            } else if (pinCommand.tagType === 'blue') {
+            }
+            else if (pinCommand.tagType === 'blue') {
                 const fileTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === pinCommand.tagName);
                 if (!fileTag) { setErrorMessage(`Blue tag "${pinCommand.tagName}" not found.`); return; }
                 actualTagName = fileTag;
@@ -897,10 +903,11 @@ export function TagModal({
             let actualTagName = '';
             // Resolve tag name logic
             if (starCommand.tagType === 'orange') {
-                const group = tagGroups.find(g => g.name === starCommand.tagName);
+                const group = tagGroups.find(g => g.name.toLowerCase() === starCommand.tagName.toLowerCase());
                 if (!group) { setErrorMessage(`Group "${starCommand.tagName}" not found.`); return; }
                 actualTagName = group.name;
-            } else if (starCommand.tagType === 'blue') {
+            }
+            else if (starCommand.tagType === 'blue') {
                 const fileTag = tags.find(tag => isFileTag(tag) && getFileTagDisplayName(tag) === starCommand.tagName);
                 if (!fileTag) { setErrorMessage(`Blue tag "${starCommand.tagName}" not found.`); return; }
                 actualTagName = fileTag;
@@ -1357,6 +1364,7 @@ export function TagModal({
                                         <div>Rename: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[old]/edit-[new]</code></div>
                                         <div>Pin: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/pin</code></div>
                                         <div>Star: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/star</code></div>
+                                        <div>Fav: <code className="bg-amber-100 dark:bg-amber-800 px-1 rounded">@orange-[name]/fav</code></div>
                                     </div>
                                 </div>
                             )}
