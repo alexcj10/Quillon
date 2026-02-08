@@ -958,7 +958,7 @@ export function TagModal({
                                 </button>
                                 <div className="flex items-center gap-2 min-w-0">
                                     <span className="flex items-center justify-center h-5 w-5 text-lg leading-none flex-shrink-0">🍊</span>
-                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white capitalize truncate max-w-[90px] sm:max-w-[300px]" title={orangeMode.groupName || undefined}>
+                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white capitalize truncate max-w-[120px] sm:max-w-[300px]" title={orangeMode.groupName || undefined}>
                                         {orangeMode.groupName}
                                     </h2>
                                     <span className="text-[10px] bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full text-amber-800 dark:text-amber-200 capitalize font-medium tracking-tight no-underline border border-amber-200 dark:border-amber-800/50 flex-shrink-0">
