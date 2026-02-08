@@ -1008,29 +1008,29 @@ export function TagModal({
                             <span className="flex items-center justify-center h-5 w-5 bg-blue-500 text-white rounded-full text-[10px] shadow-sm">!</span>
                             Tag Synchronization Rules
                         </h3>
-                        <div className="space-y-4 text-xs leading-relaxed text-blue-700 dark:text-blue-200/80 max-h-[190px] overflow-y-auto scrollbar-hide pr-1">
-                            <p className="bg-blue-100/40 dark:bg-blue-900/30 p-3 rounded-xl border border-blue-200/40 dark:border-blue-800/20 shadow-sm">
-                                <span className="font-bold text-blue-900 dark:text-blue-100 underline decoration-blue-400/30">Crucial Rule:</span> <b>Removing</b>, <b>Deleting</b>, or <b>Renaming</b> a tag should <span className="italic">always</span> be done using <b>commands</b> from this modal. If done manually by editing a note, associated <b>Orange Tag Groups</b> will not be updated and may become stale.
+                        <div className="space-y-4 text-[12px] leading-relaxed text-blue-700 dark:text-blue-200/80 h-[230px] overflow-y-auto scrollbar-hide pr-1 px-1">
+                            <p className="bg-blue-100/40 dark:bg-blue-900/40 p-3 rounded-xl border border-blue-200/30 dark:border-blue-800/20 shadow-sm leading-snug">
+                                <span className="font-bold text-blue-900 dark:text-blue-100 underline decoration-blue-400/30 text-[13px]">Crucial Rule:</span> <span className="font-bold">Removing</span>, <span className="font-bold">Deleting</span>, or <span className="font-bold">Renaming</span> a tag should <span className="italic">always</span> be done using <b>commands</b> from this modal. If done manually by editing a note, associated <b>Orange Tag Groups</b> will not be updated and may become stale.
                             </p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-2">
-                                <div className="p-3 bg-white/50 dark:bg-black/20 rounded-xl border border-blue-100/50 dark:border-blue-800/30 shadow-sm flex flex-col">
-                                    <p className="font-bold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2 text-[13px]">
-                                        <span className="flex items-center justify-center p-1 bg-blue-100 dark:bg-blue-900/50 rounded-lg">🔄</span>
-                                        Rename Rule
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-10">
+                                <div className="p-3.5 bg-white/60 dark:bg-black/30 rounded-xl border border-blue-100 dark:border-blue-800/40 shadow-sm flex flex-col min-h-[150px]">
+                                    <p className="font-bold text-blue-900 dark:text-blue-100 mb-2.5 flex items-center gap-2 text-[13px]">
+                                        <span className="flex items-center justify-center p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-lg shadow-sm">🔄</span>
+                                        Rename Workflow
                                     </p>
-                                    <ol className="list-decimal list-inside space-y-1.5 ml-0.5 opacity-90 font-medium">
+                                    <ol className="list-decimal ml-5 space-y-1.5 opacity-90 font-medium text-blue-800 dark:text-blue-200">
                                         <li>Remove from <b>Group</b></li>
                                         <li>Go to <b>Grey Tags</b></li>
                                         <li>Edit via <b>Command</b></li>
                                         <li>Add back to <b>Group</b></li>
                                     </ol>
                                 </div>
-                                <div className="p-3 bg-white/50 dark:bg-black/20 rounded-xl border border-blue-100/50 dark:border-blue-800/30 shadow-sm flex flex-col">
-                                    <p className="font-bold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2 text-[13px]">
-                                        <span className="flex items-center justify-center p-1 bg-red-100 dark:bg-red-900/30 rounded-lg">🗑️</span>
-                                        Delete Rule
+                                <div className="p-3.5 bg-white/60 dark:bg-black/30 rounded-xl border border-blue-100 dark:border-blue-800/40 shadow-sm flex flex-col min-h-[150px]">
+                                    <p className="font-bold text-blue-900 dark:text-blue-100 mb-2.5 flex items-center gap-2 text-[13px]">
+                                        <span className="flex items-center justify-center p-1.5 bg-red-100 dark:bg-red-900/40 rounded-lg shadow-sm">🗑️</span>
+                                        Delete Workflow
                                     </p>
-                                    <ol className="list-decimal list-inside space-y-1.5 ml-0.5 opacity-90 font-medium">
+                                    <ol className="list-decimal ml-5 space-y-1.5 opacity-90 font-medium text-blue-800 dark:text-blue-200">
                                         <li>Remove from <b>Group</b></li>
                                         <li>Go to <b>Grey Tags</b></li>
                                         <li>Delete via <b>Command</b></li>
