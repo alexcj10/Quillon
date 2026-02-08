@@ -45,17 +45,17 @@ Forget manual color codes. Quillon organizes tags automatically:
 Organize your grey tags into named groups to keep your workspace clean:
 - **Create Group**: Type `@orange-[name]/create` (e.g., `@orange-Work/create`) in the **All Tags** search bar.
 - **Group Behavior**: Grey tags added to an Orange Group are **hidden** from the main list, reducing clutter.
-- **Enter Group**: click the Orange Group button or type `@orange-[name]/etots`.
+- **Enter Group**: Click the Orange Group button or type `@orange-[name]/etots`.
 - **Manage Group**:
   - `/drop`: Show available grey tags to add to the group.
   - `/view`: Show tags currently in the group.
   - `/remove`: Select tags to remove from the group (they return to the main list).
   - `/back`: Return to the main tag view.
-- **Rename Group**: Type \`@orange-[old]/edit-[new]\` (e.g., \`@orange-Work/edit-Office\`).
-- **Pin Group**: Type \`@orange-[name]/pin\` to pin the group for quick access.
-- **Star Group**: Type \`@orange-[name]/star\` (or \`/fav\`) to favorite the group.
+- **Rename Group**: Type `@orange-[old]/edit-[new]` (e.g., `@orange-Work/edit-Office`).
+- **Pin Group**: Type `@orange-[name]/pin` to pin the group for quick access.
+- **Star Group**: Type `@orange-[name]/star` (or `/fav`) to favorite the group.
 - **Quick Peek**: **Right-click** (Desktop) or **Long-press** (Mobile) on an Orange Tag to instantly view and click tags inside it without entering the group.
-- **Delete Group**: Type \`@orange-[name]/delete\` to remove the group (tags inside are released, not deleted).
+- **Delete Group**: Type `@orange-[name]/delete` to remove the group (tags inside are released, not deleted).
 
 ### Data & Storage
 - **Local-First**: All notes and documents are stored locally on your device using **IndexedDB** (disk-backed browser storage).
@@ -466,6 +466,7 @@ Special thanks to **YOU** for checking out **Quillon**!
 ---
 
 **Follow the project, give it a** **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!**   
+
 
 
 
