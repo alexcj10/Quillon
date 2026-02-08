@@ -87,10 +87,6 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
 
-  // Tag Restriction Info State
-  const [showTagRestrictionInfo, setShowTagRestrictionInfo] = useState(false);
-  const [conflictingTagName, setConflictingTagName] = useState('');
-
   // Track the intended space (public/private) for each tag in this session
   // This ensures that if a user selects a "Public" tag that has the same name as a "Private" tag,
   // we remember they wanted the Public version.
@@ -111,6 +107,11 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
   const tagSuggestionsRef = useRef<HTMLDivElement | null>(null);
   const tagInputRef = useRef<HTMLInputElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Tag Restriction Info State
+  const [showTagRestrictionInfo, setShowTagRestrictionInfo] = useState(false);
+  const [conflictingTagName, setConflictingTagName] = useState('');
+  const [restrictionReason, setRestrictionReason] = useState<'green' | 'grey'>('green');
 
   // Get all notes to extract file tag history
   const { notes: allNotes } = useNotes();
@@ -171,6 +172,23 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
     const set = new Set<string>();
     allNotes.forEach(note => {
       if (note.tags.some(t => isFileTag(t))) {
+        note.tags.forEach(t => {
+          if (!isFileTag(t)) {
+            set.add(t);
+          }
+        });
+      }
+    });
+    return set;
+  }, [allNotes]);
+
+  // Calculate set of tags that are used exclusively as standard Grey Tags
+  // (Notes that do NOT have any file tags)
+  const tagsUsedAsGrey = useMemo(() => {
+    const set = new Set<string>();
+    allNotes.forEach(note => {
+      const hasFileTags = note.tags.some(t => isFileTag(t));
+      if (!hasFileTags) {
         note.tags.forEach(t => {
           if (!isFileTag(t)) {
             set.add(t);
@@ -408,15 +426,40 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
     if (!tags.includes(newTag)) {
 
-      // Check for Green Tag Conflict (Restriction)
+      // Check for Conflict (Restriction)
       const hasFileTags = tags.some(t => isFileTag(t));
       const willBeGrey = !isFileTag(newTag) && !hasFileTags;
+      const willBeGreen = !isFileTag(newTag) && hasFileTags;
+      const willMakeExistingGreen = isFileTag(newTag) && !hasFileTags && tags.length > 0;
 
+      // 1. Adding a Grey tag where a Green tag exists
       if (willBeGrey && tagsInFileFolders.has(newTag)) {
         setTagError(`"${newTag}" is reserved as a folder tag.`);
         setConflictingTagName(newTag);
+        setRestrictionReason('green');
         setShowTagRestrictionInfo(true);
         return;
+      }
+
+      // 2. Adding a Green tag where a Grey tag exists elsewhere
+      if (willBeGreen && tagsUsedAsGrey.has(newTag)) {
+        setTagError(`"${newTag}" is already used as a standard tag.`);
+        setConflictingTagName(newTag);
+        setRestrictionReason('grey');
+        setShowTagRestrictionInfo(true);
+        return;
+      }
+
+      // 3. Adding a Blue tag (folder) that would turn existing Grey tags into Green
+      if (willMakeExistingGreen) {
+        const conflictingTag = tags.find(t => tagsUsedAsGrey.has(t));
+        if (conflictingTag) {
+          setTagError(`"${conflictingTag}" is used as a standard tag elsewhere.`);
+          setConflictingTagName(conflictingTag);
+          setRestrictionReason('grey');
+          setShowTagRestrictionInfo(true);
+          return;
+        }
       }
 
       setTags([...tags, newTag]);
@@ -457,15 +500,40 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
     // Add tag if needed
     if (!tags.includes(newTag)) {
-      // Check for Green Tag Conflict (Restriction) - unlikely for file tags but good for completeness if logic changes
+      // Check for Conflict (Restriction)
       const hasFileTags = tags.some(t => isFileTag(t));
       const willBeGrey = !isFileTag(newTag) && !hasFileTags;
+      const willBeGreen = !isFileTag(newTag) && hasFileTags;
+      const willMakeExistingGreen = isFileTag(newTag) && !hasFileTags && tags.length > 0;
 
+      // 1. Adding a Grey tag where a Green tag exists
       if (willBeGrey && tagsInFileFolders.has(newTag)) {
         setTagError(`"${newTag}" is reserved as a folder tag.`);
         setConflictingTagName(newTag);
+        setRestrictionReason('green');
         setShowTagRestrictionInfo(true);
         return;
+      }
+
+      // 2. Adding a Green tag where a Grey tag exists elsewhere
+      if (willBeGreen && tagsUsedAsGrey.has(newTag)) {
+        setTagError(`"${newTag}" is already used as a standard tag.`);
+        setConflictingTagName(newTag);
+        setRestrictionReason('grey');
+        setShowTagRestrictionInfo(true);
+        return;
+      }
+
+      // 3. Adding a Blue tag (folder) that would turn existing Grey tags into Green
+      if (willMakeExistingGreen) {
+        const conflictingTag = tags.find(t => tagsUsedAsGrey.has(t));
+        if (conflictingTag) {
+          setTagError(`"${conflictingTag}" is used as a standard tag elsewhere.`);
+          setConflictingTagName(conflictingTag);
+          setRestrictionReason('grey');
+          setShowTagRestrictionInfo(true);
+          return;
+        }
       }
 
       setTags([...tags, newTag]);
@@ -662,6 +730,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
           isOpen={showTagRestrictionInfo}
           onClose={() => setShowTagRestrictionInfo(false)}
           conflictingTagName={conflictingTagName}
+          reason={restrictionReason}
         />
 
         {/* TOP BAR */}

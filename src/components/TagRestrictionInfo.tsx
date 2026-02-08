@@ -5,15 +5,20 @@ interface TagRestrictionInfoProps {
     isOpen: boolean;
     onClose: () => void;
     conflictingTagName: string;
+    reason?: 'green' | 'grey';
 }
 
-export function TagRestrictionInfo({ isOpen, onClose, conflictingTagName }: TagRestrictionInfoProps) {
+export function TagRestrictionInfo({ isOpen, onClose, conflictingTagName, reason = 'green' }: TagRestrictionInfoProps) {
     const modalRef = useOutsideClick({
         onOutsideClick: onClose,
         isOpen
     });
 
     if (!isOpen) return null;
+
+    const message = reason === 'green'
+        ? `The tag "${conflictingTagName}" is already reserved as a folder tag.`
+        : `The tag "${conflictingTagName}" is already used as a standard standalone tag.`;
 
     return (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-200">
@@ -34,7 +39,7 @@ export function TagRestrictionInfo({ isOpen, onClose, conflictingTagName }: TagR
                     </h3>
 
                     <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-5 px-4">
-                        The tag <span className="font-medium text-gray-900 dark:text-white">"{conflictingTagName}"</span> is already reserved as a folder tag. To prevent conflicts, please choose a different name.
+                        {message} To prevent conflicts, please choose a different name.
                     </p>
 
                     <button

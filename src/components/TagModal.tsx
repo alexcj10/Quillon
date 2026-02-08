@@ -104,10 +104,27 @@ export function TagModal({
 
     const inputRef = useRef<HTMLInputElement>(null);
     const {
-        renameTag, deleteTag, pinnedTags, starredTags, togglePinTag, toggleStarTag,
+        notes: allNotes, renameTag, deleteTag, pinnedTags, starredTags, togglePinTag, toggleStarTag,
         tagGroups, createTagGroup, deleteTagGroup, renameTagGroup, addTagToGroup, removeTagFromGroup,
         enterGroupView, exitGroupView, orangeMode, showHidden, setSelectedTags
     } = useNotes();
+
+    // Calculate set of tags that are used exclusively as standard Grey Tags
+    // (Notes that do NOT have any file tags)
+    const tagsUsedAsGrey = useMemo(() => {
+        const set = new Set<string>();
+        allNotes.forEach(note => {
+            const hasFileTags = note.tags.some(t => isFileTag(t));
+            if (!hasFileTags) {
+                note.tags.forEach(t => {
+                    if (!isFileTag(t)) {
+                        set.add(t);
+                    }
+                });
+            }
+        });
+        return set;
+    }, [allNotes]);
     const [validationState, setValidationState] = useState<{ isValid: boolean; message: string } | null>(null);
 
     const [isSpaceMode, setIsSpaceMode] = useState(false);
@@ -117,6 +134,7 @@ export function TagModal({
     // Tag Restriction Info State
     const [showTagRestrictionInfo, setShowTagRestrictionInfo] = useState(false);
     const [conflictingTagName, setConflictingTagName] = useState('');
+    const [restrictionReason, setRestrictionReason] = useState<'green' | 'grey'>('green');
 
     // Effect to clear search and reset sub-mode when changing modes
     useEffect(() => {
@@ -722,25 +740,24 @@ export function TagModal({
             const isTargetFileTag = isFileTag(actualNewTagName);
             if (!isTargetFileTag) {
                 const isTargetGreen = tagsInFileFolders.has(actualNewTagName);
+                const isTargetGrey = tagsUsedAsGrey.has(actualNewTagName);
                 const isCurrentGreen = tagsInFileFolders.has(actualOldTagName);
 
                 // Case 1: Renaming a Grey tag to an existing Green tag name
                 if (!isCurrentGreen && isTargetGreen) {
                     setErrorMessage(`"${actualNewTagName}" is reserved as a folder tag.`);
                     setConflictingTagName(actualNewTagName);
+                    setRestrictionReason('green');
                     setShowTagRestrictionInfo(true);
                     return;
                 }
 
                 // Case 2: Renaming a Green tag to an existing Grey tag name
-                // If the target name already exists in `tags` but is NOT in `tagsInFileFolders`, it's a grey tag.
-                const isTargetGrey = tags.includes(actualNewTagName) && !isTargetGreen;
-
                 if (isCurrentGreen && isTargetGrey) {
-                    setErrorMessage(`Cannot rename to "${actualNewTagName}" because it is already used as a standalone tag.`);
-                    // We can reuse the popup but maybe the message is slightly different? 
-                    // The popup currently says "Tag Name Unavailable... is already used as a Green Tag".
-                    // For now, let's just block it. Dual-role is disallowed both ways.
+                    setErrorMessage(`"${actualNewTagName}" is already used as a standard tag.`);
+                    setConflictingTagName(actualNewTagName);
+                    setRestrictionReason('grey');
+                    setShowTagRestrictionInfo(true);
                     return;
                 }
             }
@@ -889,6 +906,7 @@ export function TagModal({
                 isOpen={showTagRestrictionInfo}
                 onClose={() => setShowTagRestrictionInfo(false)}
                 conflictingTagName={conflictingTagName}
+                reason={restrictionReason}
             />
             <div
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full mx-4 md:mx-8 max-w-2xl h-[60vh] sm:h-[450px] flex flex-col transform transition-all scale-100"
