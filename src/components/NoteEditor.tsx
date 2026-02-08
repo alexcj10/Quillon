@@ -434,7 +434,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
       // 1. Adding a Grey tag where a Green tag exists
       if (willBeGrey && tagsInFileFolders.has(newTag)) {
-        setTagError(`"${newTag}" is reserved as a folder tag.`);
+        setTagError(`"${newTag.length > 30 ? newTag.substring(0, 27) + "..." : newTag}" is reserved as a folder tag.`);
         setConflictingTagName(newTag);
         setRestrictionReason('green');
         setShowTagRestrictionInfo(true);
@@ -443,7 +443,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
       // 2. Adding a Green tag where a Grey tag exists elsewhere
       if (willBeGreen && tagsUsedAsGrey.has(newTag)) {
-        setTagError(`"${newTag}" is already used as a standard tag.`);
+        setTagError(`"${newTag.length > 30 ? newTag.substring(0, 27) + "..." : newTag}" is already used as a standard tag.`);
         setConflictingTagName(newTag);
         setRestrictionReason('grey');
         setShowTagRestrictionInfo(true);
@@ -454,7 +454,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
       if (willMakeExistingGreen) {
         const conflictingTag = tags.find(t => tagsUsedAsGrey.has(t));
         if (conflictingTag) {
-          setTagError(`"${conflictingTag}" is used as a standard tag elsewhere.`);
+          setTagError(`"${conflictingTag.length > 30 ? conflictingTag.substring(0, 27) + "..." : conflictingTag}" is used as a standard tag elsewhere.`);
           setConflictingTagName(conflictingTag);
           setRestrictionReason('grey');
           setShowTagRestrictionInfo(true);
@@ -508,7 +508,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
       // 1. Adding a Grey tag where a Green tag exists
       if (willBeGrey && tagsInFileFolders.has(newTag)) {
-        setTagError(`"${newTag}" is reserved as a folder tag.`);
+        setTagError(`"${newTag.length > 30 ? newTag.substring(0, 27) + "..." : newTag}" is reserved as a folder tag.`);
         setConflictingTagName(newTag);
         setRestrictionReason('green');
         setShowTagRestrictionInfo(true);
@@ -517,7 +517,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
 
       // 2. Adding a Green tag where a Grey tag exists elsewhere
       if (willBeGreen && tagsUsedAsGrey.has(newTag)) {
-        setTagError(`"${newTag}" is already used as a standard tag.`);
+        setTagError(`"${newTag.length > 30 ? newTag.substring(0, 27) + "..." : newTag}" is already used as a standard tag.`);
         setConflictingTagName(newTag);
         setRestrictionReason('grey');
         setShowTagRestrictionInfo(true);
@@ -528,7 +528,7 @@ export function NoteEditor({ note, onSave, onClose }: NoteEditorProps) {
       if (willMakeExistingGreen) {
         const conflictingTag = tags.find(t => tagsUsedAsGrey.has(t));
         if (conflictingTag) {
-          setTagError(`"${conflictingTag}" is used as a standard tag elsewhere.`);
+          setTagError(`"${conflictingTag.length > 30 ? conflictingTag.substring(0, 27) + "..." : conflictingTag}" is used as a standard tag elsewhere.`);
           setConflictingTagName(conflictingTag);
           setRestrictionReason('grey');
           setShowTagRestrictionInfo(true);

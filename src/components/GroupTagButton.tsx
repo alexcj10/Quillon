@@ -41,8 +41,10 @@ export function GroupTagButton({ name, onClick, onContextMenu, onLongPress, isAc
             className={`${baseClasses} ${isActive ? activeClasses : normalClasses} ${className}`}
             title={`Group: ${name} (Right-click for overview)`}
         >
-            <span className="flex items-center justify-center h-3.5 w-3.5 text-sm leading-none">🍊</span>
-            {name}
+            <span className="flex items-center justify-center h-3.5 w-3.5 text-sm leading-none flex-shrink-0">🍊</span>
+            <span className="truncate max-w-[120px] sm:max-w-[160px]">
+                {name}
+            </span>
         </button>
     );
 }

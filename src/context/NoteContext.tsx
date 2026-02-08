@@ -493,6 +493,12 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
   const renameTag = (oldTagName: string, newTagName: string): { success: boolean; error?: string } => {
+    // Check name length
+    const displayName = isFileTag(newTagName) ? getFileTagDisplayName(newTagName) : newTagName;
+    if (displayName.length > 50) {
+      return { success: false, error: "Tag name cannot exceed 50 characters." };
+    }
+
     // Check if the old tag exists in any note
     const tagExists = notes.some(note => note.tags.includes(oldTagName));
 
@@ -668,6 +674,11 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       return { success: false, error: `Group "${name}" already exists.` };
     }
 
+    // Check name length
+    if (name.length > 50) {
+      return { success: false, error: "Group name cannot exceed 50 characters." };
+    }
+
     // Check if name conflicts with existing tags (optional, but good practice)
     // Actually, group names are separate from tag names in our design, 
     // but to avoid confusion maybe check? User didn't specify. 
@@ -752,6 +763,11 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
     const nameExists = tagGroups.some(g => g.name === newName);
     if (nameExists) return { success: false, error: `A group named "${newName}" already exists.` };
+
+    // Check name length
+    if (newName.length > 50) {
+      return { success: false, error: "Group name cannot exceed 50 characters." };
+    }
 
     const updatedGroup = {
       ...group,

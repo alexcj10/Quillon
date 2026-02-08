@@ -197,12 +197,18 @@ export function TagModal({
                             ? tagGroups.some(g => g.name === newTagName)
                             : tags.some(t => t === targetName);
 
-                        if (exists) {
+                        if (newTagName.length > 50) {
+                            setValidationState({
+                                isValid: false,
+                                message: 'Max 50 characters allowed'
+                            });
+                        } else if (exists) {
+                            const truncatedNewName = newTagName.length > 30 ? newTagName.substring(0, 27) + "..." : newTagName;
                             setValidationState({
                                 isValid: false,
                                 message: tagType === 'orange'
-                                    ? `A group named '${newTagName}' already exists.`
-                                    : `The tag name '${newTagName}' already exists. Please choose a different name.`
+                                    ? `A group named '${truncatedNewName}' already exists.`
+                                    : `The tag name '${truncatedNewName}' already exists. Please choose a different name.`
                             });
                         } else {
                             setValidationState({
@@ -244,20 +250,22 @@ export function TagModal({
                     }
 
                     if (tagExists) {
+                        const truncatedTagName = tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName;
                         setValidationState({
                             isValid: true,
                             message: tagType === 'orange'
-                                ? `Press Enter to delete group "${tagName}"`
+                                ? `Press Enter to delete group "${truncatedTagName}"`
                                 : showTrash
                                     ? `Press Enter to permanently delete this tag and all associated notes`
                                     : `Press Enter to delete this tag and move all associated notes to trash`
                         });
                     } else {
+                        const truncatedTagName = tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName;
                         setValidationState({
                             isValid: false,
                             message: tagType === 'orange'
-                                ? `Group "${tagName}" not found`
-                                : `Tag '${tagName}' not found`
+                                ? `Group "${truncatedTagName}" not found`
+                                : `Tag '${truncatedTagName}' not found`
                         });
                     }
                     return;
@@ -288,9 +296,10 @@ export function TagModal({
                             message: `Press Enter to ${isPinned ? 'unpin' : 'pin'} this tag`
                         });
                     } else {
+                        const truncatedTagName = tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName;
                         setValidationState({
                             isValid: false,
-                            message: `Tag '${tagName}' not found`
+                            message: `Tag '${truncatedTagName}' not found`
                         });
                     }
                     return;
@@ -324,7 +333,7 @@ export function TagModal({
                     } else {
                         setValidationState({
                             isValid: false,
-                            message: `Tag '${tagName}' not found`
+                            message: `Tag '${tagName.length > 30 ? tagName.substring(0, 27) + "..." : tagName}' not found`
                         });
                     }
                     return;
@@ -341,15 +350,22 @@ export function TagModal({
                     const groupName = commandInfo.searchTerm;
                     const exists = tagGroups.some(g => g.name === groupName);
 
-                    if (exists) {
+                    if (groupName.length > 50) {
                         setValidationState({
                             isValid: false,
-                            message: `Group "${groupName}" already exists.`
+                            message: `Max 50 characters allowed`
+                        });
+                    } else if (exists) {
+                        const truncatedGroupName = groupName.length > 30 ? groupName.substring(0, 27) + "..." : groupName;
+                        setValidationState({
+                            isValid: false,
+                            message: `Group "${truncatedGroupName}" already exists.`
                         });
                     } else {
+                        const truncatedGroupName = groupName.length > 30 ? groupName.substring(0, 27) + "..." : groupName;
                         setValidationState({
                             isValid: true,
-                            message: `Press Enter to create group "${groupName}"`
+                            message: `Press Enter to create group "${truncatedGroupName}"`
                         });
                     }
                     return;
@@ -367,14 +383,16 @@ export function TagModal({
                     const exists = tagGroups.some(g => g.name === groupName);
 
                     if (exists) {
+                        const truncatedGroupName = groupName.length > 30 ? groupName.substring(0, 27) + "..." : groupName;
                         setValidationState({
                             isValid: true,
-                            message: `Press Enter to enter group "${groupName}"`
+                            message: `Press Enter to enter group "${truncatedGroupName}"`
                         });
                     } else {
+                        const truncatedGroupName = groupName.length > 30 ? groupName.substring(0, 27) + "..." : groupName;
                         setValidationState({
                             isValid: false,
-                            message: `Group "${groupName}" not found.`
+                            message: `Group "${truncatedGroupName}" not found.`
                         });
                     }
                     return;
@@ -590,7 +608,8 @@ export function TagModal({
     }, [searchTerm, orangeMode.isActive]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
+        const value = e.target.value;
+        setSearchTerm(value);
         setErrorMessage(''); // Clear error on input change
     };
 
@@ -628,6 +647,10 @@ export function TagModal({
         // Create Group: @orange-[name]/create
         const groupCreateCmd = parseTagGroupCreateCommand(searchTerm);
         if (groupCreateCmd) {
+            if (groupCreateCmd.groupName.length > 50) {
+                setErrorMessage("Group name cannot exceed 50 characters.");
+                return;
+            }
             const result = createTagGroup(groupCreateCmd.groupName);
             if (result.success) {
                 setSearchTerm('');
@@ -684,6 +707,10 @@ export function TagModal({
         // Administrative Orange Commands (Rename)
         const orangeRenameCmd = parseTagGroupRenameCommand(searchTerm);
         if (orangeRenameCmd) {
+            if (orangeRenameCmd.newName.length > 50) {
+                setErrorMessage("Group name cannot exceed 50 characters.");
+                return;
+            }
             const result = renameTagGroup(orangeRenameCmd.oldName, orangeRenameCmd.newName);
             if (result.success) {
                 setSearchTerm('');
@@ -699,6 +726,10 @@ export function TagModal({
         const editCommand = parseTagEditCommand(searchTerm);
 
         if (editCommand) {
+            if (editCommand.newName.length > 50) {
+                setErrorMessage("Tag name cannot exceed 50 characters.");
+                return;
+            }
             // Handle rename logic (existing code)
             let actualOldTagName = '';
 
@@ -927,7 +958,7 @@ export function TagModal({
                                 </button>
                                 <div className="flex items-center gap-2">
                                     <span className="flex items-center justify-center h-5 w-5 text-lg leading-none">🍊</span>
-                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white capitalize">
+                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white capitalize truncate max-w-[150px] sm:max-w-[300px]" title={orangeMode.groupName || undefined}>
                                         {orangeMode.groupName}
                                     </h2>
                                     <span className="text-[10px] bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full text-amber-800 dark:text-amber-200 capitalize font-medium tracking-tight no-underline border border-amber-200 dark:border-amber-800/50">
@@ -1003,16 +1034,16 @@ export function TagModal({
                         </div>
                     )}
                     {validationState && (
-                        <div className={`mt-2 p-2 border rounded-md flex items-center gap-2 ${validationState.isValid
+                        <div className={`mt-2 p-2 border rounded-md flex items-center gap-2 overflow-hidden ${validationState.isValid
                             ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
                             : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
                             }`}>
                             {validationState.isValid ? (
-                                <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                <Check className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
                             ) : (
-                                <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400 shrink-0" />
                             )}
-                            <p className={`text-sm ${validationState.isValid
+                            <p className={`text-sm break-words min-w-0 ${validationState.isValid
                                 ? 'text-green-600 dark:text-green-400'
                                 : 'text-red-600 dark:text-red-400'
                                 }`}>
@@ -1021,8 +1052,8 @@ export function TagModal({
                         </div>
                     )}
                     {errorMessage && (
-                        <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-                            <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>
+                        <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md overflow-hidden">
+                            <p className="text-sm text-red-600 dark:text-red-400 break-words">{errorMessage}</p>
                         </div>
                     )}
                 </div>
