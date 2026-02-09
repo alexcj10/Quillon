@@ -158,17 +158,23 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       setNotes(prev => prev.filter(note => {
         if (note.isDeleted && note.deletedAt) {
           const deleteDate = new Date(note.deletedAt);
-          return deleteDate > thirtyDaysAgo;
+          if (deleteDate <= thirtyDaysAgo) {
+            // Delete from DB as well
+            db.deleteNote(note.id).catch(err => console.error('Failed to auto-delete expired note', err));
+            return false;
+          }
         }
         return true;
       }));
     };
 
-    // Check on mount and every hour
-    checkTrash();
-    const interval = setInterval(checkTrash, 1000 * 60 * 60);
-    return () => clearInterval(interval);
-  }, []);
+    // Check on mount (once notes are loaded) and every hour
+    if (isNotesLoaded) {
+      checkTrash();
+      const interval = setInterval(checkTrash, 1000 * 60 * 60);
+      return () => clearInterval(interval);
+    }
+  }, [isNotesLoaded]);
 
   const addNote = (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
     // Generate text for embedding including decoded file tags
