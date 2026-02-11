@@ -679,8 +679,8 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
   // Orange Tag (Group) Functions
   const createTagGroup = (name: string): { success: boolean; error?: string } => {
-    // Check if group already exists
-    if (tagGroups.some(g => g.name === name)) {
+    // Check if group already exists in the SAME space
+    if (tagGroups.some(g => g.name === name && (g.isPrivate || false) === showPrivateNotes)) {
       return { success: false, error: `Group "${name}" already exists.` };
     }
 
@@ -698,6 +698,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       id: crypto.randomUUID(),
       name,
       tags: [],
+      isPrivate: showPrivateNotes,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -821,7 +822,8 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     const group = tagGroups.find(g => g.name === oldName);
     if (!group) return { success: false, error: `Group "${oldName}" not found.` };
 
-    const nameExists = tagGroups.some(g => g.name === newName);
+    const sameSpaceGroups = tagGroups.filter(g => (g.isPrivate || false) === (group.isPrivate || false));
+    const nameExists = sameSpaceGroups.some(g => g.name === newName);
     if (nameExists) return { success: false, error: `A group named "${newName}" already exists.` };
 
     // Check name length

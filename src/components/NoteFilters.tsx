@@ -574,7 +574,7 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
 
         {/* TAG BUTTONS */}
 
-        {[...tagGroups]
+        {[...tagGroups.filter(g => (g.isPrivate || false) === showPrivateNotes)]
           .filter(group => group.tags.some(tag => allTags.includes(tag)))
           .sort((a, b) => {
             const aPinned = pinnedTags.includes(a.name);

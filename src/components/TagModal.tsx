@@ -108,8 +108,13 @@ export function TagModal({
     const {
         notes: allNotes, renameTag, deleteTag, pinnedTags, starredTags, togglePinTag, toggleStarTag,
         tagGroups, createTagGroup, deleteTagGroup, renameTagGroup, addTagToGroup, removeTagFromGroup,
-        enterGroupView, exitGroupView, orangeMode, showHidden, setSelectedTags
+        enterGroupView, exitGroupView, orangeMode, showHidden, setSelectedTags, showPrivateNotes
     } = useNotes();
+
+    // Filter tagGroups by current space for display purposes
+    const spaceFilteredTagGroups = useMemo(() =>
+        tagGroups.filter(g => (g.isPrivate || false) === showPrivateNotes)
+        , [tagGroups, showPrivateNotes]);
 
     // Calculate set of tags that are used exclusively as standard Grey Tags
     // (Notes that do NOT have any file tags)
@@ -1287,10 +1292,10 @@ export function TagModal({
                     ) : (
                         <div>
                             {/* Orange Groups Section (Visible in Main View) */}
-                            {(!searchTerm || searchTerm.toLowerCase().includes('orange')) && tagGroups.length > 0 && (
+                            {(!searchTerm || searchTerm.toLowerCase().includes('orange')) && spaceFilteredTagGroups.length > 0 && (
                                 <div className="mb-4">
                                     <div className="flex flex-wrap gap-2">
-                                        {[...tagGroups]
+                                        {[...spaceFilteredTagGroups]
                                             .sort((a, b) => {
                                                 const aPinned = pinnedTags.includes(a.name);
                                                 const bPinned = pinnedTags.includes(b.name);
@@ -1354,7 +1359,7 @@ export function TagModal({
                                 />
                             )}
 
-                            {extractTagTypeFromCommand(searchTerm) === 'orange' && tagGroups.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase().replace('@orange-', ''))).length === 0 && (
+                            {extractTagTypeFromCommand(searchTerm) === 'orange' && spaceFilteredTagGroups.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase().replace('@orange-', ''))).length === 0 && (
                                 <div className="mt-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
                                     <div className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
                                         <p className="font-semibold mb-1">Orange Tag Commands:</p>
@@ -1369,7 +1374,7 @@ export function TagModal({
                                 </div>
                             )}
 
-                            {displayedTags.length === 0 && tagGroups.length === 0 ? (
+                            {displayedTags.length === 0 && spaceFilteredTagGroups.length === 0 ? (
                                 <div className="text-center text-gray-500 dark:text-gray-400 py-8">
                                     No tags found matching "{searchTerm}"
                                 </div>

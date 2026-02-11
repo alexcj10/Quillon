@@ -67,6 +67,7 @@ export interface TagGroup {
   id: string;
   name: string;
   tags: string[]; // Array of grey tag names in this group
+  isPrivate?: boolean; // Space-awareness: true for private, false/undefined for public
   createdAt: string;
   updatedAt: string;
 }
