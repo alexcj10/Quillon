@@ -1292,7 +1292,7 @@ export function TagModal({
                     ) : (
                         <div>
                             {/* Orange Groups Section (Visible in Main View) */}
-                            {(!searchTerm || searchTerm.toLowerCase().includes('orange')) && spaceFilteredTagGroups.length > 0 && (
+                            {(!searchTerm || searchTerm.startsWith('@') || searchTerm.toLowerCase().includes('orange')) && spaceFilteredTagGroups.length > 0 && (
                                 <div className="mb-4">
                                     <div className="flex flex-wrap gap-2">
                                         {[...spaceFilteredTagGroups]
@@ -1309,7 +1309,7 @@ export function TagModal({
                                                 }
                                                 return true;
                                             }) // Visibility filter only for Hidden mode
-                                            .filter(g => !searchTerm || g.name.toLowerCase().includes(searchTerm.toLowerCase().replace('@orange-', '')))
+                                            .filter(g => !searchTerm || (searchTerm.startsWith('@') && !searchTerm.toLowerCase().startsWith('@orange-')) || g.name.toLowerCase().includes(searchTerm.toLowerCase().replace('@orange-', '')))
                                             .map(group => {
                                                 const tagType = extractTagTypeFromCommand(searchTerm);
                                                 const handleGroupClick = () => {
