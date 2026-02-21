@@ -1,6 +1,4 @@
-<div align="center">
-
-# Quillon – Tag it. Find it. Done.
+<h1 align="center">Quillon – Tag it. Find it. Done.</h1>
 
 <img width="1920" height="1080" alt="Untitled design (2)" src="https://github.com/user-attachments/assets/3a5bf2dd-803b-4400-a0fa-936b6434021e" />
 
@@ -465,6 +463,7 @@ Special thanks to **YOU** for checking out **Quillon**!
 ---
 
 **Follow the project, give it a** **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!**   
+
 
 
 
