@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { X, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import bannerIcon from '../assets/QP.png';
+import bannerIcon from '../assets/QP1.png';
 
 interface DocumentationPopupProps {
     isOpen: boolean;
@@ -632,3 +632,4 @@ Quickly access this documentation popup directly from the search bar.
 };
 
 export default DocumentationPopup;
+
