@@ -4,7 +4,12 @@
 
 **Quillon** is a modern, lightweight, and intuitive note-taking application built with **Vite, React, and TypeScript**. Designed for speed and efficiency, it uses **Smart RAG**, **Commands** and **Intelligent Tags** to **capture, manage, and structure your notes effortlessly**.
 
-**[Live Demo](https://quillon.netlify.app/)** | **[Star on GitHub](https://github.com/alexcj10/Quillon)**  
+<p align="center">
+  <strong>
+    <a href="https://quillon.netlify.app/">Live Demo</a> |
+    <a href="https://github.com/alexcj10/Quillon">Star on GitHub</a>
+  </strong>
+</p>  
 <p align="center">
   <strong>Scan the QR Code to open the application</strong><br><br>
   <img src="https://github.com/user-attachments/assets/8bc29b88-d5fc-411c-afc2-7eca587eb05a" alt="QR Code" width="100"/>
@@ -463,6 +468,7 @@ Special thanks to **YOU** for checking out **Quillon**!
 ---
 
 **Follow the project, give it a** **on [GitHub](https://github.com/alexcj10/Quillon), and let's build something amazing together!**   
+
 
 
 
