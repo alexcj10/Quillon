@@ -35,8 +35,9 @@ export function GroupOverviewPopup({ groupName, tags, selectedTags, x, y, onClos
             }}
         >
             <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700 bg-amber-100 dark:bg-amber-900/20 flex items-center justify-between shrink-0">
-                <span className="text-xs font-semibold text-amber-900 dark:text-amber-200 flex items-center gap-1 truncate mr-2">
-                    <span>🍊</span> {groupName}
+                <span className="text-xs font-semibold text-amber-900 dark:text-amber-200 flex items-center gap-1 min-w-0 flex-1">
+                    <span className="shrink-0">🍊</span>
+                    <span className="truncate" title={groupName}>{groupName}</span>
                 </span>
                 <span className="text-[10px] text-gray-400 shrink-0">{tags.length} tags</span>
             </div>
