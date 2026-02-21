@@ -253,6 +253,11 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
                 setIsAiPopupVisible(false);
               }
 
+              // Hide Fonts popup if a different command or search is started
+              if (isFontsPopupVisible && !isFontsListCommand(term)) {
+                setIsFontsPopupVisible(false);
+              }
+
               // Evaluate math command dynamically
               if (isMathCommand(term)) {
                 setMathResult(evaluateMathCommand(term));

@@ -41,11 +41,11 @@ export function GroupTagButton({ name, onClick, onContextMenu, onLongPress, isAc
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
             onTouchMove={handleTouchEnd}
-            className={`${baseClasses} ${isActive ? activeClasses : normalClasses} ${className}`}
+            className={`${baseClasses} ${isActive ? activeClasses : normalClasses} ${className} min-w-0`}
             title={`Group: ${name} (Right-click for overview)`}
         >
             <span className="flex items-center justify-center h-3.5 w-3.5 text-sm leading-none flex-shrink-0">🍊</span>
-            <span className="truncate max-w-[80px] sm:max-w-[120px]">
+            <span className="truncate max-w-[140px] sm:max-w-[180px]">
                 {name}
             </span>
             {isPinned && <Pin className="h-3 w-3 ml-1 fill-current opacity-70 flex-shrink-0" />}

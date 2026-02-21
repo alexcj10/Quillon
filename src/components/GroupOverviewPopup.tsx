@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Check } from 'lucide-react';
 
@@ -58,11 +58,11 @@ export function GroupOverviewPopup({ groupName, tags, selectedTags, x, y, onClos
                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                     }`}
                             >
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
                                     <div className={`h-1.5 w-1.5 rounded-full shrink-0 ${isSelected
                                         ? 'bg-gray-400 dark:bg-gray-500'
                                         : 'bg-gray-400 group-hover:bg-amber-500'}`} />
-                                    <span className="truncate" title={tag}>{tag}</span>
+                                    <span className="truncate flex-1" title={tag}>{tag}</span>
                                 </div>
                                 {isSelected && <Check className="h-3 w-3 shrink-0 ml-2" />}
                             </button>
