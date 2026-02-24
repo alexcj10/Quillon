@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Share2, Users, Clock } from 'lucide-react';
 
 interface SharedNoteDialogProps {
@@ -6,22 +6,22 @@ interface SharedNoteDialogProps {
   onClose: () => void;
 }
 
-export function SharedNoteDialog({ noteId, onClose }: SharedNoteDialogProps) {
+export function SharedNoteDialog({ onClose }: Omit<SharedNoteDialogProps, 'noteId'>) {
   const [email, setEmail] = useState('');
   const [permission, setPermission] = useState<'view' | 'edit'>('view');
   const [sharedUsers, setSharedUsers] = useState<Array<{ email: string; permission: string }>>([]);
-  const [activityHistory, setActivityHistory] = useState<Array<{ user: string; action: string; timestamp: Date }>>([]);
+  const [activityHistory] = useState<Array<{ user: string; action: string; timestamp: Date }>>([]);
 
   const handleShare = () => {
     if (!email) return;
-    
+
     setSharedUsers(prev => [...prev, { email, permission }]);
     setEmail('');
     // Here we would typically make an API call to share the note
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
           <Share2 className="w-5 h-5" />

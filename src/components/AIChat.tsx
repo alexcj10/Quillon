@@ -114,7 +114,7 @@ export default function AIChat({ onClose }: AIChatProps) {
         <>
             {/* Backdrop - click to close */}
             <div
-                className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300"
+                className="fixed inset-0 z-40 bg-black/40 transition-opacity duration-300"
                 onClick={onClose}
             />
 

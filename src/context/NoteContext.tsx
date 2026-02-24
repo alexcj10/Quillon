@@ -854,6 +854,14 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const validateNotePassword = (noteId: string, password: string): boolean => {
+    const note = notes.find(n => n.id === noteId);
+    if (note?.shareProtection?.password) {
+      return note.shareProtection.password === password;
+    }
+    return password === privateSpacePassword;
+  };
+
   const exitGroupView = () => {
     setOrangeMode({ isActive: false, groupName: null });
   };
@@ -925,6 +933,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
       orangeMode,
       activeFilterGroup,
       setActiveFilterGroup,
+      validateNotePassword,
     }}>
       {children}
     </NoteContext.Provider>

@@ -1,24 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FileUploader } from './FileUploader';
-import { Attachment } from '../types';
+import { useDocuments } from '../context/DocumentContext';
 import { Download, X } from 'lucide-react';
 import { getAttachmentIcon, handleAttachmentDownload } from '../utils/attachmentUtils';
 
 export function AttachmentManager() {
   const [isOpen, setIsOpen] = useState(false);
-  const [attachments, setAttachments] = useState<Attachment[]>(() => {
-    const saved = localStorage.getItem('standalone-attachments');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  // Save attachments to localStorage whenever they change
-  React.useEffect(() => {
-    localStorage.setItem('standalone-attachments', JSON.stringify(attachments));
-  }, [attachments]);
-
-  const handleRemoveAttachment = (id: string) => {
-    setAttachments(prev => prev.filter(att => att.id !== id));
-  };
+  const { documents: attachments, deleteDocument: handleRemoveAttachment } = useDocuments();
 
   if (!isOpen) {
     return (
@@ -32,7 +20,7 @@ export function AttachmentManager() {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl shadow-xl">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
@@ -45,10 +33,7 @@ export function AttachmentManager() {
             </button>
           </div>
 
-          <FileUploader
-            attachments={attachments}
-            onAttachmentsChange={setAttachments}
-          />
+          <FileUploader />
 
           <div className="mt-6 space-y-2 max-h-96 overflow-y-auto">
             {attachments.map(attachment => {
@@ -88,7 +73,7 @@ export function AttachmentManager() {
                 </div>
               );
             })}
-            
+
             {attachments.length === 0 && (
               <p className="text-center text-gray-500 dark:text-gray-400 py-4">
                 No files uploaded yet

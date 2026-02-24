@@ -51,7 +51,7 @@ export function NodesWidget() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setIsOpen(false)}
-                        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300"
+                        className="fixed inset-0 z-40 bg-black/40 transition-opacity duration-300"
                     />
 
                     {/* Floating Widget */}

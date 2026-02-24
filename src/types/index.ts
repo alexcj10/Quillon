@@ -145,6 +145,16 @@ export interface NoteContextType {
   orangeMode: { isActive: boolean; groupName: string | null };
   activeFilterGroup: string | null;
   setActiveFilterGroup: (groupName: string | null) => void;
+  validateNotePassword: (noteId: string, password: string) => boolean;
+}
+
+export interface Attachment {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  url: string;
+  createdAt: string;
 }
 
 export interface Message {

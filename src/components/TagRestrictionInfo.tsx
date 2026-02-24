@@ -21,7 +21,7 @@ export function TagRestrictionInfo({ isOpen, onClose, conflictingTagName, reason
         : <span>The tag <span className="font-bold text-gray-900 dark:text-white inline-block max-w-[200px] truncate align-bottom" title={conflictingTagName}>"{conflictingTagName}"</span> is already used as a standard standalone tag.</span>;
 
     return (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 p-4 animate-in fade-in duration-200">
             <div
                 ref={modalRef}
                 className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-all animate-in zoom-in-95 duration-200"
