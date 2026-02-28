@@ -1,4 +1,4 @@
-import { X, Info, RotateCcw, Trash2, ArrowLeft } from 'lucide-react';
+import { X, Info, RotateCcw, Trash2 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 
@@ -19,23 +19,18 @@ export function TagSyncInfoModal({ isOpen, onClose }: TagSyncInfoModalProps) {
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 p-4 animate-in fade-in duration-200">
             <div
                 ref={modalRef}
+                onClick={e => e.stopPropagation()}
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full mx-4 md:mx-8 max-w-2xl h-[60vh] sm:h-[450px] flex flex-col transform transition-all scale-100 animate-in zoom-in-95 duration-200 overflow-hidden"
             >
                 {/* Header - Matches TagModal style */}
-                <div className="flex items-center justify-between p-3 px-4 border-b border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between p-2.5 px-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-2.5">
                         <div className="bg-blue-50 dark:bg-blue-900/30 p-1.5 rounded-lg border border-blue-100 dark:border-blue-800/50">
                             <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <div>
-                            <h2 className="text-base font-bold text-gray-900 dark:text-white leading-tight">
-                                Tag Synchronization Rules
-                            </h2>
-                            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium tracking-wide flex items-center gap-1.5 uppercase">
-                                <span className="inline-block w-1 h-1 bg-blue-500 rounded-full animate-pulse"></span>
-                                Essential System Guidelines
-                            </p>
-                        </div>
+                        <h2 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">
+                            Tag Synchronization Rules
+                        </h2>
                     </div>
                     <button
                         onClick={onClose}
@@ -61,7 +56,7 @@ export function TagSyncInfoModal({ isOpen, onClose }: TagSyncInfoModalProps) {
                     </section>
 
                     {/* Workflow Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-6">
                         {/* Rename Workflow */}
                         <div className="bg-gray-50/50 dark:bg-gray-900/20 border border-gray-100 dark:border-gray-700/50 rounded-2xl p-5 hover:border-blue-200 dark:hover:border-blue-800 transition-colors group">
                             <div className="flex items-center gap-3 mb-4">
@@ -106,17 +101,6 @@ export function TagSyncInfoModal({ isOpen, onClose }: TagSyncInfoModalProps) {
                                 ))}
                             </ol>
                         </div>
-                    </div>
-
-                    {/* Integrated Action Button */}
-                    <div className="pt-4 flex justify-center pb-10">
-                        <button
-                            onClick={onClose}
-                            className="group flex items-center gap-2 px-10 py-3 bg-gray-900 hover:bg-black dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-xl font-bold transition-all active:scale-95 text-sm shadow-lg shadow-gray-900/10 dark:shadow-blue-900/20"
-                        >
-                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            Got it, back to tags
-                        </button>
                     </div>
                 </div>
             </div>
