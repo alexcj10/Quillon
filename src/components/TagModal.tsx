@@ -989,7 +989,7 @@ export function TagModal({
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full mx-4 md:mx-8 max-w-2xl h-[60vh] sm:h-[450px] flex flex-col transform transition-all scale-100"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 min-h-[65px]">
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-2">
                         {orangeMode.isActive ? (
                             <div className="flex items-center gap-3 min-w-0">
@@ -1040,7 +1040,7 @@ export function TagModal({
                     </div>
                 </div>
 
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                         <input
@@ -1392,7 +1392,7 @@ export function TagModal({
 
                 </div>
 
-                <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl flex justify-between items-center">
+                <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl flex justify-between items-center">
                     <span className="text-sm text-gray-500 dark:text-gray-400">
                         {selectedTags.length} selected
                     </span>
