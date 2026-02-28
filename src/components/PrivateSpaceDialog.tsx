@@ -69,7 +69,7 @@ export function PrivateSpaceDialog({ onClose }: PrivateSpaceDialogProps) {
           className="bg-white dark:bg-gray-800 rounded-lg w-full mx-4 md:mx-8 max-w-md shadow-xl"
           onClick={e => e.stopPropagation()}
         >
-          <div className="p-6">
+          <div className="p-4">
             <div className="flex items-center gap-2 mb-4 text-red-500">
               <AlertTriangle className="h-6 w-6" />
               <h2 className="text-xl font-bold">Delete Private Space</h2>
@@ -104,12 +104,18 @@ export function PrivateSpaceDialog({ onClose }: PrivateSpaceDialogProps) {
       className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
       onClick={onClose}
     >
-      <div
-        className="bg-white dark:bg-gray-800 rounded-lg w-full mx-4 md:mx-8 max-w-md shadow-xl"
+      <div className="bg-white dark:bg-gray-800 rounded-lg w-full mx-4 md:mx-8 max-w-md shadow-xl relative"
         onClick={e => e.stopPropagation()}
       >
         <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-full transition-all"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
+          <div className="flex justify-between items-center mb-4 pr-6">
             <div className="flex items-center gap-2">
               <div className={`p-2 rounded-lg ${showPrivateNotes ? 'bg-purple-500 text-white fill-current' : 'text-purple-500'}`}>
                 <Lock className={`h-5 w-5 ${showPrivateNotes ? 'fill-current' : ''}`} />
@@ -118,12 +124,6 @@ export function PrivateSpaceDialog({ onClose }: PrivateSpaceDialogProps) {
                 {privateSpaceExists ? 'Unlock Private Space' : 'Create Private Space'}
               </h2>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              <X className="h-5 w-5" />
-            </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
