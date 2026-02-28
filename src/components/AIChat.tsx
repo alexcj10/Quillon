@@ -139,7 +139,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                 animate-slide-up"
             >
                 {/* HEADER */}
-                <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-900">
+                <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-900 shrink-0">
                     <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-semibold">
                         <img src={powninLogo} alt="Pownin" className="w-8 h-8 rounded-full object-cover" />
                         <div>
@@ -362,14 +362,14 @@ export default function AIChat({ onClose }: AIChatProps) {
                                 </div>
 
                                 {/* INPUT */}
-                                <div className="p-3 md:p-4 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
-                                    <div className="flex items-end gap-2 bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-500 transition-all">
+                                <div className="px-4 py-2 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+                                    <div className="flex items-end gap-2 bg-gray-50 dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-500 transition-all">
                                         <textarea
                                             value={q}
                                             onChange={e => setQ(e.target.value)}
                                             onKeyDown={handleKeyDown}
                                             placeholder="Ask about your notes..."
-                                            className="ai-chat-textarea flex-1 bg-transparent border-none focus:ring-0 resize-none max-h-24 md:max-h-32 text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 p-2"
+                                            className="ai-chat-textarea flex-1 bg-transparent border-none focus:ring-0 resize-none max-h-24 md:max-h-32 text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 p-1.5"
                                             rows={1}
                                         />
                                         <button
@@ -384,7 +384,7 @@ export default function AIChat({ onClose }: AIChatProps) {
                                             <Send className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                         </button>
                                     </div>
-                                    <div className="text-center mt-2">
+                                    <div className="text-center mt-0.5">
                                         <p className="text-[9px] md:text-[10px] text-gray-400 dark:text-gray-600">
                                             Pownin AI can make mistakes. Check important info.
                                         </p>
