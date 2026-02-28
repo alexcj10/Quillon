@@ -14,6 +14,7 @@ import { GroupCommandPopup } from './GroupCommandPopup';
 import { GroupTagButton } from './GroupTagButton';
 import { GroupOverviewPopup } from './GroupOverviewPopup';
 import { TagRestrictionInfo } from './TagRestrictionInfo';
+import { TagSyncInfoModal } from './TagSyncInfoModal';
 
 interface TagModalProps {
     isOpen: boolean;
@@ -968,6 +969,10 @@ export function TagModal({
                 conflictingTagName={conflictingTagName}
                 reason={restrictionReason}
             />
+            <TagSyncInfoModal
+                isOpen={showSyncInfo}
+                onClose={() => setShowSyncInfo(false)}
+            />
             <div
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full mx-4 md:mx-8 max-w-2xl h-[60vh] sm:h-[450px] flex flex-col transform transition-all scale-100"
                 onClick={e => e.stopPropagation()}
@@ -1022,55 +1027,6 @@ export function TagModal({
                         </button>
                     </div>
                 </div>
-
-                {/* Sync Info Popup */}
-                {showSyncInfo && (
-                    <div className="mx-4 mt-2 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200/50 dark:border-blue-800/50 rounded-xl shadow-inner animate-in fade-in slide-in-from-top-2 duration-300 relative overflow-hidden group/info">
-                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover/info:opacity-10 transition-opacity">
-                            <Info className="h-24 w-24 -mr-8 -mt-8 rotate-12" />
-                        </div>
-                        <h3 className="text-sm font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
-                            <span className="flex items-center justify-center h-5 w-5 bg-blue-500 text-white rounded-full text-[10px] shadow-sm">!</span>
-                            Tag Synchronization Rules
-                        </h3>
-                        <div className="space-y-4 text-[12px] leading-relaxed text-blue-700 dark:text-blue-200/80 h-[230px] overflow-y-auto scrollbar-hide pr-1 px-1">
-                            <p className="bg-blue-100/40 dark:bg-blue-900/40 p-3 rounded-xl border border-blue-200/30 dark:border-blue-800/20 shadow-sm leading-snug">
-                                <span className="font-bold text-blue-900 dark:text-blue-100 underline decoration-blue-400/30 text-[13px]">Crucial Rule:</span> <span className="font-bold">Removing</span>, <span className="font-bold">Deleting</span>, or <span className="font-bold">Renaming</span> a tag should <span className="italic">always</span> be done using <b>commands</b> from this modal. If done manually by editing a note, associated <b>Orange Tag Groups</b> will not be updated and may become stale.
-                            </p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-10">
-                                <div className="p-3.5 bg-white/60 dark:bg-black/30 rounded-xl border border-blue-100 dark:border-blue-800/40 shadow-sm flex flex-col min-h-[150px]">
-                                    <p className="font-bold text-blue-900 dark:text-blue-100 mb-2.5 flex items-center gap-2 text-[13px]">
-                                        <span className="flex items-center justify-center p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-lg shadow-sm">🔄</span>
-                                        Rename Workflow
-                                    </p>
-                                    <ol className="list-decimal ml-5 space-y-1.5 opacity-90 font-medium text-blue-800 dark:text-blue-200">
-                                        <li>Remove from <b>Group</b></li>
-                                        <li>Go to <b>Grey Tags</b></li>
-                                        <li>Edit via <b>Command</b></li>
-                                        <li>Add back to <b>Group</b></li>
-                                    </ol>
-                                </div>
-                                <div className="p-3.5 bg-white/60 dark:bg-black/30 rounded-xl border border-blue-100 dark:border-blue-800/40 shadow-sm flex flex-col min-h-[150px]">
-                                    <p className="font-bold text-blue-900 dark:text-blue-100 mb-2.5 flex items-center gap-2 text-[13px]">
-                                        <span className="flex items-center justify-center p-1.5 bg-red-100 dark:bg-red-900/40 rounded-lg shadow-sm">🗑️</span>
-                                        Delete Workflow
-                                    </p>
-                                    <ol className="list-decimal ml-5 space-y-1.5 opacity-90 font-medium text-blue-800 dark:text-blue-200">
-                                        <li>Remove from <b>Group</b></li>
-                                        <li>Go to <b>Grey Tags</b></li>
-                                        <li>Delete via <b>Command</b></li>
-                                    </ol>
-                                </div>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => setShowSyncInfo(false)}
-                            className="absolute top-2 right-2 p-1 text-blue-400 hover:text-blue-600 dark:text-blue-700 dark:hover:text-blue-500 transition-colors"
-                        >
-                            <X className="h-3 w-3" />
-                        </button>
-                    </div>
-                )}
 
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                     <div className="relative">
