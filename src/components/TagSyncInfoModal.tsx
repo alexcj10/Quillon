@@ -58,9 +58,9 @@ export function TagSyncInfoModal({ isOpen, onClose }: TagSyncInfoModalProps) {
                     {/* Workflow Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-6">
                         {/* Rename Workflow */}
-                        <div className="bg-gray-50/50 dark:bg-gray-900/20 border border-gray-100 dark:border-gray-700/50 rounded-2xl p-5 hover:border-blue-200 dark:hover:border-blue-800 transition-colors group">
+                        <div className="bg-blue-50/50 dark:bg-blue-500/5 border border-blue-500/20 dark:border-blue-400/30 rounded-2xl p-5 transition-colors group">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/40 rounded-lg text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                                <div className="p-2 bg-blue-500/10 dark:bg-blue-400/20 rounded-lg text-blue-600 dark:text-blue-400">
                                     <RotateCcw className="w-4 h-4" />
                                 </div>
                                 <h4 className="font-bold text-sm text-gray-900 dark:text-white">Rename Workflow</h4>
@@ -73,7 +73,7 @@ export function TagSyncInfoModal({ isOpen, onClose }: TagSyncInfoModalProps) {
                                     'Add back to Group'
                                 ].map((step, i) => (
                                     <li key={i} className="flex items-center gap-3 text-[13px] text-gray-600 dark:text-gray-300 font-medium">
-                                        <span className="flex-shrink-0 w-6 h-6 bg-white dark:bg-gray-800 rounded-full border border-gray-100 dark:border-gray-700 flex items-center justify-center text-[10px] font-bold shadow-sm text-blue-600 dark:text-blue-400">{i + 1}</span>
+                                        <span className="flex-shrink-0 w-6 h-6 bg-white dark:bg-gray-800 rounded-full border border-blue-500/10 dark:border-blue-400/20 flex items-center justify-center text-[10px] font-bold shadow-sm text-blue-600 dark:text-blue-400">{i + 1}</span>
                                         {step}
                                     </li>
                                 ))}
@@ -81,9 +81,9 @@ export function TagSyncInfoModal({ isOpen, onClose }: TagSyncInfoModalProps) {
                         </div>
 
                         {/* Delete Workflow */}
-                        <div className="bg-gray-50/50 dark:bg-gray-900/20 border border-gray-100 dark:border-gray-700/50 rounded-2xl p-5 hover:border-red-200 dark:hover:border-red-800 transition-colors group">
+                        <div className="bg-red-50/50 dark:bg-red-500/5 border border-red-500/20 dark:border-red-400/30 rounded-2xl p-5 transition-colors group">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2 bg-red-50 dark:bg-red-900/40 rounded-lg text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
+                                <div className="p-2 bg-red-500/10 dark:bg-red-400/20 rounded-lg text-red-600 dark:text-red-400">
                                     <Trash2 className="w-4 h-4" />
                                 </div>
                                 <h4 className="font-bold text-sm text-gray-900 dark:text-white">Delete Workflow</h4>
@@ -95,7 +95,7 @@ export function TagSyncInfoModal({ isOpen, onClose }: TagSyncInfoModalProps) {
                                     'Delete via Command'
                                 ].map((step, i) => (
                                     <li key={i} className="flex items-center gap-3 text-[13px] text-gray-600 dark:text-gray-300 font-medium">
-                                        <span className="flex-shrink-0 w-6 h-6 bg-white dark:bg-gray-800 rounded-full border border-gray-100 dark:border-gray-700 flex items-center justify-center text-[10px] font-bold shadow-sm text-red-600 dark:text-red-400">{i + 1}</span>
+                                        <span className="flex-shrink-0 w-6 h-6 bg-white dark:bg-gray-800 rounded-full border border-red-500/10 dark:border-red-400/20 flex items-center justify-center text-[10px] font-bold shadow-sm text-red-600 dark:text-red-400">{i + 1}</span>
                                         {step}
                                     </li>
                                 ))}
