@@ -20,19 +20,13 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
   // Get font for viewing
   const noteFont = note.fontFamily ? (getFontByName(note.fontFamily) || DEFAULT_FONT) : DEFAULT_FONT;
 
-  // Lock body scroll when maximized
+  // Lock body scroll when open
   useEffect(() => {
-    if (isMaximized) {
-      document.body.classList.add('no-scroll');
-    } else {
-      document.body.classList.remove('no-scroll');
-    }
-
-    // Cleanup on unmount
+    document.body.classList.add('no-scroll');
     return () => {
       document.body.classList.remove('no-scroll');
     };
-  }, [isMaximized]);
+  }, []);
 
   const handleCloseFormatOptions = useCallback(() => {
     setShowFormatOptions(false);

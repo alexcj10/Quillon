@@ -154,6 +154,18 @@ export function TagModal({
         setShowGroupPopup(false);
     }, [orangeMode.isActive, orangeMode.groupName]);
 
+    // Lock body scroll when open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.classList.add('no-scroll');
+        } else {
+            document.body.classList.remove('no-scroll');
+        }
+        return () => {
+            document.body.classList.remove('no-scroll');
+        };
+    }, [isOpen]);
+
     // Reset state when modal is closed
     useEffect(() => {
         if (!isOpen) {

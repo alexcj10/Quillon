@@ -49,6 +49,14 @@ export default function AIChat({ onClose }: AIChatProps) {
         }
     }, [messages, showHistory]);
 
+    // Lock body scroll when open
+    useEffect(() => {
+        document.body.classList.add('no-scroll');
+        return () => {
+            document.body.classList.remove('no-scroll');
+        };
+    }, []);
+
     async function send() {
         if (!q.trim() || isLoading) return;
         const text = q;

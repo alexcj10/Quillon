@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { X, Info, RotateCcw, Trash2 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../hooks/useOutsideClick';
@@ -12,6 +13,14 @@ export function TagSyncInfoModal({ isOpen, onClose }: TagSyncInfoModalProps) {
         onOutsideClick: onClose,
         isOpen
     });
+
+    // Lock body scroll when open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.classList.add('no-scroll');
+        }
+        // No removal cleanup here as it's handled by the parent TagModal or global lock
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
