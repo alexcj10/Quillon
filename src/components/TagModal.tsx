@@ -1506,7 +1506,6 @@ export function TagModal({
 
             {tagNoteCount && (
                 <TagNoteCountPopup
-                    tagName={tagNoteCount.tagName}
                     displayName={tagNoteCount.displayName}
                     count={tagNoteCount.count}
                     x={tagNoteCount.x}
