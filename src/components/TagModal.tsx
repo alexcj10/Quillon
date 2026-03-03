@@ -124,10 +124,12 @@ export function TagModal({
 
     const handleGroupContextMenu = (e: React.MouseEvent, name: string) => {
         e.preventDefault();
+        setTagNoteCount(null);
         setOverviewGroup({ name, x: e.clientX, y: e.clientY });
     };
 
     const handleGroupLongPress = (name: string, x: number, y: number) => {
+        setTagNoteCount(null);
         setOverviewGroup({ name, x, y });
     };
 
@@ -1459,6 +1461,7 @@ export function TagModal({
                                                 onContextMenu={(e) => {
                                                     if (isFileTag(tag)) {
                                                         e.preventDefault();
+                                                        setOverviewGroup(null);
                                                         const count = allNotes.filter(n => n.tags.includes(tag)).length;
                                                         setTagNoteCount({
                                                             tagName: tag,
@@ -1471,6 +1474,7 @@ export function TagModal({
                                                 }}
                                                 onLongPress={(x, y) => {
                                                     if (isFileTag(tag)) {
+                                                        setOverviewGroup(null);
                                                         const count = allNotes.filter(n => n.tags.includes(tag)).length;
                                                         setTagNoteCount({
                                                             tagName: tag,

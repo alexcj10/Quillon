@@ -87,16 +87,19 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
 
   const handleGroupContextMenu = (e: React.MouseEvent, name: string) => {
     e.preventDefault();
+    setTagNoteCount(null);
     setOverviewGroup({ name, x: e.clientX, y: e.clientY });
   };
 
   const handleGroupLongPress = (name: string, x: number, y: number) => {
+    setTagNoteCount(null);
     setOverviewGroup({ name, x, y });
   };
 
   const handleTagContextMenu = (e: React.MouseEvent, tag: string) => {
     if (isFileTag(tag)) {
       e.preventDefault();
+      setOverviewGroup(null);
       const count = visibleNotes.filter(n => n.tags.includes(tag)).length;
       setTagNoteCount({
         tagName: tag,
@@ -110,6 +113,7 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
 
   const handleTagLongPress = (tag: string, x: number, y: number) => {
     if (isFileTag(tag)) {
+      setOverviewGroup(null);
       const count = visibleNotes.filter(n => n.tags.includes(tag)).length;
       setTagNoteCount({
         tagName: tag,
