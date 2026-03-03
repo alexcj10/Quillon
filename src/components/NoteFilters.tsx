@@ -24,6 +24,8 @@ import { parseHyperCommand } from '../utils/hyperParser';
 import { fetchWikiSummary, fetchDefinition } from '../utils/insightService';
 import { translateText, extractLangCode } from '../utils/translationService';
 import { fetchSummary, fetchElaboration } from '../utils/summaryService';
+import { TagNoteCountPopup } from './TagNoteCountPopup';
+
 
 export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: Note[]; onOpenDocs: () => void }) {
   const {
@@ -81,6 +83,7 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
   const [isAiPopupVisible, setIsAiPopupVisible] = useState(false);
   const [aiPopupType, setAiPopupType] = useState<'ai' | 'wiki' | 'def'>('ai');
   const [overviewGroup, setOverviewGroup] = useState<{ name: string; x: number; y: number } | null>(null);
+  const [tagNoteCount, setTagNoteCount] = useState<{ tagName: string; displayName: string; count: number; x: number; y: number } | null>(null);
 
   const handleGroupContextMenu = (e: React.MouseEvent, name: string) => {
     e.preventDefault();
@@ -89,6 +92,33 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
 
   const handleGroupLongPress = (name: string, x: number, y: number) => {
     setOverviewGroup({ name, x, y });
+  };
+
+  const handleTagContextMenu = (e: React.MouseEvent, tag: string) => {
+    if (isFileTag(tag)) {
+      e.preventDefault();
+      const count = visibleNotes.filter(n => n.tags.includes(tag)).length;
+      setTagNoteCount({
+        tagName: tag,
+        displayName: getFileTagDisplayName(tag),
+        count,
+        x: e.clientX,
+        y: e.clientY
+      });
+    }
+  };
+
+  const handleTagLongPress = (tag: string, x: number, y: number) => {
+    if (isFileTag(tag)) {
+      const count = visibleNotes.filter(n => n.tags.includes(tag)).length;
+      setTagNoteCount({
+        tagName: tag,
+        displayName: getFileTagDisplayName(tag),
+        count,
+        x,
+        y
+      });
+    }
   };
 
   const searchBarRef = useOutsideClick({
@@ -110,6 +140,7 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
     setSelectionMode(false);
     clearSelection();
     setOverviewGroup(null);
+    setTagNoteCount(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showTrash, isTagModalOpen]);
 
@@ -668,7 +699,29 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
           const isStarred = starredTags.includes(tag);
 
           return (
-            <button key={tag} onClick={() => toggleTag(tag)} className={classes}>
+            <button
+              key={tag}
+              onClick={() => toggleTag(tag)}
+              onContextMenu={(e) => handleTagContextMenu(e, tag)}
+              onTouchStart={(e) => {
+                if (isFile) {
+                  const touch = e.touches[0];
+                  const timer = setTimeout(() => {
+                    handleTagLongPress(tag, touch.clientX, touch.clientY);
+                  }, 500);
+                  (e.currentTarget as any)._longPressTimer = timer;
+                }
+              }}
+              onTouchEnd={(e) => {
+                const timer = (e.currentTarget as any)._longPressTimer;
+                if (timer) clearTimeout(timer);
+              }}
+              onTouchMove={(e) => {
+                const timer = (e.currentTarget as any)._longPressTimer;
+                if (timer) clearTimeout(timer);
+              }}
+              className={classes}
+            >
               {isFile && <Folder className="h-4 w-4 flex-shrink-0" />}
               <span className="truncate max-w-[80px] sm:max-w-[120px]" title={isFile ? getFileTagDisplayName(tag) : tag}>
                 {isFile ? getFileTagDisplayName(tag) : tag}
@@ -678,6 +731,17 @@ export function NoteFilters({ displayedNotes, onOpenDocs }: { displayedNotes?: N
             </button>
           );
         })}
+
+        {tagNoteCount && (
+          <TagNoteCountPopup
+            tagName={tagNoteCount.tagName}
+            displayName={tagNoteCount.displayName}
+            count={tagNoteCount.count}
+            x={tagNoteCount.x}
+            y={tagNoteCount.y}
+            onClose={() => setTagNoteCount(null)}
+          />
+        )}
 
         {/* + MORE TAGS */}
         {hasMoreTags && (

@@ -15,6 +15,7 @@ import { GroupTagButton } from './GroupTagButton';
 import { GroupOverviewPopup } from './GroupOverviewPopup';
 import { TagRestrictionInfo } from './TagRestrictionInfo';
 import { TagSyncInfoModal } from './TagSyncInfoModal';
+import { TagNoteCountPopup } from './TagNoteCountPopup';
 
 interface TagModalProps {
     isOpen: boolean;
@@ -39,9 +40,12 @@ interface TagButtonProps {
     displayName: string;
     isPinned: boolean;
     isStarred: boolean;
+    onContextMenu?: (e: React.MouseEvent) => void;
+    onLongPress?: (x: number, y: number) => void;
 }
 
-function TagButton({ tag, isFile, isSelected, isInsideFolderTag, onClick, displayName, isPinned, isStarred }: TagButtonProps) {
+function TagButton({ tag, isFile, isSelected, isInsideFolderTag, onClick, displayName, isPinned, isStarred, onContextMenu, onLongPress }: TagButtonProps) {
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
     const baseClasses = "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer select-none relative group";
     const selectedFileClasses = "bg-blue-500 text-white hover:bg-blue-600";
     const selectedFolderClasses = "bg-green-600 text-white hover:bg-green-700";
@@ -67,6 +71,27 @@ function TagButton({ tag, isFile, isSelected, isInsideFolderTag, onClick, displa
     return (
         <button
             onClick={onClick}
+            onContextMenu={onContextMenu}
+            onTouchStart={(e) => {
+                if (isFile && onLongPress) {
+                    const touch = e.touches[0];
+                    timerRef.current = setTimeout(() => {
+                        onLongPress(touch.clientX, touch.clientY);
+                    }, 500);
+                }
+            }}
+            onTouchEnd={() => {
+                if (timerRef.current) {
+                    clearTimeout(timerRef.current);
+                    timerRef.current = null;
+                }
+            }}
+            onTouchMove={() => {
+                if (timerRef.current) {
+                    clearTimeout(timerRef.current);
+                    timerRef.current = null;
+                }
+            }}
             className={`${classes} min-w-0`}
             title={tag}
         >
@@ -95,6 +120,7 @@ export function TagModal({
     const [showPopup, setShowPopup] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [overviewGroup, setOverviewGroup] = useState<{ name: string; x: number; y: number } | null>(null);
+    const [tagNoteCount, setTagNoteCount] = useState<{ tagName: string; displayName: string; count: number; x: number; y: number } | null>(null);
 
     const handleGroupContextMenu = (e: React.MouseEvent, name: string) => {
         e.preventDefault();
@@ -1163,12 +1189,35 @@ export function TagModal({
                                             isFile={isFileTag(tag)}
                                             isSelected={selectedTags.includes(tag)}
                                             isInsideFolderTag={!isFileTag(tag) && tagsInFileFolders.has(tag)}
-                                            onClick={() => {
-                                                onToggleTag(tag);
-                                            }}
+                                            onClick={() => onToggleTag(tag)}
                                             displayName={isFileTag(tag) ? getFileTagDisplayName(tag) : tag}
                                             isPinned={true}
                                             isStarred={starredTags.includes(tag)}
+                                            onContextMenu={(e) => {
+                                                if (isFileTag(tag)) {
+                                                    e.preventDefault();
+                                                    const count = allNotes.filter(n => n.tags.includes(tag)).length;
+                                                    setTagNoteCount({
+                                                        tagName: tag,
+                                                        displayName: getFileTagDisplayName(tag),
+                                                        count,
+                                                        x: e.clientX,
+                                                        y: e.clientY
+                                                    });
+                                                }
+                                            }}
+                                            onLongPress={(x, y) => {
+                                                if (isFileTag(tag)) {
+                                                    const count = allNotes.filter(n => n.tags.includes(tag)).length;
+                                                    setTagNoteCount({
+                                                        tagName: tag,
+                                                        displayName: getFileTagDisplayName(tag),
+                                                        count,
+                                                        x,
+                                                        y
+                                                    });
+                                                }
+                                            }}
                                         />
                                     ))}
                                     {tags.filter(tag => pinnedTags.includes(tag)).length === 0 && (
@@ -1194,6 +1243,31 @@ export function TagModal({
                                             displayName={isFileTag(tag) ? getFileTagDisplayName(tag) : tag}
                                             isPinned={false}
                                             isStarred={true}
+                                            onContextMenu={(e) => {
+                                                if (isFileTag(tag)) {
+                                                    e.preventDefault();
+                                                    const count = allNotes.filter(n => n.tags.includes(tag)).length;
+                                                    setTagNoteCount({
+                                                        tagName: tag,
+                                                        displayName: getFileTagDisplayName(tag),
+                                                        count,
+                                                        x: e.clientX,
+                                                        y: e.clientY
+                                                    });
+                                                }
+                                            }}
+                                            onLongPress={(x, y) => {
+                                                if (isFileTag(tag)) {
+                                                    const count = allNotes.filter(n => n.tags.includes(tag)).length;
+                                                    setTagNoteCount({
+                                                        tagName: tag,
+                                                        displayName: getFileTagDisplayName(tag),
+                                                        count,
+                                                        x,
+                                                        y
+                                                    });
+                                                }
+                                            }}
                                         />
                                     ))}
                                     {tags.filter(tag => starredTags.includes(tag) && !pinnedTags.includes(tag)).length === 0 && (
@@ -1382,6 +1456,31 @@ export function TagModal({
                                                 displayName={isFile ? getFileTagDisplayName(tag) : tag}
                                                 isPinned={pinnedTags.includes(tag)}
                                                 isStarred={starredTags.includes(tag)}
+                                                onContextMenu={(e) => {
+                                                    if (isFileTag(tag)) {
+                                                        e.preventDefault();
+                                                        const count = allNotes.filter(n => n.tags.includes(tag)).length;
+                                                        setTagNoteCount({
+                                                            tagName: tag,
+                                                            displayName: getFileTagDisplayName(tag),
+                                                            count,
+                                                            x: e.clientX,
+                                                            y: e.clientY
+                                                        });
+                                                    }
+                                                }}
+                                                onLongPress={(x, y) => {
+                                                    if (isFileTag(tag)) {
+                                                        const count = allNotes.filter(n => n.tags.includes(tag)).length;
+                                                        setTagNoteCount({
+                                                            tagName: tag,
+                                                            displayName: getFileTagDisplayName(tag),
+                                                            count,
+                                                            x,
+                                                            y
+                                                        });
+                                                    }
+                                                }}
                                             />
                                         );
                                     })}
@@ -1404,6 +1503,51 @@ export function TagModal({
                     </button>
                 </div>
             </div>
+
+            {tagNoteCount && (
+                <TagNoteCountPopup
+                    tagName={tagNoteCount.tagName}
+                    displayName={tagNoteCount.displayName}
+                    count={tagNoteCount.count}
+                    x={tagNoteCount.x}
+                    y={tagNoteCount.y}
+                    onClose={() => setTagNoteCount(null)}
+                />
+            )}
+
+            <style>{`
+                .no-scroll {
+                    overflow: hidden;
+                }
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background-color: rgba(156, 163, 175, 0.5);
+                    border-radius: 20px;
+                    border: 3px solid transparent;
+                    background-clip: content-box;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background-color: rgba(156, 163, 175, 0.8);
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background-color: rgba(156, 163, 175, 0.3);
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background-color: rgba(156, 163, 175, 0.5);
+                }
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
+                .scrollbar-hide {
+                    -ms-overflow-style: none; /* IE and Edge */
+                    scrollbar-width: none; /* Firefox */
+                }
+            `}</style>
         </div>,
         document.body
     );
