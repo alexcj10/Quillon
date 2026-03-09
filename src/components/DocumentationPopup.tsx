@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { X, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import bannerIcon from '../assets/QP1.png';
+
 
 interface DocumentationPopupProps {
     isOpen: boolean;
@@ -559,10 +559,7 @@ Quickly access this documentation popup directly from the search bar.
 
                         {/* Scrollable Content */}
                         <div className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-[#0B1120] rounded-t-[24px] sm:rounded-t-2xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                            {/* Banner Image - Edge to Edge */}
-                            <div className="w-full h-auto">
-                                <img src={bannerIcon} alt="Quillon" className="w-full object-cover" />
-                            </div>
+
 
                             {/* Search Bar - Sticky */}
                             <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 pr-12">
