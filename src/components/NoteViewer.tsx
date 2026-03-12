@@ -70,14 +70,14 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
           {/* Main Content */}
           <div className={`flex-1 flex flex-col overflow-hidden ${isMaximized ? 'h-full' : 'max-h-[70vh]'}`}>
             {/* Header */}
-            <div className={`px-4 py-3 sm:p-6 border-b ${note.color ? `border-note-${note.color}-dark/20 dark:border-note-${note.color}-light/20` : 'border-gray-200 dark:border-gray-700'
+            <div className={`px-4 py-2.5 sm:px-6 sm:py-3 border-b ${note.color ? `border-note-${note.color}-dark/20 dark:border-note-${note.color}-light/20` : 'border-gray-200 dark:border-gray-700'
               }`}>
               <div className="flex items-start justify-between gap-2 sm:gap-4">
                 <div className="flex-1 min-w-0">
                   <h2
                     onClick={toggleTitleExpansion}
                     style={{ fontFamily: noteFont.family }}
-                    className={`text-base sm:text-lg md:text-xl font-bold mb-2 break-words text-gray-900 dark:text-white cursor-pointer ${isTitleExpanded ? '' : 'line-clamp-2'
+                    className={`text-base sm:text-lg md:text-xl font-bold mb-1 break-words text-gray-900 dark:text-white cursor-pointer ${isTitleExpanded ? '' : 'line-clamp-1'
                       } transition-all duration-200`}
                   >
                     {note.title || 'Untitled Note'}
@@ -156,28 +156,6 @@ export function NoteViewer({ note, onClose }: NoteViewerProps) {
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-              <style>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                  width: 6px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                  background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                  background-color: rgba(0, 0, 0, 0.2);
-                  border-radius: 10px;
-                  transition: background-color 0.2s;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                  background-color: rgba(0, 0, 0, 0.4);
-                }
-                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-                  background-color: rgba(255, 255, 255, 0.2);
-                }
-                .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                  background-color: rgba(255, 255, 255, 0.4);
-                }
-              `}</style>
               <div className="px-4 py-3 sm:p-6">
                 <div
                   className={`whitespace-pre-wrap break-words text-base sm:text-lg leading-relaxed ${note.color ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'}`}
