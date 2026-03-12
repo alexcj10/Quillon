@@ -1144,36 +1144,7 @@ export function TagModal({
 
                 <div className="p-4 overflow-y-auto flex-1 custom-scrollbar">
                     {/* ... styles ... */}
-                    <style>{`
-                        .custom-scrollbar::-webkit-scrollbar {
-                            width: 8px;
-                        }
-                        .custom-scrollbar::-webkit-scrollbar-track {
-                            background: transparent;
-                        }
-                        .custom-scrollbar::-webkit-scrollbar-thumb {
-                            background-color: rgba(156, 163, 175, 0.5);
-                            border-radius: 20px;
-                            border: 3px solid transparent;
-                            background-clip: content-box;
-                        }
-                        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                            background-color: rgba(156, 163, 175, 0.8);
-                        }
-                        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-                            background-color: rgba(156, 163, 175, 0.3);
-                        }
-                        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                            background-color: rgba(156, 163, 175, 0.5);
-                        }
-                        .scrollbar-hide::-webkit-scrollbar {
-                            display: none;
-                        }
-                        .scrollbar-hide {
-                            -ms-overflow-style: none; /* IE and Edge */
-                            scrollbar-width: none; /* Firefox */
-                        }
-                    `}</style>
+
 
 
                     {isSpaceMode ? (
@@ -1518,39 +1489,7 @@ export function TagModal({
                 />
             )}
 
-            <style>{`
-                .no-scroll {
-                    overflow: hidden;
-                }
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 8px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background-color: rgba(156, 163, 175, 0.5);
-                    border-radius: 20px;
-                    border: 3px solid transparent;
-                    background-clip: content-box;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background-color: rgba(156, 163, 175, 0.8);
-                }
-                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background-color: rgba(156, 163, 175, 0.3);
-                }
-                .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background-color: rgba(156, 163, 175, 0.5);
-                }
-                .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
-                }
-                .scrollbar-hide {
-                    -ms-overflow-style: none; /* IE and Edge */
-                    scrollbar-width: none; /* Firefox */
-                }
-            `}</style>
+
         </div>,
         document.body
     );
