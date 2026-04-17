@@ -1,4 +1,4 @@
-<h1 align="center">Quillon – Tag it. Find it. Done.</h1>.
+<h1 align="center">Quillon – Tag it. Find it. Done.</h1>
 
 <p align="center">
 <img width="1920" height="1080" src="https://github.com/user-attachments/assets/3a5bf2dd-803b-4400-a0fa-936b6434021e"/>
