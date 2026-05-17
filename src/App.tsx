@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NoteProvider } from './context/NoteContext';
 import { useNotes } from './context/NoteContext';
 import { NoteCard } from './components/NoteCard';
@@ -40,6 +40,18 @@ function NoteList() {
     tagGroups,
     activeFilterGroup,
   } = useNotes();
+
+  useEffect(() => {
+    if (window.parent && window.parent !== window) {
+      setTimeout(() => {
+        const appDiv = document.querySelector('.min-h-screen');
+        if (appDiv) {
+          const bgColor = window.getComputedStyle(appDiv).backgroundColor;
+          window.parent.postMessage({ type: 'SYNC_BG_COLOR', color: bgColor }, '*');
+        }
+      }, 50);
+    }
+  }, [isDarkMode]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | undefined>(undefined);
