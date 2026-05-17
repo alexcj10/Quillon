@@ -41,15 +41,12 @@ function NoteList() {
     activeFilterGroup,
   } = useNotes();
 
-  useEffect(() => {
+    useEffect(() => {
     if (window.parent && window.parent !== window) {
-      setTimeout(() => {
-        const appDiv = document.querySelector('.min-h-screen');
-        if (appDiv) {
-          const bgColor = window.getComputedStyle(appDiv).backgroundColor;
-          window.parent.postMessage({ type: 'SYNC_BG_COLOR', color: bgColor }, '*');
-        }
-      }, 50);
+      // Quillon uses bg-gray-100 (#f3f4f6) for light and bg-gray-900 (#111827) for dark
+      // By sending the exact hex based on the state, we completely eliminate the race condition!
+      const bgColor = isDarkMode ? '#111827' : '#f3f4f6';
+      window.parent.postMessage({ type: 'SYNC_BG_COLOR', color: bgColor }, '*');
     }
   }, [isDarkMode]);
 
