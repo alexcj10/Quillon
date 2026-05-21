@@ -43,10 +43,11 @@ function NoteList() {
 
     useEffect(() => {
     if (window.parent && window.parent !== window) {
-      // Quillon uses bg-gray-100 (#f3f4f6) for light and bg-gray-900 (#111827) for dark
+      // Quillon uses bg-gray-100 (#f3f4f6) for light and bg-zinc-900 (#18181b) for dark
       // By sending the exact hex based on the state, we completely eliminate the race condition!
-      const bgColor = isDarkMode ? '#111827' : '#f3f4f6';
+      const bgColor = isDarkMode ? '#18181b' : '#f3f4f6';
       window.parent.postMessage({ type: 'SYNC_BG_COLOR', color: bgColor }, '*');
+      window.parent.postMessage({ type: 'THEME_CHANGE', theme: isDarkMode ? 'dark' : 'light' }, '*');
     }
   }, [isDarkMode]);
 
