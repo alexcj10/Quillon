@@ -548,17 +548,16 @@ Quickly access this documentation popup directly from the search bar.
               border-t border-b-0 border-gray-100 dark:border-gray-800
             `}
                     >
-                        {/* Close Button Overlay */}
                         <button
                             onClick={onClose}
-                            className="absolute top-3 right-3 p-1.5 rounded-full bg-white/50 dark:bg-black/50 hover:bg-white dark:hover:bg-black transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white z-20 backdrop-blur-sm"
+                            className="absolute top-[18px] right-4 p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white z-20"
                             aria-label="Close documentation"
                         >
                             <X className="w-4 h-4" />
                         </button>
 
                         {/* Search Bar - Fixed at top of popup */}
-                        <div className="z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 pr-12 shrink-0 rounded-t-[24px] sm:rounded-t-2xl">
+                        <div className="z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-5 sm:px-6 py-4 pr-14 sm:pr-16 shrink-0 rounded-t-[24px] sm:rounded-t-2xl">
                             <div className="max-w-2xl mx-auto relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                 <input
@@ -581,7 +580,7 @@ Quickly access this documentation popup directly from the search bar.
                         </div>
 
                         {/* Scrollable Content */}
-                        <div className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-[#0B1120] custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-gray-900 custom-scrollbar">
 
                             <div className="max-w-2xl mx-auto px-6 py-10">
                                 <article className="prose prose-slate dark:prose-invert max-w-none 
