@@ -1,3 +1,5 @@
+import colors from 'tailwindcss/colors';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -5,6 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        gray: colors.zinc,
         note: {
           pink: { light: '#ffd6e6', dark: '#4a1528' },
           purple: { light: '#e6d6ff', dark: '#2d1445' },

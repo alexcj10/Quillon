@@ -7,7 +7,7 @@
 
   /* ROOT FIX (VERY IMPORTANT) */
   html {
-    @apply bg-gray-100 dark:bg-gray-900;
+    @apply bg-gray-100 dark:bg-gray-950;
   }
 
   body {
@@ -18,7 +18,7 @@
 
     overflow-x: hidden;
 
-    @apply text-black dark:text-white bg-gray-100 dark:bg-gray-900;
+    @apply text-black dark:text-white bg-gray-100 dark:bg-gray-950;
   }
 
   /* Modern thin scrollbar for all screen sizes */
