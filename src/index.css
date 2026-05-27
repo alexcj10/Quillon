@@ -9,6 +9,12 @@
   html {
     @apply bg-gray-100 dark:bg-gray-950;
   }
+  
+  @media (max-width: 375px) {
+    html {
+      font-size: 13px !important;
+    }
+  }
 
   body {
     @apply antialiased;
