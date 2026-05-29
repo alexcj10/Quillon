@@ -108,7 +108,7 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
 
   return (
     <>
-      <div className={`relative p-5 rounded-xl shadow-md dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)] transition-all duration-200 hover:shadow-lg hover:dark:shadow-[0_10px_15px_-3px_rgba(255,255,255,0.1)] h-[200px] flex flex-col ${getNoteColorClass(note.color)} ${isSelected
+      <div className={`relative p-5 rounded-xl shadow-md dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)] transition-all duration-200 hover:shadow-lg hover:dark:shadow-[0_10px_15px_-3px_rgba(255,255,255,0.1)] h-[12.5rem] flex flex-col ${getNoteColorClass(note.color)} ${isSelected
         ? 'border-2 border-violet-500 dark:border-violet-400 animate-pulse'
         : 'border border-[rgba(0,0,0,0.50)] dark:border-[rgba(255,255,255,0.50)]'
         }`}>
